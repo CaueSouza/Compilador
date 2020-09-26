@@ -19,115 +19,108 @@ namespace Compilador
 
         private void executeLexico()
         {
-            try
+            //fullString = fileReader.readFile();
+
+            lineCount = 1;
+
+            readCaracter();
+
+            while (notEOF)
             {
-                //fullString = fileReader.readFile();
-
-                lineCount = 1;
-
-                readCaracter();
-
-                while (notEOF)
+                while ((actualChar == '{' || actualChar == ' ' || actualChar == '/') && notEOF)
                 {
-                    while ((actualChar == '{' || actualChar == ' ' || actualChar == '/') && notEOF)
+                    if (actualChar == '{')
                     {
-                        if (actualChar == '{')
+                        int lineCommentStarted = lineCount;
+
+                        while (actualChar != '}' && notEOF)
+                        {
+                            readCaracter();
+                        }
+
+                        if (!notEOF && actualChar != '}') createErrorToken(lineCommentStarted, 1);
+
+                        readCaracter();
+                    }
+
+
+                    if (actualChar == '/' && notEOF)
+                    {
+                        readCaracter();
+                        if (actualChar == '*' && notEOF)
                         {
                             int lineCommentStarted = lineCount;
 
-                            while (actualChar != '}' && notEOF)
-                            {
-                                readCaracter();
-                            }
-
-                            if (!notEOF && actualChar != '}') createErrorToken(lineCommentStarted, 1);
-
                             readCaracter();
-                        }
+                            bool endedComment = true;
 
-
-                        if (actualChar == '/' && notEOF)
-                        {
-                            readCaracter();
-                            if (actualChar == '*' && notEOF)
+                            while (endedComment && notEOF)
                             {
-                                int lineCommentStarted = lineCount;
-
-                                readCaracter();
-                                bool endedComment = true;
-
-                                while (endedComment && notEOF)
+                                while (actualChar != '*' && notEOF)
                                 {
-                                    while (actualChar != '*' && notEOF)
-                                    {
-                                        readCaracter();
-                                    }
+                                    readCaracter();
+                                }
+
+                                if (notEOF)
+                                {
+                                    readCaracter();
 
                                     if (notEOF)
                                     {
-                                        readCaracter();
-
-                                        if (notEOF)
+                                        if (actualChar == '/')
                                         {
-                                            if (actualChar == '/')
-                                            {
-                                                readCaracter();
-                                                endedComment = false;
-                                            }
-                                            else
-                                            {
-                                                readCaracter();
-                                            }
+                                            readCaracter();
+                                            endedComment = false;
                                         }
-                                        else createErrorToken(lineCommentStarted, 1);
+                                        else
+                                        {
+                                            readCaracter();
+                                        }
                                     }
                                     else createErrorToken(lineCommentStarted, 1);
                                 }
-                            }
-                            else
-                            {
-                                notEOF = false;
-                                createErrorToken(lineCount, 2);
+                                else createErrorToken(lineCommentStarted, 1);
                             }
                         }
-
-
-                        while (actualChar == ' ' && notEOF)
+                        else
                         {
-                            readCaracter();
+                            notEOF = false;
+                            createErrorToken(lineCount, 2);
                         }
                     }
 
-                    if (notEOF)
-                    {
-                        Token token = readToken();
-                        tokenList.Add(token);
 
-                        if (token.getIsError())
-                        {
-                            break;
-                        }
+                    while (actualChar == ' ' && notEOF)
+                    {
+                        readCaracter();
                     }
                 }
 
-
-                foreach (Token t in tokenList)
+                if (notEOF)
                 {
-                    if (t.getIsError())
+                    Token token = readToken();
+                    tokenList.Add(token);
+
+                    if (token.getIsError())
                     {
-                        Console.WriteLine("Erro na linha {0}", t.getLine());
-                        treatErrorType(t.getErrorType());
-                    }
-                    else
-                    {
-                        Console.WriteLine("Simbolo-> {0}\nLexema-> {1}\nLinha-> {2}\n", t.getSimbol(), t.getLexem(), t.getLine());
+                        break;
                     }
                 }
             }
-            catch (IOException)
-            {
-                Console.WriteLine("Impossivel ler o arquivo");
-            }
+
+
+            //foreach (Token t in tokenList)
+            //{
+            //    if (t.getIsError())
+            //    {
+            //        Console.WriteLine("Erro na linha {0}", t.getLine());
+            //        treatErrorType(t.getErrorType());
+            //    }
+            //    else
+            //    {
+            //        Console.WriteLine("Simbolo-> {0}\nLexema-> {1}\nLinha-> {2}\n", t.getSimbol(), t.getLexem(), t.getLine());
+            //    }
+            //}
         }
 
         private void readCaracter()
