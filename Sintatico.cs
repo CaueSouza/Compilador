@@ -223,6 +223,127 @@ namespace Compilador
             }
         }
 
+        private void analisaEscreva()
+        {
+            updateToken();
+
+            if (!actualToken.getIsError() && isSimbol(ABRE_PARENTESES))
+            {
+                updateToken();
+
+                if (!actualToken.getIsError() && isSimbol(IDENTIFICADOR))
+                {
+                    updateToken();
+
+                    if (!actualToken.getIsError() && isSimbol(FECHA_PARENTESES))
+                    {
+                        updateToken();
+                    }
+                    else
+                    {
+                        //erro
+                    }
+                }
+                else
+                {
+                    //erro
+                }
+            }
+            else
+            {
+                //erro
+            }
+        }
+
+        private void analisaLeia()
+        {
+            updateToken();
+
+            if (!actualToken.getIsError() && isSimbol(ABRE_PARENTESES))
+            {
+                updateToken();
+
+                if (!actualToken.getIsError() && isSimbol(IDENTIFICADOR))
+                {
+                    updateToken();
+
+                    if (!actualToken.getIsError() && isSimbol(FECHA_PARENTESES))
+                    {
+                        updateToken();
+                    }
+                    else
+                    {
+                        //erro
+                    }
+                }
+                else
+                {
+                    //erro
+                }
+            }
+            else
+            {
+                //erro
+            }
+        }
+
+        private void analisaEnquanto()
+        {
+            updateToken();
+
+            analisaExpressao();
+
+            if (!actualToken.getIsError() && isSimbol(FACA))
+            {
+                updateToken();
+
+                analisaComandoSimples();
+            }
+            else
+            {
+                //erro
+            }
+        }
+
+        private void analisaSe()
+        {
+            updateToken();
+
+            analisaExpressao();
+
+            if (!actualToken.getIsError() && isSimbol(ENTAO))
+            {
+                updateToken();
+
+                analisaComandoSimples();
+
+                if (!actualToken.getIsError() && isSimbol(SENAO))
+                {
+                    updateToken();
+
+                    analisaComandoSimples();
+                }
+            }
+            else
+            {
+                //erro
+            }
+        }
+
+        private void analisaAtribChamadaProc()
+        {
+            updateToken();
+
+            if (!actualToken.getIsError() && isSimbol(ATRIBUICAO))
+            {
+                analisaAtribuicao();
+            }
+            else
+            {
+                analisaChamadaProcedimento();
+            }
+        }
+
         private void analisaSubRotinas()
         {
             int flag = 0;
@@ -292,13 +413,132 @@ namespace Compilador
 
                 if (!actualToken.getIsError() && isSimbol(DOIS_PONTOS))
                 {
+                    updateToken();
 
+                    if (!actualToken.getIsError() && (isSimbol(INTEIRO) || isSimbol(BOOLEANO)))
+                    {
+                        updateToken();
+
+                        if (!actualToken.getIsError() && isSimbol(PONTO_VIRGULA))
+                        {
+                            analisaBloco();
+                        }
+                    }
+                    else
+                    {
+                        //erro
+                    }
+                }
+                else
+                {
+                    //erro
                 }
             } 
             else
             {
                 //erro
             }
+        }
+
+        private void analisaExpressao()
+        {
+            analisaExpressaoSimples();
+
+            if (!actualToken.getIsError() &&
+                (isSimbol(MAIOR) || isSimbol(MAIORIG) || isSimbol(IGUAL) || isSimbol(MENOR) || isSimbol(MENORIG) || isSimbol(DIF)))
+            {
+                updateToken();
+
+                analisaExpressaoSimples();
+            }
+        }
+
+        private void analisaExpressaoSimples()
+        {
+            if (!actualToken.getIsError() && (isSimbol(MAIS) || isSimbol(MENOS)))
+            {
+                updateToken();
+
+                analisaTermo();
+
+                while(!actualToken.getIsError() && (isSimbol(MAIS) || isSimbol(MENOS) || isSimbol(OU)))
+                {
+                    updateToken();
+
+                    analisaTermo();
+                }
+            }
+        }
+
+        private void analisaTermo()
+        {
+            analisaFator();
+
+            if (!actualToken.getIsError() && (isSimbol(MULT) || isSimbol(DIV) || isSimbol(E)))
+            {
+                updateToken();
+
+                analisaFator();
+            }
+        }
+
+        private void analisaFator()
+        {
+            if (!actualToken.getIsError() && isSimbol(IDENTIFICADOR))
+            {
+                analisaChamadaFuncao();
+            }
+            else if (!actualToken.getIsError() && isSimbol(NUMERO))
+            {
+                updateToken();
+
+                if (!actualToken.getIsError() && isSimbol(NAO))
+                {
+                    updateToken();
+
+                    analisaFator();
+                }
+                else if (!actualToken.getIsError() && isSimbol(ABRE_PARENTESES))
+                {
+                    updateToken();
+
+                    analisaExpressao();
+
+                    if (!actualToken.getIsError() && isSimbol(FECHA_PARENTESES))
+                    {
+                        updateToken();
+                    }
+                    else
+                    {
+                        //erro
+                    }
+                }
+                else if (!actualToken.getIsError() && (isSimbol(VERDADEIRO) || isSimbol(FALSO)))
+                {
+                    updateToken();
+                }
+                else
+                {
+                    //erro
+                }
+            }
+        }
+
+        private void analisaChamadaProcedimento()
+        {
+            //nao faz nada
+        }
+
+        private void analisaChamadaFuncao()
+        {
+            updateToken();
+        }
+
+        private void analisaAtribuicao()
+        {
+            updateToken();
+
+            analisaExpressao();
         }
     }
 }
