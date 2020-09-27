@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Compilador.Constantes;
 
 namespace Compilador
 {
@@ -15,9 +16,8 @@ namespace Compilador
         private string fullString = "";
         private List<Token> tokenList = new List<Token>();
         private bool notEOF = true;
-        //private  FileReader fileReader = new FileReader();
 
-        private void executeLexico()
+        public void executeLexico()
         {
             //fullString = fileReader.readFile();
 
@@ -38,7 +38,7 @@ namespace Compilador
                             readCaracter();
                         }
 
-                        if (!notEOF && actualChar != '}') createErrorToken(lineCommentStarted, 1);
+                        if (!notEOF && actualChar != '}') createErrorToken(lineCommentStarted, COMENTARIO_ERROR);
 
                         readCaracter();
                     }
@@ -77,15 +77,15 @@ namespace Compilador
                                             readCaracter();
                                         }
                                     }
-                                    else createErrorToken(lineCommentStarted, 1);
+                                    else createErrorToken(lineCommentStarted, COMENTARIO_ERROR);
                                 }
-                                else createErrorToken(lineCommentStarted, 1);
+                                else createErrorToken(lineCommentStarted, COMENTARIO_ERROR);
                             }
                         }
                         else
                         {
                             notEOF = false;
-                            createErrorToken(lineCount, 2);
+                            createErrorToken(lineCount, CARACTER_ERROR);
                         }
                     }
 
@@ -107,20 +107,6 @@ namespace Compilador
                     }
                 }
             }
-
-
-            //foreach (Token t in tokenList)
-            //{
-            //    if (t.getIsError())
-            //    {
-            //        Console.WriteLine("Erro na linha {0}", t.getLine());
-            //        treatErrorType(t.getErrorType());
-            //    }
-            //    else
-            //    {
-            //        Console.WriteLine("Simbolo-> {0}\nLexema-> {1}\nLinha-> {2}\n", t.getSimbol(), t.getLexem(), t.getLine());
-            //    }
-            //}
         }
 
         private void readCaracter()
@@ -153,22 +139,6 @@ namespace Compilador
         private void createErrorToken(int errorLine, int errorType)
         {
             tokenList.Add(new Token(errorLine, errorType));
-        }
-
-        private void treatErrorType(int errorType)
-        {
-            switch (errorType)
-            {
-                case 1:
-                    Console.WriteLine("Comentario aberto sem fechamento\n");
-                    break;
-                case 2:
-                    Console.WriteLine("Caracter Invalido\n");
-                    break;
-                default:
-                    Console.WriteLine("Erro nao identificado\n");
-                    break;
-            }
         }
 
         private bool isDigit()
@@ -244,7 +214,7 @@ namespace Compilador
                 readCaracter();
             }
 
-            return new Token("snumero", num, lineCount);
+            return new Token(Constantes.NUMERO, num, lineCount);
         }
 
         private Token treatIdentifierAndReservedWord()
@@ -259,34 +229,74 @@ namespace Compilador
             }
 
             string simbol;
-
+            
             switch (id)
             {
                 case "programa":
+                    simbol = PROGRAMA;
+                    break;
                 case "se":
+                    simbol = SE;
+                    break;
                 case "entao":
+                    simbol = ENTAO;
+                    break;
                 case "senao":
+                    simbol = SENAO;
+                    break;
                 case "enquanto":
+                    simbol = ENQUANTO;
+                    break;
                 case "faca":
+                    simbol = FACA;
+                    break;
                 case "inicio":
+                    simbol = INICIO;
+                    break;
                 case "fim":
+                    simbol = FIM;
+                    break;
                 case "escreva":
+                    simbol = ESCREVA;
+                    break;
                 case "leia":
+                    simbol = LEIA;
+                    break;
                 case "var":
+                    simbol = VAR;
+                    break;
                 case "inteiro":
+                    simbol = INTEIRO;
+                    break;
                 case "booleano":
+                    simbol = BOOLEANO;
+                    break;
                 case "verdadeiro":
+                    simbol = VERDADEIRO;
+                    break;
                 case "falso":
+                    simbol = FALSO;
+                    break;
                 case "procedimento":
+                    simbol = PROCEDIMENTO;
+                    break;
                 case "funcao":
+                    simbol = FUNCAO;
+                    break;
                 case "div":
+                    simbol = DIV;
+                    break;
                 case "e":
+                    simbol = E;
+                    break;
                 case "ou":
+                    simbol = OU;
+                    break;
                 case "nao":
-                    simbol = "s" + id;
+                    simbol = NAO;
                     break;
                 default:
-                    simbol = "sidentificador";
+                    simbol = IDENTIFICADOR;
                     break;
             }
 
@@ -302,11 +312,11 @@ namespace Compilador
             {
                 string caracter = actualChar.ToString();
                 readCaracter();
-                return new Token("satribuicao", assignment + caracter, lineCount);
+                return new Token(ATRIBUICAO, assignment + caracter, lineCount);
             }
             else
             {
-                return new Token("sdoispontos", assignment, lineCount);
+                return new Token(DOIS_PONTOS, assignment, lineCount);
             }
         }
 
@@ -318,11 +328,11 @@ namespace Compilador
             switch (aritmetico)
             {
                 case "+":
-                    return new Token("smais", aritmetico, lineCount);
+                    return new Token(MAIS, aritmetico, lineCount);
                 case "-":
-                    return new Token("smenos", aritmetico, lineCount);
+                    return new Token(MENOS, aritmetico, lineCount);
                 case "*":
-                    return new Token("smult", aritmetico, lineCount);
+                    return new Token(MULT, aritmetico, lineCount);
                 default:
                     return new Token(lineCount, 3);
             }
@@ -340,28 +350,29 @@ namespace Compilador
                     if (caracter.Equals("="))
                     {
                         readCaracter();
-                        return new Token("smenorig", relacional + caracter, lineCount);
+                        return new Token(MENORIG, relacional + caracter, lineCount);
                     }
-                    else return new Token("smenor", relacional, lineCount);
+                    else return new Token(MENOR, relacional, lineCount);
 
                 case ">":
                     if (caracter.Equals("="))
                     {
                         readCaracter();
-                        return new Token("smaiorig", relacional + caracter, lineCount);
+                        return new Token(MAIORIG, relacional + caracter, lineCount);
                     }
-                    else return new Token("smaior", relacional, lineCount);
+                    else return new Token(MAIOR, relacional, lineCount);
 
+                    
                 case "!":
                     if (caracter.Equals("="))
                     {
                         readCaracter();
-                        return new Token("sdif", relacional + caracter, lineCount);
+                        return new Token(DIF, relacional + caracter, lineCount);
                     }
                     else return new Token(lineCount, 2);
 
                 case "=":
-                    return new Token("sig", relacional, lineCount);
+                    return new Token(IGUAL, relacional, lineCount);
 
                 default:
                     return new Token(lineCount, 3);
@@ -376,24 +387,29 @@ namespace Compilador
             switch (punctuation)
             {
                 case ";":
-                    simbolo = "sponto_virgula";
+                    simbolo = PONTO_VIRGULA;
                     break;
                 case ",":
-                    simbolo = "svirgula";
+                    simbolo = VIRGULA;
                     break;
                 case ".":
-                    simbolo = "sponto";
+                    simbolo = PONTO;
                     break;
                 case "(":
-                    simbolo = "sabre_parenteses";
+                    simbolo = ABRE_PARENTESES;
                     break;
                 case ")":
-                    simbolo = "sfecha_parenteses";
+                    simbolo = FECHA_PARENTESES;
                     break;
             }
 
             readCaracter();
             return new Token(simbolo, punctuation, lineCount);
+        }
+
+        public List<Token> getTokens()
+        {
+            return tokenList;
         }
     }
 }
