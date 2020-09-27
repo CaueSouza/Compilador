@@ -47,5 +47,9 @@ namespace Compilador
         public const string DOIS_PONTOS = "sdoispontos";
         public const string VERDADEIRO = "sverdadeiro";
         public const string FALSO = "sfalso";
+
+        public const int COMENTARIO_ERROR = 1;
+        public const int CARACTER_ERROR = 2;
+        public const int ERROR_NOT_FOUND = 3;
     }
 }

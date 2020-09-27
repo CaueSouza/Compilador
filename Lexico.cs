@@ -16,9 +16,8 @@ namespace Compilador
         private string fullString = "";
         private List<Token> tokenList = new List<Token>();
         private bool notEOF = true;
-        //private  FileReader fileReader = new FileReader();
 
-        private void executeLexico()
+        public void executeLexico()
         {
             //fullString = fileReader.readFile();
 
@@ -39,7 +38,7 @@ namespace Compilador
                             readCaracter();
                         }
 
-                        if (!notEOF && actualChar != '}') createErrorToken(lineCommentStarted, 1);
+                        if (!notEOF && actualChar != '}') createErrorToken(lineCommentStarted, COMENTARIO_ERROR);
 
                         readCaracter();
                     }
@@ -78,15 +77,15 @@ namespace Compilador
                                             readCaracter();
                                         }
                                     }
-                                    else createErrorToken(lineCommentStarted, 1);
+                                    else createErrorToken(lineCommentStarted, COMENTARIO_ERROR);
                                 }
-                                else createErrorToken(lineCommentStarted, 1);
+                                else createErrorToken(lineCommentStarted, COMENTARIO_ERROR);
                             }
                         }
                         else
                         {
                             notEOF = false;
-                            createErrorToken(lineCount, 2);
+                            createErrorToken(lineCount, CARACTER_ERROR);
                         }
                     }
 
@@ -108,20 +107,6 @@ namespace Compilador
                     }
                 }
             }
-
-
-            //foreach (Token t in tokenList)
-            //{
-            //    if (t.getIsError())
-            //    {
-            //        Console.WriteLine("Erro na linha {0}", t.getLine());
-            //        treatErrorType(t.getErrorType());
-            //    }
-            //    else
-            //    {
-            //        Console.WriteLine("Simbolo-> {0}\nLexema-> {1}\nLinha-> {2}\n", t.getSimbol(), t.getLexem(), t.getLine());
-            //    }
-            //}
         }
 
         private void readCaracter()
@@ -154,22 +139,6 @@ namespace Compilador
         private void createErrorToken(int errorLine, int errorType)
         {
             tokenList.Add(new Token(errorLine, errorType));
-        }
-
-        private void treatErrorType(int errorType)
-        {
-            switch (errorType)
-            {
-                case 1:
-                    Console.WriteLine("Comentario aberto sem fechamento\n");
-                    break;
-                case 2:
-                    Console.WriteLine("Caracter Invalido\n");
-                    break;
-                default:
-                    Console.WriteLine("Erro nao identificado\n");
-                    break;
-            }
         }
 
         private bool isDigit()
