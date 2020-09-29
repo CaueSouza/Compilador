@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using static Compilador.Constantes;
 
 namespace Compilador
@@ -17,9 +18,9 @@ namespace Compilador
         private List<Token> tokenList = new List<Token>();
         private bool notEOF = true;
 
-        public void executeLexico()
+        public void executeLexico(String fullString)
         {
-            //fullString = fileReader.readFile();
+            this.fullString = fullString;
 
             lineCount = 1;
 
@@ -229,7 +230,7 @@ namespace Compilador
             }
 
             string simbol;
-            
+
             switch (id)
             {
                 case "programa":
@@ -362,7 +363,7 @@ namespace Compilador
                     }
                     else return new Token(MAIOR, relacional, lineCount);
 
-                    
+
                 case "!":
                     if (caracter.Equals("="))
                     {

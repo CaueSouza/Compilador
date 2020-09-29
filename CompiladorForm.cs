@@ -16,5 +16,17 @@ namespace Compilador
         {
             InitializeComponent();
         }
+
+        private void CompiladorForm_Load(object sender, EventArgs e)
+        {
+
+        }
+
+
+        private void compilarToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Lexico lexico = new Lexico();
+            lexico.executeLexico(richTextBox1.Text.Replace("\t", "").Replace("\n", " \n"));
+        }
     }
 }
