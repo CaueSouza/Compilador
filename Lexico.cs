@@ -146,7 +146,6 @@ namespace Compilador
         {
             return Char.IsDigit(actualChar);
         }
-
         private bool isLetter()
         {
             return Char.IsLetter(actualChar);
