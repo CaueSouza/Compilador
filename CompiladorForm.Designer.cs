@@ -62,19 +62,20 @@
             // abrirToolStripMenuItem
             // 
             this.abrirToolStripMenuItem.Name = "abrirToolStripMenuItem";
-            this.abrirToolStripMenuItem.Size = new System.Drawing.Size(153, 26);
+            this.abrirToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.abrirToolStripMenuItem.Text = "Abrir";
+            this.abrirToolStripMenuItem.Click += new System.EventHandler(this.abrirToolStripMenuItem_Click);
             // 
             // salvarToolStripMenuItem
             // 
             this.salvarToolStripMenuItem.Name = "salvarToolStripMenuItem";
-            this.salvarToolStripMenuItem.Size = new System.Drawing.Size(153, 26);
+            this.salvarToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.salvarToolStripMenuItem.Text = "Salvar";
             // 
             // compilarToolStripMenuItem
             // 
             this.compilarToolStripMenuItem.Name = "compilarToolStripMenuItem";
-            this.compilarToolStripMenuItem.Size = new System.Drawing.Size(153, 26);
+            this.compilarToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.compilarToolStripMenuItem.Text = "Compilar";
             // 
             // richTextBox1

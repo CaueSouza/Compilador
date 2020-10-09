@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -12,8 +14,19 @@ namespace Compilador
 {
     public partial class CompiladorForm : Form
     {
+        private OpenFileDialog openFileDialog;
+
+        private static FileReader fileReader = new FileReader();
+
         public CompiladorForm()
         {
+            openFileDialog = new OpenFileDialog()
+            {
+                FileName = "Select a text file",
+                Filter = "Text files (*.txt)|*.txt",
+                Title = "Open text file"
+            };
+
             InitializeComponent();
             AddLineNumbers();
         }
@@ -118,6 +131,28 @@ namespace Compilador
         {
             Lexico lexico = new Lexico();
             lexico.executeLexico(richTextBox1.Text.Replace("\t", "").Replace("\n", " \n"));
+        }
+
+        private void abrirToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    var filePath = openFileDialog.FileName;
+                    using (Stream str = openFileDialog.OpenFile())
+                    {
+                        richTextBox1.Text = fileReader.readFile(filePath);
+                    }
+
+                    //fileReader.readFile();
+                }
+                catch (SecurityException ex)
+                {
+                    MessageBox.Show($"Security error.\n\nError message: {ex.Message}\n\n" +
+                    $"Details:\n\n{ex.StackTrace}");
+                }
+            }
         }
 
     }
