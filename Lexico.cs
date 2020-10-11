@@ -1,10 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using static Compilador.Constantes;
 
 namespace Compilador
@@ -146,6 +141,7 @@ namespace Compilador
         {
             return Char.IsDigit(actualChar);
         }
+        
         private bool isLetter()
         {
             return Char.IsLetter(actualChar);

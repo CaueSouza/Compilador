@@ -46,7 +46,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FileReader.cs" />
     <Compile Include="CompiladorForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -54,6 +53,7 @@
       <DependentUpon>CompiladorForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Constantes.cs" />
+    <Compile Include="FileManager.cs" />
     <Compile Include="Lexico.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -57,6 +57,11 @@ namespace Compilador
             {
                 //erro
             }
+
+            if (actualToken.getIsError())
+            {
+
+            }
         }
 
         private bool hasEndedTokens()
