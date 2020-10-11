@@ -35,32 +35,27 @@ namespace Compilador
                         {
                             if (!hasEndedTokens())
                             {
-                                //erro
+                                throw new Exception(ERRO_SINTATICO);
                             }
                         }
                         else
                         {
-                            //erro
+                            throw new Exception(ERRO_SINTATICO);
                         }
                     }
                     else
                     {
-                        //erro
+                        throw new Exception(ERRO_SINTATICO);
                     }
                 }
                 else
                 {
-                    //erro
+                    throw new Exception(ERRO_SINTATICO);
                 }
             }
             else
             {
-                //erro
-            }
-
-            if (actualToken.getIsError())
-            {
-
+                throw new Exception(ERRO_SINTATICO);
             }
         }
 
@@ -83,6 +78,11 @@ namespace Compilador
         {
             Token token = tokenList[tokenCount];
             tokenCount++;
+
+            if (token.getIsError())
+            {
+                throw new Exception(ERRO_LEXICO);
+            }
 
             return token;
         }
@@ -114,13 +114,13 @@ namespace Compilador
                         }
                         else
                         {
-                            //erro
+                            throw new Exception(ERRO_SINTATICO);
                         }
                     }
                 }
                 else
                 {
-                    //erro
+                    throw new Exception(ERRO_SINTATICO);
                 }
             }
         }
@@ -141,18 +141,18 @@ namespace Compilador
 
                             if (!actualToken.getIsError() && isSimbol(DOIS_PONTOS))
                             {
-                                //erro
+                                throw new Exception(ERRO_SINTATICO);
                             }
                         }
                     }
                     else
                     {
-                        //erro
+                        throw new Exception(ERRO_SINTATICO);
                     }
                 }
                 else
                 {
-                    //erro
+                    throw new Exception(ERRO_SINTATICO);
                 }
             } while (!actualToken.getIsError() && !isSimbol(DOIS_PONTOS));
 
@@ -165,7 +165,7 @@ namespace Compilador
         {
             if (!actualToken.getIsError() && !isSimbol(INTEIRO) && !isSimbol(BOOLEANO))
             {
-                //erro
+                throw new Exception(ERRO_SINTATICO);
             }
             else
             {
@@ -194,7 +194,7 @@ namespace Compilador
                     }
                     else
                     {
-                        //erro
+                        throw new Exception(ERRO_SINTATICO);
                     }
                 }
 
@@ -202,7 +202,7 @@ namespace Compilador
             }
             else
             {
-                //erro
+                throw new Exception(ERRO_SINTATICO);
             }
         }
 
@@ -252,17 +252,17 @@ namespace Compilador
                     }
                     else
                     {
-                        //erro
+                        throw new Exception(ERRO_SINTATICO);
                     }
                 }
                 else
                 {
-                    //erro
+                    throw new Exception(ERRO_SINTATICO);
                 }
             }
             else
             {
-                //erro
+                throw new Exception(ERRO_SINTATICO);
             }
         }
 
@@ -284,17 +284,17 @@ namespace Compilador
                     }
                     else
                     {
-                        //erro
+                        throw new Exception(ERRO_SINTATICO);
                     }
                 }
                 else
                 {
-                    //erro
+                    throw new Exception(ERRO_SINTATICO);
                 }
             }
             else
             {
-                //erro
+                throw new Exception(ERRO_SINTATICO);
             }
         }
 
@@ -312,7 +312,7 @@ namespace Compilador
             }
             else
             {
-                //erro
+                throw new Exception(ERRO_SINTATICO);
             }
         }
 
@@ -337,7 +337,7 @@ namespace Compilador
             }
             else
             {
-                //erro
+                throw new Exception(ERRO_SINTATICO);
             }
         }
 
@@ -381,7 +381,7 @@ namespace Compilador
                 }
                 else
                 {
-                    //erro
+                    throw new Exception(ERRO_SINTATICO);
                 }
             }
 
@@ -405,12 +405,12 @@ namespace Compilador
                 }
                 else
                 {
-                    //erro
+                    throw new Exception(ERRO_SINTATICO);
                 }
             }
             else
             {
-                //erro
+                throw new Exception(ERRO_SINTATICO);
             }
         }
 
@@ -437,17 +437,17 @@ namespace Compilador
                     }
                     else
                     {
-                        //erro
+                        throw new Exception(ERRO_SINTATICO);
                     }
                 }
                 else
                 {
-                    //erro
+                    throw new Exception(ERRO_SINTATICO);
                 }
             }
             else
             {
-                //erro
+                throw new Exception(ERRO_SINTATICO);
             }
         }
 
@@ -521,7 +521,7 @@ namespace Compilador
                 }
                 else
                 {
-                    //erro
+                    throw new Exception(ERRO_SINTATICO);
                 }
             }
             else if (!actualToken.getIsError() && (isSimbol(VERDADEIRO) || isSimbol(FALSO)))
@@ -530,7 +530,7 @@ namespace Compilador
             }
             else
             {
-                //erro
+                throw new Exception(ERRO_SINTATICO);
             }
         }
 

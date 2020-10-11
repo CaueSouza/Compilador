@@ -22,8 +22,9 @@ namespace Compilador
             this.line = line;
         }
 
-        public Token(int errorLine, int errorType)
+        public Token(string lexem, int errorLine, int errorType)
         {
+            this.lexem = lexem;
             isError = true;
             line = errorLine;
             this.errorType = errorType;

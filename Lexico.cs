@@ -12,6 +12,7 @@ namespace Compilador
         private string fullString = "";
         private List<Token> tokenList = new List<Token>();
         private bool notEOF = true;
+        public Token errorToken = null;
 
         public void executeLexico(String fullString)
         {
@@ -134,7 +135,8 @@ namespace Compilador
 
         private void createErrorToken(int errorLine, int errorType)
         {
-            tokenList.Add(new Token(errorLine, errorType));
+            errorToken = new Token(actualChar.ToString(), errorLine, errorType);
+            tokenList.Add(errorToken);
         }
 
         private bool isDigit()
@@ -195,7 +197,7 @@ namespace Compilador
             }
             else
             {
-                return new Token(lineCount, 2);
+                return new Token(actualChar.ToString(), lineCount, 2);
             }
         }
 
@@ -330,7 +332,7 @@ namespace Compilador
                 case "*":
                     return new Token(MULT, aritmetico, lineCount);
                 default:
-                    return new Token(lineCount, 3);
+                    return new Token(actualChar.ToString(), lineCount, 3);
             }
         }
 
@@ -365,13 +367,13 @@ namespace Compilador
                         readCaracter();
                         return new Token(DIF, relacional + caracter, lineCount);
                     }
-                    else return new Token(lineCount, 2);
+                    else return new Token(actualChar.ToString(), lineCount, 2);
 
                 case "=":
                     return new Token(IGUAL, relacional, lineCount);
 
                 default:
-                    return new Token(lineCount, 3);
+                    return new Token(actualChar.ToString(), lineCount, 3);
             }
         }
 
