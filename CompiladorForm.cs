@@ -8,6 +8,7 @@ namespace Compilador
     public partial class CompiladorForm : Form
     {
         private static FileManager fileReader = new FileManager();
+        public bool pintado = false;
 
         public CompiladorForm()
         {
@@ -159,8 +160,19 @@ namespace Compilador
             richTextBox1.Select(index, length);
             richTextBox1.SelectionColor = Color.Red;
             richTextBox1.Select(0, 0);
+            pintado = true;
         }
 
+        private void richTextBox1_Click(object sender, EventArgs e)
+        {
+            if (pintado)
+            {
+                richTextBox1.SelectAll();
+                richTextBox1.SelectionColor = Color.Black;
+                richTextBox1.Select(0, 0);
+                pintado = false;
+            }
+        }
         private void cleanTextPaint()
         {
             
@@ -178,6 +190,11 @@ namespace Compilador
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void LineNumberTextBox_TextChanged(object sender, EventArgs e)
         {
 
         }
