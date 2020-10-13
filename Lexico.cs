@@ -81,7 +81,6 @@ namespace Compilador
                         }
                         else
                         {
-                            notEOF = false;
                             createErrorToken(lineCount, CARACTER_ERROR);
                         }
                     }
@@ -100,7 +99,8 @@ namespace Compilador
 
                     if (token.getIsError())
                     {
-                        break;
+                        errorToken = token;
+                        throw new Exception(ERRO_LEXICO);
                     }
                 }
             }
@@ -135,6 +135,7 @@ namespace Compilador
 
         private void createErrorToken(int errorLine, int errorType)
         {
+            notEOF = false;
             errorToken = new Token(actualChar.ToString(), errorLine, errorType);
             tokenList.Add(errorToken);
         }
@@ -367,13 +368,13 @@ namespace Compilador
                         readCaracter();
                         return new Token(DIF, relacional + caracter, lineCount);
                     }
-                    else return new Token(actualChar.ToString(), lineCount, 2);
+                    else return new Token(relacional.ToString(), lineCount, 2);
 
                 case "=":
                     return new Token(IGUAL, relacional, lineCount);
 
                 default:
-                    return new Token(actualChar.ToString(), lineCount, 3);
+                    return new Token(relacional.ToString(), lineCount, 3);
             }
         }
 

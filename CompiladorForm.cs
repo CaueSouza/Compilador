@@ -116,41 +116,63 @@ namespace Compilador
         {
             Lexico lexico = new Lexico();
             Sintatico sintatico = new Sintatico();
-            lexico.executeLexico(richTextBox1.Text.Replace("\t", "").Replace("\n", " \n"));
 
-            try
+            bool lexicoExecutado = executarLexico(lexico);
+
+            if (lexicoExecutado)
             {
-                sintatico.executeSintatico(lexico.getTokens());
-            } catch (Exception exception)
-            {
-                switch (exception.Message)
+                try
                 {
-                    case ERRO_LEXICO:
-                        int errorLine = lexico.errorToken.getLine();
-                        paintErrorLine(errorLine);
-
-                        switch (lexico.errorToken.getErrorType())
-                        {
-                            case COMENTARIO_ERROR:
-                                richTextBox2.Text = richTextBox2.Text + "Comentário aberto mas não fechado na linha " + errorLine.ToString() + "\n";
-                                break;
-                            case CARACTER_ERROR:
-                                richTextBox2.Text = richTextBox2.Text + "Caracter " + lexico.errorToken.getLexem() +" não reconhecido na linha " + errorLine.ToString() + "\n";
-                                break;
-                            case ERROR_NOT_FOUND:
-                                richTextBox2.Text = richTextBox2.Text + "Erro léxico na linha " + errorLine.ToString() + "\n";
-                                break;
-                        }
-
-                        break;
-                    case ERRO_SINTATICO:
-                        break;
-                    default:
-
-                        break;
+                    sintatico.executeSintatico(lexico.getTokens());
+                }
+                catch (Exception exception)
+                {
+                    if (exception.Message.Equals(ERRO_SINTATICO))
+                    {
+                        richTextBox2.Text = richTextBox2.Text + sintatico.errorMessage + " na linha " + sintatico.errorLine + "\n";
+                    }
                 }
             }
-            
+        }
+
+        private bool executarLexico(Lexico lexico)
+        {
+            try
+            {
+                lexico.executeLexico(richTextBox1.Text.Replace("\t", "").Replace("\n", " \n"));
+
+                if (lexico.errorToken != null)
+                {
+                    throw new Exception(ERRO_LEXICO);
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            catch (Exception exception)
+            {
+                if (exception.Message.Equals(ERRO_LEXICO))
+                {
+                    int errorLine = lexico.errorToken.getLine();
+                    paintErrorLine(errorLine);
+
+                    switch (lexico.errorToken.getErrorType())
+                    {
+                        case COMENTARIO_ERROR:
+                            richTextBox2.Text = richTextBox2.Text + "Comentário aberto mas não fechado na linha " + errorLine.ToString() + "\n";
+                            break;
+                        case CARACTER_ERROR:
+                            richTextBox2.Text = richTextBox2.Text + "Caracter " + lexico.errorToken.getLexem() + " não reconhecido na linha " + errorLine.ToString() + "\n";
+                            break;
+                        case ERROR_NOT_FOUND:
+                            richTextBox2.Text = richTextBox2.Text + "Erro na linha " + errorLine.ToString() + "\n";
+                            break;
+                    }
+                }
+
+                return false;
+            }
         }
 
         private void paintErrorLine(int errorLine)
@@ -197,6 +219,11 @@ namespace Compilador
         private void LineNumberTextBox_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            richTextBox2.Text = "";
         }
     }
 }
