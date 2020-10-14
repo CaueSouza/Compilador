@@ -9,6 +9,8 @@ namespace Compilador
     {
         private static FileManager fileReader = new FileManager();
         public bool pintado = false;
+        Lexico lexico = new Lexico();
+        Sintatico sintatico = new Sintatico();
 
         public CompiladorForm()
         {
@@ -61,6 +63,7 @@ namespace Compilador
             {
                 LineNumberTextBox.Text += i + 1 + "\n";
             }
+            LineNumberTextBox.Invalidate();
         }
 
         private void CompiladorForm_Load(object sender, EventArgs e)
@@ -83,7 +86,7 @@ namespace Compilador
         {
             LineNumberTextBox.Text = "";
             AddLineNumbers();
-            LineNumberTextBox.Invalidate();
+            //LineNumberTextBox.Invalidate();
         }
 
         private void richTextBox1_TextChanged(object sender, EventArgs e)
@@ -114,24 +117,35 @@ namespace Compilador
 
         private void compilarToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Lexico lexico = new Lexico();
-            Sintatico sintatico = new Sintatico();
-
             bool lexicoExecutado = executarLexico(lexico);
 
             if (lexicoExecutado)
             {
-                try
+                bool sintaticoExecutado = executarSintatico(sintatico);
+
+                if (sintaticoExecutado)
                 {
-                    sintatico.executeSintatico(lexico.getTokens());
+                    richTextBox2.Text += "Compilado com sucesso!\n";
                 }
-                catch (Exception exception)
+            }
+        }
+
+        private bool executarSintatico(Sintatico sintatico)
+        {
+            try
+            {
+                sintatico.executeSintatico(lexico.getTokens());
+                return true;
+            }
+            catch (Exception exception)
+            {
+                if (exception.Message.Equals(ERRO_SINTATICO))
                 {
-                    if (exception.Message.Equals(ERRO_SINTATICO))
-                    {
-                        richTextBox2.Text = richTextBox2.Text + sintatico.errorMessage + " na linha " + sintatico.errorLine + "\n";
-                    }
+                    paintErrorLine(sintatico.errorLine);
+                    richTextBox2.Text = richTextBox2.Text + sintatico.errorMessage + " na linha " + sintatico.errorLine + "\n";
                 }
+
+                return false;
             }
         }
 
@@ -183,6 +197,9 @@ namespace Compilador
             richTextBox1.SelectionColor = Color.Red;
             richTextBox1.Select(0, 0);
             pintado = true;
+
+            richTextBox1.SelectionStart = richTextBox1.Find(richTextBox1.Lines[errorLine-1]);
+            richTextBox1.ScrollToCaret();
         }
 
         private void richTextBox1_Click(object sender, EventArgs e)

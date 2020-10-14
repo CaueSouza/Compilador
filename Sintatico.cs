@@ -11,52 +11,70 @@ namespace Compilador
     {
         private Token actualToken;
         private List<Token> tokenList;
-        private int tokenCount = 0;
+        private int tokenCount;
         public int errorLine;
         public string errorMessage;
+        private bool hasEndedTokens = false;
+
+        private void resetValidators()
+        {
+            tokenCount = 0;
+            hasEndedTokens = false;
+            errorLine = 0;
+            errorMessage = "";
+            actualToken = null;
+            tokenList = null;
+        }
 
         public void executeSintatico(List<Token> tokens)
         {
+            resetValidators();
             tokenList = tokens;
-            updateToken();
 
-            if (!hasEndedTokens() && isSimbol(PROGRAMA))
+            if (tokenList.Count() > 0)
             {
                 updateToken();
 
-                if (!hasEndedTokens() && isSimbol(IDENTIFICADOR))
+                if (!hasEndedTokens && isSimbol(PROGRAMA))
                 {
                     updateToken();
 
-                    if (!hasEndedTokens() && isSimbol(PONTO_VIRGULA))
+                    if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                     {
-                        analisaBloco();
+                        updateToken();
 
-                        if (isSimbol(PONTO))
+                        if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
                         {
-                            if (!hasEndedTokens())
+                            analisaBloco();
+
+                            if (isSimbol(PONTO))
                             {
-                                throwError(ERROR_ENDED_TOKENS);
+                                updateToken();
+
+                                if (!hasEndedTokens)
+                                {
+                                    throwError(ERROR_ENDED_TOKENS);
+                                }
+                            }
+                            else
+                            {
+                                throwError(ERROR_MISSING_PONTO);
                             }
                         }
                         else
                         {
-                            throwError(ERROR_MISSING_PONTO);
+                            throwError(ERROR_MISSING_PONTO_VIRGULA);
                         }
                     }
                     else
                     {
-                        throwError(ERROR_MISSING_PONTO_VIRGULA);
+                        throwError(ERROR_MISSING_IDENTIFICADOR);
                     }
                 }
                 else
                 {
-                    throwError(ERROR_MISSING_IDENTIFICADOR);
+                    throwError(ERROR_MISSING_PROGRAMA);
                 }
-            }
-            else
-            {
-                throwError(ERROR_MISSING_PROGRAMA);
             }
         }
 
@@ -67,10 +85,6 @@ namespace Compilador
             throw new Exception(ERRO_SINTATICO);
         }
 
-        private bool hasEndedTokens()
-        {
-            return tokenCount == tokenList.Count();
-        }
 
         private bool isSimbol(string Simbol)
         {
@@ -84,8 +98,18 @@ namespace Compilador
 
         private Token getActualToken()
         {
-            Token token = tokenList[tokenCount];
-            tokenCount++;
+            Token token;
+
+            if (tokenCount == tokenList.Count())
+            {
+                hasEndedTokens = true;
+                token = actualToken;
+            } 
+            else
+            {
+                token = tokenList[tokenCount];
+                tokenCount++;
+            }
 
             return token;
         }
@@ -101,11 +125,11 @@ namespace Compilador
 
         private void analisaEtVariaveis()
         {
-            if (!hasEndedTokens() && isSimbol(VAR))
+            if (!hasEndedTokens && isSimbol(VAR))
             {
                 updateToken();
 
-                if (!hasEndedTokens() && isSimbol(IDENTIFICADOR))
+                if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                 {
                     while (isSimbol(IDENTIFICADOR))
                     {
@@ -132,17 +156,17 @@ namespace Compilador
         {
             do
             {
-                if (!hasEndedTokens() && isSimbol(IDENTIFICADOR))
+                if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                 {
                     updateToken();
 
-                    if (!hasEndedTokens() && (isSimbol(VIRGULA) || isSimbol(DOIS_PONTOS)))
+                    if (!hasEndedTokens && (isSimbol(VIRGULA) || isSimbol(DOIS_PONTOS)))
                     {
-                        if (!hasEndedTokens() && isSimbol(VIRGULA))
+                        if (!hasEndedTokens && isSimbol(VIRGULA))
                         {
                             updateToken();
 
-                            if (!hasEndedTokens() && isSimbol(DOIS_PONTOS))
+                            if (!hasEndedTokens && isSimbol(DOIS_PONTOS))
                             {
                                 throwError(ERROR_MISSING_DOIS_PONTOS);
                             }
@@ -157,7 +181,7 @@ namespace Compilador
                 {
                     throwError(ERROR_MISSING_IDENTIFICADOR);
                 }
-            } while (!hasEndedTokens() && !isSimbol(DOIS_PONTOS));
+            } while (!hasEndedTokens && !isSimbol(DOIS_PONTOS));
 
             updateToken();
 
@@ -166,7 +190,7 @@ namespace Compilador
 
         private void analisaTipo()
         {
-            if (!hasEndedTokens() && !isSimbol(INTEIRO) && !isSimbol(BOOLEANO))
+            if (!hasEndedTokens && !isSimbol(INTEIRO) && !isSimbol(BOOLEANO))
             {
                 throwError(ERROR_MISSING_TIPO);
             }
@@ -178,19 +202,19 @@ namespace Compilador
 
         private void analisaComandos()
         {
-            if (!hasEndedTokens() && isSimbol(INICIO))
+            if (!hasEndedTokens && isSimbol(INICIO))
             {
                 updateToken();
 
                 analisaComandoSimples();
 
-                while (!hasEndedTokens() && !isSimbol(FIM))
+                while (!hasEndedTokens && !isSimbol(FIM))
                 {
-                    if (!hasEndedTokens() && isSimbol(PONTO_VIRGULA))
+                    if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
                     {
                         updateToken();
 
-                        if (!hasEndedTokens() && !isSimbol(FIM))
+                        if (!hasEndedTokens && !isSimbol(FIM))
                         {
                             analisaComandoSimples();
                         }
@@ -211,7 +235,7 @@ namespace Compilador
 
         private void analisaComandoSimples()
         {
-            if (!hasEndedTokens())
+            if (!hasEndedTokens)
             {
                 switch (actualToken.getSimbol())
                 {
@@ -241,15 +265,15 @@ namespace Compilador
         {
             updateToken();
 
-            if (!hasEndedTokens() && isSimbol(ABRE_PARENTESES))
+            if (!hasEndedTokens && isSimbol(ABRE_PARENTESES))
             {
                 updateToken();
 
-                if (!hasEndedTokens() && isSimbol(IDENTIFICADOR))
+                if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                 {
                     updateToken();
 
-                    if (!hasEndedTokens() && isSimbol(FECHA_PARENTESES))
+                    if (!hasEndedTokens && isSimbol(FECHA_PARENTESES))
                     {
                         updateToken();
                     }
@@ -273,15 +297,15 @@ namespace Compilador
         {
             updateToken();
 
-            if (!hasEndedTokens() && isSimbol(ABRE_PARENTESES))
+            if (!hasEndedTokens && isSimbol(ABRE_PARENTESES))
             {
                 updateToken();
 
-                if (!hasEndedTokens() && isSimbol(IDENTIFICADOR))
+                if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                 {
                     updateToken();
 
-                    if (!hasEndedTokens() && isSimbol(FECHA_PARENTESES))
+                    if (!hasEndedTokens && isSimbol(FECHA_PARENTESES))
                     {
                         updateToken();
                     }
@@ -307,7 +331,7 @@ namespace Compilador
 
             analisaExpressao();
 
-            if (!hasEndedTokens() && isSimbol(FACA))
+            if (!hasEndedTokens && isSimbol(FACA))
             {
                 updateToken();
 
@@ -325,13 +349,13 @@ namespace Compilador
 
             analisaExpressao();
 
-            if (!hasEndedTokens() && isSimbol(ENTAO))
+            if (!hasEndedTokens && isSimbol(ENTAO))
             {
                 updateToken();
 
                 analisaComandoSimples();
 
-                if (!hasEndedTokens() && isSimbol(SENAO))
+                if (!hasEndedTokens && isSimbol(SENAO))
                 {
                     updateToken();
 
@@ -348,7 +372,7 @@ namespace Compilador
         {
             updateToken();
 
-            if (!hasEndedTokens() && isSimbol(ATRIBUICAO))
+            if (!hasEndedTokens && isSimbol(ATRIBUICAO))
             {
                 analisaAtribuicao();
             }
@@ -362,14 +386,14 @@ namespace Compilador
         {
             int flag = 0;
 
-            if (!hasEndedTokens() && (isSimbol(PROCEDIMENTO) || isSimbol(FUNCAO)))
+            if (!hasEndedTokens && (isSimbol(PROCEDIMENTO) || isSimbol(FUNCAO)))
             {
                 //cod semantico
             }
 
-            while (!hasEndedTokens() && (isSimbol(PROCEDIMENTO) || isSimbol(FUNCAO)))
+            while (!hasEndedTokens && (isSimbol(PROCEDIMENTO) || isSimbol(FUNCAO)))
             {
-                if (!hasEndedTokens() && isSimbol(PROCEDIMENTO))
+                if (!hasEndedTokens && isSimbol(PROCEDIMENTO))
                 {
                     analisaDeclaracaoProcedimento();
                 }
@@ -378,7 +402,7 @@ namespace Compilador
                     analisaDeclaracaoFuncao();
                 }
 
-                if (!hasEndedTokens() && isSimbol(PONTO_VIRGULA))
+                if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
                 {
                     updateToken();
                 }
@@ -398,11 +422,11 @@ namespace Compilador
         {
             updateToken();
 
-            if (!hasEndedTokens() && isSimbol(IDENTIFICADOR))
+            if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
             {
                 updateToken();
 
-                if (!hasEndedTokens() && isSimbol(PONTO_VIRGULA))
+                if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
                 {
                     analisaBloco();
                 }
@@ -421,19 +445,19 @@ namespace Compilador
         {
             updateToken();
 
-            if (!hasEndedTokens() && isSimbol(IDENTIFICADOR))
+            if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
             {
                 updateToken();
 
-                if (!hasEndedTokens() && isSimbol(DOIS_PONTOS))
+                if (!hasEndedTokens && isSimbol(DOIS_PONTOS))
                 {
                     updateToken();
 
-                    if (!hasEndedTokens() && (isSimbol(INTEIRO) || isSimbol(BOOLEANO)))
+                    if (!hasEndedTokens && (isSimbol(INTEIRO) || isSimbol(BOOLEANO)))
                     {
                         updateToken();
 
-                        if (!hasEndedTokens() && isSimbol(PONTO_VIRGULA))
+                        if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
                         {
                             analisaBloco();
                         }
@@ -458,7 +482,7 @@ namespace Compilador
         {
             analisaExpressaoSimples();
 
-            if (!hasEndedTokens() &&
+            if (!hasEndedTokens &&
                 (isSimbol(MAIOR) || isSimbol(MAIORIG) || isSimbol(IGUAL) || isSimbol(MENOR) || isSimbol(MENORIG) || isSimbol(DIF)))
             {
                 updateToken();
@@ -469,14 +493,14 @@ namespace Compilador
 
         private void analisaExpressaoSimples()
         {
-            if (!hasEndedTokens() && (isSimbol(MAIS) || isSimbol(MENOS)))
+            if (!hasEndedTokens && (isSimbol(MAIS) || isSimbol(MENOS)))
             {
                 updateToken();
             }
 
             analisaTermo();
 
-            while (!hasEndedTokens() && (isSimbol(MAIS) || isSimbol(MENOS) || isSimbol(OU)))
+            while (!hasEndedTokens && (isSimbol(MAIS) || isSimbol(MENOS) || isSimbol(OU)))
             {
                 updateToken();
 
@@ -488,7 +512,7 @@ namespace Compilador
         {
             analisaFator();
 
-            if (!hasEndedTokens() && (isSimbol(MULT) || isSimbol(DIV) || isSimbol(E)))
+            if (!hasEndedTokens && (isSimbol(MULT) || isSimbol(DIV) || isSimbol(E)))
             {
                 updateToken();
 
@@ -498,27 +522,27 @@ namespace Compilador
 
         private void analisaFator()
         {
-            if (!hasEndedTokens() && isSimbol(IDENTIFICADOR))
+            if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
             {
                 analisaChamadaFuncao();
             }
-            else if (!hasEndedTokens() && isSimbol(NUMERO))
+            else if (!hasEndedTokens && isSimbol(NUMERO))
             {
                 updateToken();
             }
-            else if (!hasEndedTokens() && isSimbol(NAO))
+            else if (!hasEndedTokens && isSimbol(NAO))
             {
                 updateToken();
 
                 analisaFator();
             }
-            else if (!hasEndedTokens() && isSimbol(ABRE_PARENTESES))
+            else if (!hasEndedTokens && isSimbol(ABRE_PARENTESES))
             {
                 updateToken();
 
                 analisaExpressao();
 
-                if (!hasEndedTokens() && isSimbol(FECHA_PARENTESES))
+                if (!hasEndedTokens && isSimbol(FECHA_PARENTESES))
                 {
                     updateToken();
                 }
@@ -527,7 +551,7 @@ namespace Compilador
                     throwError(ERROR_MISSING_FECHA_PARENTESES);
                 }
             }
-            else if (!hasEndedTokens() && (isSimbol(VERDADEIRO) || isSimbol(FALSO)))
+            else if (!hasEndedTokens && (isSimbol(VERDADEIRO) || isSimbol(FALSO)))
             {
                 updateToken();
             }

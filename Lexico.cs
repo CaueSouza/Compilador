@@ -14,11 +14,21 @@ namespace Compilador
         private bool notEOF = true;
         public Token errorToken = null;
 
+        private void resetValidators()
+        {
+            actualChar = ' ';
+            count = -1;
+            lineCount = 1;
+            fullString = "";
+            notEOF = true;
+            errorToken = null;
+            tokenList = new List<Token>();
+        }
+
         public void executeLexico(String fullString)
         {
+            resetValidators();
             this.fullString = fullString;
-
-            lineCount = 1;
 
             readCaracter();
 
@@ -81,7 +91,7 @@ namespace Compilador
                         }
                         else
                         {
-                            createErrorToken(lineCount, CARACTER_ERROR);
+                            createErrorToken('/'.ToString(), lineCount, CARACTER_ERROR);
                         }
                     }
 
@@ -137,6 +147,13 @@ namespace Compilador
         {
             notEOF = false;
             errorToken = new Token(actualChar.ToString(), errorLine, errorType);
+            tokenList.Add(errorToken);
+        }
+
+        private void createErrorToken(string lexem, int errorLine, int errorType)
+        {
+            notEOF = false;
+            errorToken = new Token(lexem, errorLine, errorType);
             tokenList.Add(errorToken);
         }
 
