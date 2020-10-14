@@ -12,15 +12,17 @@ namespace Compilador
         private Token actualToken;
         private List<Token> tokenList;
         private int tokenCount;
-        public int errorLine;
+        public int errorLine = 1;
         public string errorMessage;
         private bool hasEndedTokens = false;
+        private int oldTokenLine;
 
         private void resetValidators()
         {
             tokenCount = 0;
             hasEndedTokens = false;
-            errorLine = 0;
+            errorLine = 1;
+            oldTokenLine = 0;
             errorMessage = "";
             actualToken = null;
             tokenList = null;
@@ -80,7 +82,15 @@ namespace Compilador
 
         private void throwError(string errorMessage)
         {
-            errorLine =  actualToken.getLine();
+            if (oldTokenLine < actualToken.getLine() && oldTokenLine > 0)
+            {
+                errorLine = oldTokenLine;
+            }
+            else
+            {
+                errorLine = actualToken.getLine();
+            }
+            
             this.errorMessage = errorMessage;
             throw new Exception(ERRO_SINTATICO);
         }
@@ -107,6 +117,8 @@ namespace Compilador
             } 
             else
             {
+                
+                oldTokenLine = actualToken == null ? 0 : actualToken.getLine();
                 token = tokenList[tokenCount];
                 tokenCount++;
             }
@@ -557,7 +569,7 @@ namespace Compilador
             }
             else
             {
-                throwError(ERROR_MISSING_VERDADEIRO_FALSO);
+                throwError(ERROR_MISSING_FATOR);
             }
         }
 

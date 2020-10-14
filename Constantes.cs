@@ -62,6 +62,6 @@
         public const string ERROR_MISSING_FECHA_PARENTESES = "faltando fecha parenteses";
         public const string ERROR_MISSING_FACA = "faltando 'faca'";
         public const string ERROR_MISSING_ENTAO = "faltando 'entao'";
-        public const string ERROR_MISSING_VERDADEIRO_FALSO = "faltando verdadeiro ou falso";
+        public const string ERROR_MISSING_FATOR = "faltando fator";
     }
 }
