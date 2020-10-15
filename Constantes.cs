@@ -44,24 +44,8 @@
 
         public const int COMENTARIO_ERROR = 1;
         public const int CARACTER_ERROR = 2;
-        public const int ERROR_NOT_FOUND = 3;
 
         public const string ERRO_LEXICO = "erro_lexico";
         public const string ERRO_SINTATICO = "erro_sintatico";
-
-        public const string ERROR_ENDED_TOKENS = "";
-        public const string ERROR_MISSING_PONTO = "faltando ponto";
-        public const string ERROR_MISSING_PONTO_VIRGULA = "faltando ponto e virgula";
-        public const string ERROR_MISSING_IDENTIFICADOR = "faltando identificador ";
-        public const string ERROR_MISSING_PROGRAMA = "faltando 'programa'";
-        public const string ERROR_MISSING_DOIS_PONTOS = "faltando dois pontos";
-        public const string ERROR_MISSING_VIRGULA_DOIS_PONTOS = "faltando virgula ou dois pontos";
-        public const string ERROR_MISSING_TIPO = "faltando tipo";
-        public const string ERROR_MISSING_INICIO = "faltando 'inicio'";
-        public const string ERROR_MISSING_ABRE_PARENTESES = "faltando abre parenteses";
-        public const string ERROR_MISSING_FECHA_PARENTESES = "faltando fecha parenteses";
-        public const string ERROR_MISSING_FACA = "faltando 'faca'";
-        public const string ERROR_MISSING_ENTAO = "faltando 'entao'";
-        public const string ERROR_MISSING_FATOR = "faltando fator";
     }
 }

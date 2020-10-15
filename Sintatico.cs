@@ -12,16 +12,14 @@ namespace Compilador
         private Token actualToken;
         private List<Token> tokenList;
         private int tokenCount;
-        public int errorLine = 1;
-        public string errorMessage;
+        public Token errorToken;
         private bool hasEndedTokens = false;
 
         private void resetValidators()
         {
             tokenCount = 0;
             hasEndedTokens = false;
-            errorLine = 1;
-            errorMessage = "";
+            errorToken = null;
             actualToken = null;
             tokenList = null;
         }
@@ -53,35 +51,34 @@ namespace Compilador
 
                                 if (!hasEndedTokens)
                                 {
-                                    throwError(ERROR_ENDED_TOKENS);
+                                    throwError();
                                 }
                             }
                             else
                             {
-                                throwError(ERROR_MISSING_PONTO);
+                                throwError();
                             }
                         }
                         else
                         {
-                            throwError(ERROR_MISSING_PONTO_VIRGULA);
+                            throwError();
                         }
                     }
                     else
                     {
-                        throwError(ERROR_MISSING_IDENTIFICADOR);
+                        throwError();
                     }
                 }
                 else
                 {
-                    throwError(ERROR_MISSING_PROGRAMA);
+                    throwError();
                 }
             }
         }
 
-        private void throwError(string errorMessage)
+        private void throwError()
         {
-            errorLine = actualToken.getLine();
-            this.errorMessage = errorMessage;
+            errorToken = actualToken;
             throw new Exception(ERRO_SINTATICO);
         }
 
@@ -141,13 +138,13 @@ namespace Compilador
                         }
                         else
                         {
-                            throwError(ERROR_MISSING_PONTO_VIRGULA);
+                            throwError();
                         }
                     }
                 }
                 else
                 {
-                    throwError(ERROR_MISSING_IDENTIFICADOR);
+                    throwError();
                 }
             }
         }
@@ -168,18 +165,18 @@ namespace Compilador
 
                             if (!hasEndedTokens && isSimbol(DOIS_PONTOS))
                             {
-                                throwError(ERROR_MISSING_IDENTIFICADOR);
+                                throwError();
                             }
                         }
                     }
                     else
                     {
-                        throwError(ERROR_MISSING_VIRGULA_DOIS_PONTOS);
+                        throwError();
                     }
                 }
                 else
                 {
-                    throwError(ERROR_MISSING_IDENTIFICADOR);
+                    throwError();
                 }
             } while (!hasEndedTokens && !isSimbol(DOIS_PONTOS));
 
@@ -192,7 +189,7 @@ namespace Compilador
         {
             if (!hasEndedTokens && !isSimbol(INTEIRO) && !isSimbol(BOOLEANO))
             {
-                throwError(ERROR_MISSING_TIPO);
+                throwError();
             }
             else
             {
@@ -221,7 +218,7 @@ namespace Compilador
                     }
                     else
                     {
-                        throwError(ERROR_MISSING_PONTO_VIRGULA);
+                        throwError();
                     }
                 }
 
@@ -229,7 +226,7 @@ namespace Compilador
             }
             else
             {
-                throwError(ERROR_MISSING_INICIO);
+                throwError();
             }
         }
 
@@ -279,17 +276,17 @@ namespace Compilador
                     }
                     else
                     {
-                        throwError(ERROR_MISSING_FECHA_PARENTESES);
+                        throwError();
                     }
                 }
                 else
                 {
-                    throwError(ERROR_MISSING_IDENTIFICADOR);
+                    throwError();
                 }
             }
             else
             {
-                throwError(ERROR_MISSING_ABRE_PARENTESES);
+                throwError();
             }
         }
 
@@ -311,17 +308,17 @@ namespace Compilador
                     }
                     else
                     {
-                        throwError(ERROR_MISSING_FECHA_PARENTESES);
+                        throwError();
                     }
                 }
                 else
                 {
-                    throwError(ERROR_MISSING_IDENTIFICADOR);
+                    throwError();
                 }
             }
             else
             {
-                throwError(ERROR_MISSING_ABRE_PARENTESES);
+                throwError();
             }
         }
 
@@ -339,7 +336,7 @@ namespace Compilador
             }
             else
             {
-                throwError(ERROR_MISSING_FACA);
+                throwError();
             }
         }
 
@@ -364,7 +361,7 @@ namespace Compilador
             }
             else
             {
-                throwError(ERROR_MISSING_ENTAO);
+                throwError();
             }
         }
 
@@ -408,7 +405,7 @@ namespace Compilador
                 }
                 else
                 {
-                    throwError(ERROR_MISSING_PONTO_VIRGULA);
+                    throwError();
                 }
             }
 
@@ -432,12 +429,12 @@ namespace Compilador
                 }
                 else
                 {
-                    throwError(ERROR_MISSING_PONTO_VIRGULA);
+                    throwError();
                 }
             }
             else
             {
-                throwError(ERROR_MISSING_IDENTIFICADOR);
+                throwError();
             }
         }
 
@@ -464,17 +461,17 @@ namespace Compilador
                     }
                     else
                     {
-                        throwError(ERROR_MISSING_TIPO);
+                        throwError();
                     }
                 }
                 else
                 {
-                    throwError(ERROR_MISSING_DOIS_PONTOS);
+                    throwError();
                 }
             }
             else
             {
-                throwError(ERROR_MISSING_IDENTIFICADOR);
+                throwError();
             }
         }
 
@@ -548,7 +545,7 @@ namespace Compilador
                 }
                 else
                 {
-                    throwError(ERROR_MISSING_FECHA_PARENTESES);
+                    throwError();
                 }
             }
             else if (!hasEndedTokens && (isSimbol(VERDADEIRO) || isSimbol(FALSO)))
@@ -557,7 +554,7 @@ namespace Compilador
             }
             else
             {
-                throwError(ERROR_MISSING_FATOR);
+                throwError();
             }
         }
 

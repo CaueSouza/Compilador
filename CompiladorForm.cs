@@ -11,6 +11,8 @@ namespace Compilador
         public bool pintado = false;
         Lexico lexico = new Lexico();
         Sintatico sintatico = new Sintatico();
+        private int lastIndex = 0;
+        private int lastLength = 0;
 
         public CompiladorForm()
         {
@@ -141,8 +143,8 @@ namespace Compilador
             {
                 if (exception.Message.Equals(ERRO_SINTATICO))
                 {
-                    paintErrorLine(sintatico.errorLine);
-                    richTextBox2.Text = richTextBox2.Text + sintatico.errorMessage + " na linha " + sintatico.errorLine + "\n";
+                    paintErrorLine(sintatico.errorToken.getLine());
+                    richTextBox2.Text += "Erro-> '" + sintatico.errorToken.getLexem() + "' na linha " + sintatico.errorToken.getLine() + "\n";
                 }
 
                 return false;
@@ -177,10 +179,7 @@ namespace Compilador
                             richTextBox2.Text = richTextBox2.Text + "Comentário aberto mas não fechado na linha " + errorLine.ToString() + "\n";
                             break;
                         case CARACTER_ERROR:
-                            richTextBox2.Text = richTextBox2.Text + "Caracter " + lexico.errorToken.getLexem() + " não reconhecido na linha " + errorLine.ToString() + "\n";
-                            break;
-                        case ERROR_NOT_FOUND:
-                            richTextBox2.Text = richTextBox2.Text + "Erro na linha " + errorLine.ToString() + "\n";
+                            richTextBox2.Text = richTextBox2.Text + "Caracter '" + lexico.errorToken.getLexem() + "' não reconhecido na linha " + errorLine.ToString() + "\n";
                             break;
                     }
                 }
@@ -191,30 +190,31 @@ namespace Compilador
 
         private void paintErrorLine(int errorLine)
         {
-            int index = richTextBox1.GetFirstCharIndexFromLine(errorLine-1);
-            int length = richTextBox1.Lines[errorLine-1].Length;
+            int index = richTextBox1.GetFirstCharIndexFromLine(errorLine - 1);
+            int length = richTextBox1.Lines[errorLine - 1].Length;
             richTextBox1.Select(index, length);
             richTextBox1.SelectionColor = Color.Red;
-            richTextBox1.Select(0, 0);
+
+            lastIndex = index;
+            lastLength = length;
             pintado = true;
 
-            richTextBox1.SelectionStart = richTextBox1.Find(richTextBox1.Lines[errorLine-1]);
+            richTextBox1.SelectionStart = richTextBox1.Find(richTextBox1.Lines[errorLine - 1]);
             richTextBox1.ScrollToCaret();
         }
 
         private void richTextBox1_Click(object sender, EventArgs e)
         {
+            int clickLocationIndex = richTextBox1.SelectionStart;
+            int clickLocationLength = richTextBox1.SelectionLength;
+
             if (pintado)
             {
-                richTextBox1.SelectAll();
+                richTextBox1.Select(lastIndex, lastLength);
                 richTextBox1.SelectionColor = Color.Black;
-                richTextBox1.Select(0, 0);
+                richTextBox1.Select(clickLocationIndex, clickLocationLength);
                 pintado = false;
             }
-        }
-        private void cleanTextPaint()
-        {
-            
         }
 
         private void abrirToolStripMenuItem_Click(object sender, EventArgs e)
