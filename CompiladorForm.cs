@@ -219,7 +219,8 @@ namespace Compilador
 
         private void abrirToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            richTextBox1.Text = fileReader.readFile();
+            string fullstring = fileReader.readFile();
+            richTextBox1.Text = fullstring.Equals("") ? richTextBox1.Text : fullstring;
             AddLineNumbers();
         }
 

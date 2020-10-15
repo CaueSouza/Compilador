@@ -15,14 +15,12 @@ namespace Compilador
         public int errorLine = 1;
         public string errorMessage;
         private bool hasEndedTokens = false;
-        private int oldTokenLine;
 
         private void resetValidators()
         {
             tokenCount = 0;
             hasEndedTokens = false;
             errorLine = 1;
-            oldTokenLine = 0;
             errorMessage = "";
             actualToken = null;
             tokenList = null;
@@ -82,15 +80,7 @@ namespace Compilador
 
         private void throwError(string errorMessage)
         {
-            if (oldTokenLine < actualToken.getLine() && oldTokenLine > 0)
-            {
-                errorLine = oldTokenLine;
-            }
-            else
-            {
-                errorLine = actualToken.getLine();
-            }
-            
+            errorLine = actualToken.getLine();
             this.errorMessage = errorMessage;
             throw new Exception(ERRO_SINTATICO);
         }
@@ -117,8 +107,6 @@ namespace Compilador
             } 
             else
             {
-                
-                oldTokenLine = actualToken == null ? 0 : actualToken.getLine();
                 token = tokenList[tokenCount];
                 tokenCount++;
             }
@@ -180,7 +168,7 @@ namespace Compilador
 
                             if (!hasEndedTokens && isSimbol(DOIS_PONTOS))
                             {
-                                throwError(ERROR_MISSING_DOIS_PONTOS);
+                                throwError(ERROR_MISSING_IDENTIFICADOR);
                             }
                         }
                     }
