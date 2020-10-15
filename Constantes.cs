@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Compilador
+﻿namespace Compilador
 {
     class Constantes
     {
@@ -50,6 +44,8 @@ namespace Compilador
 
         public const int COMENTARIO_ERROR = 1;
         public const int CARACTER_ERROR = 2;
-        public const int ERROR_NOT_FOUND = 3;
+
+        public const string ERRO_LEXICO = "erro_lexico";
+        public const string ERRO_SINTATICO = "erro_sintatico";
     }
 }

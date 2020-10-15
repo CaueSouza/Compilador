@@ -11,58 +11,77 @@ namespace Compilador
     {
         private Token actualToken;
         private List<Token> tokenList;
-        private int tokenCount = 0;
+        private int tokenCount;
+        public Token errorToken;
+        private bool hasEndedTokens = false;
+
+        private void resetValidators()
+        {
+            tokenCount = 0;
+            hasEndedTokens = false;
+            errorToken = null;
+            actualToken = null;
+            tokenList = null;
+        }
 
         public void executeSintatico(List<Token> tokens)
         {
+            resetValidators();
             tokenList = tokens;
 
-            updateToken();
-
-            if (!actualToken.getIsError() && isSimbol(PROGRAMA))
+            if (tokenList.Count() > 0)
             {
                 updateToken();
 
-                if (!actualToken.getIsError() && isSimbol(IDENTIFICADOR))
+                if (!hasEndedTokens && isSimbol(PROGRAMA))
                 {
                     updateToken();
 
-                    if (!actualToken.getIsError() && isSimbol(PONTO_VIRGULA))
+                    if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                     {
-                        analisaBloco();
+                        updateToken();
 
-                        if (!actualToken.getIsError() && isSimbol(PONTO))
+                        if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
                         {
-                            if (!hasEndedTokens())
+                            analisaBloco();
+
+                            if (isSimbol(PONTO))
                             {
-                                //erro
+                                updateToken();
+
+                                if (!hasEndedTokens)
+                                {
+                                    throwError();
+                                }
+                            }
+                            else
+                            {
+                                throwError();
                             }
                         }
                         else
                         {
-                            //erro
+                            throwError();
                         }
                     }
                     else
                     {
-                        //erro
+                        throwError();
                     }
                 }
                 else
                 {
-                    //erro
+                    throwError();
                 }
-            }
-            else
-            {
-                //erro
             }
         }
 
-        private bool hasEndedTokens()
+        private void throwError()
         {
-            return tokenCount == tokenList.Count();
+            errorToken = actualToken;
+            throw new Exception(ERRO_SINTATICO);
         }
+
 
         private bool isSimbol(string Simbol)
         {
@@ -76,8 +95,18 @@ namespace Compilador
 
         private Token getActualToken()
         {
-            Token token = tokenList[tokenCount];
-            tokenCount++;
+            Token token;
+
+            if (tokenCount == tokenList.Count())
+            {
+                hasEndedTokens = true;
+                token = actualToken;
+            } 
+            else
+            {
+                token = tokenList[tokenCount];
+                tokenCount++;
+            }
 
             return token;
         }
@@ -93,11 +122,11 @@ namespace Compilador
 
         private void analisaEtVariaveis()
         {
-            if (!actualToken.getIsError() && isSimbol(VAR))
+            if (!hasEndedTokens && isSimbol(VAR))
             {
                 updateToken();
 
-                if (!actualToken.getIsError() && isSimbol(IDENTIFICADOR))
+                if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                 {
                     while (isSimbol(IDENTIFICADOR))
                     {
@@ -109,13 +138,13 @@ namespace Compilador
                         }
                         else
                         {
-                            //erro
+                            throwError();
                         }
                     }
                 }
                 else
                 {
-                    //erro
+                    throwError();
                 }
             }
         }
@@ -124,32 +153,32 @@ namespace Compilador
         {
             do
             {
-                if (!actualToken.getIsError() && isSimbol(IDENTIFICADOR))
+                if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                 {
                     updateToken();
 
-                    if (!actualToken.getIsError() && (isSimbol(VIRGULA) || isSimbol(DOIS_PONTOS)))
+                    if (!hasEndedTokens && (isSimbol(VIRGULA) || isSimbol(DOIS_PONTOS)))
                     {
-                        if (!actualToken.getIsError() && isSimbol(VIRGULA))
+                        if (!hasEndedTokens && isSimbol(VIRGULA))
                         {
                             updateToken();
 
-                            if (!actualToken.getIsError() && isSimbol(DOIS_PONTOS))
+                            if (!hasEndedTokens && isSimbol(DOIS_PONTOS))
                             {
-                                //erro
+                                throwError();
                             }
                         }
                     }
                     else
                     {
-                        //erro
+                        throwError();
                     }
                 }
                 else
                 {
-                    //erro
+                    throwError();
                 }
-            } while (!actualToken.getIsError() && !isSimbol(DOIS_PONTOS));
+            } while (!hasEndedTokens && !isSimbol(DOIS_PONTOS));
 
             updateToken();
 
@@ -158,9 +187,9 @@ namespace Compilador
 
         private void analisaTipo()
         {
-            if (!actualToken.getIsError() && !isSimbol(INTEIRO) && !isSimbol(BOOLEANO))
+            if (!hasEndedTokens && !isSimbol(INTEIRO) && !isSimbol(BOOLEANO))
             {
-                //erro
+                throwError();
             }
             else
             {
@@ -170,26 +199,26 @@ namespace Compilador
 
         private void analisaComandos()
         {
-            if (!actualToken.getIsError() && isSimbol(INICIO))
+            if (!hasEndedTokens && isSimbol(INICIO))
             {
                 updateToken();
 
                 analisaComandoSimples();
 
-                while (!actualToken.getIsError() && !isSimbol(FIM))
+                while (!hasEndedTokens && !isSimbol(FIM))
                 {
-                    if (!actualToken.getIsError() && isSimbol(PONTO_VIRGULA))
+                    if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
                     {
                         updateToken();
 
-                        if (!actualToken.getIsError() && !isSimbol(FIM))
+                        if (!hasEndedTokens && !isSimbol(FIM))
                         {
                             analisaComandoSimples();
                         }
                     }
                     else
                     {
-                        //erro
+                        throwError();
                     }
                 }
 
@@ -197,13 +226,13 @@ namespace Compilador
             }
             else
             {
-                //erro
+                throwError();
             }
         }
 
         private void analisaComandoSimples()
         {
-            if (!actualToken.getIsError())
+            if (!hasEndedTokens)
             {
                 switch (actualToken.getSimbol())
                 {
@@ -233,31 +262,31 @@ namespace Compilador
         {
             updateToken();
 
-            if (!actualToken.getIsError() && isSimbol(ABRE_PARENTESES))
+            if (!hasEndedTokens && isSimbol(ABRE_PARENTESES))
             {
                 updateToken();
 
-                if (!actualToken.getIsError() && isSimbol(IDENTIFICADOR))
+                if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                 {
                     updateToken();
 
-                    if (!actualToken.getIsError() && isSimbol(FECHA_PARENTESES))
+                    if (!hasEndedTokens && isSimbol(FECHA_PARENTESES))
                     {
                         updateToken();
                     }
                     else
                     {
-                        //erro
+                        throwError();
                     }
                 }
                 else
                 {
-                    //erro
+                    throwError();
                 }
             }
             else
             {
-                //erro
+                throwError();
             }
         }
 
@@ -265,31 +294,31 @@ namespace Compilador
         {
             updateToken();
 
-            if (!actualToken.getIsError() && isSimbol(ABRE_PARENTESES))
+            if (!hasEndedTokens && isSimbol(ABRE_PARENTESES))
             {
                 updateToken();
 
-                if (!actualToken.getIsError() && isSimbol(IDENTIFICADOR))
+                if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                 {
                     updateToken();
 
-                    if (!actualToken.getIsError() && isSimbol(FECHA_PARENTESES))
+                    if (!hasEndedTokens && isSimbol(FECHA_PARENTESES))
                     {
                         updateToken();
                     }
                     else
                     {
-                        //erro
+                        throwError();
                     }
                 }
                 else
                 {
-                    //erro
+                    throwError();
                 }
             }
             else
             {
-                //erro
+                throwError();
             }
         }
 
@@ -299,7 +328,7 @@ namespace Compilador
 
             analisaExpressao();
 
-            if (!actualToken.getIsError() && isSimbol(FACA))
+            if (!hasEndedTokens && isSimbol(FACA))
             {
                 updateToken();
 
@@ -307,7 +336,7 @@ namespace Compilador
             }
             else
             {
-                //erro
+                throwError();
             }
         }
 
@@ -317,13 +346,13 @@ namespace Compilador
 
             analisaExpressao();
 
-            if (!actualToken.getIsError() && isSimbol(ENTAO))
+            if (!hasEndedTokens && isSimbol(ENTAO))
             {
                 updateToken();
 
                 analisaComandoSimples();
 
-                if (!actualToken.getIsError() && isSimbol(SENAO))
+                if (!hasEndedTokens && isSimbol(SENAO))
                 {
                     updateToken();
 
@@ -332,7 +361,7 @@ namespace Compilador
             }
             else
             {
-                //erro
+                throwError();
             }
         }
 
@@ -340,7 +369,7 @@ namespace Compilador
         {
             updateToken();
 
-            if (!actualToken.getIsError() && isSimbol(ATRIBUICAO))
+            if (!hasEndedTokens && isSimbol(ATRIBUICAO))
             {
                 analisaAtribuicao();
             }
@@ -354,14 +383,14 @@ namespace Compilador
         {
             int flag = 0;
 
-            if (!actualToken.getIsError() && (isSimbol(PROCEDIMENTO) || isSimbol(FUNCAO)))
+            if (!hasEndedTokens && (isSimbol(PROCEDIMENTO) || isSimbol(FUNCAO)))
             {
                 //cod semantico
             }
 
-            while (!actualToken.getIsError() && (isSimbol(PROCEDIMENTO) || isSimbol(FUNCAO)))
+            while (!hasEndedTokens && (isSimbol(PROCEDIMENTO) || isSimbol(FUNCAO)))
             {
-                if (!actualToken.getIsError() && isSimbol(PROCEDIMENTO))
+                if (!hasEndedTokens && isSimbol(PROCEDIMENTO))
                 {
                     analisaDeclaracaoProcedimento();
                 }
@@ -370,13 +399,13 @@ namespace Compilador
                     analisaDeclaracaoFuncao();
                 }
 
-                if (!actualToken.getIsError() && isSimbol(PONTO_VIRGULA))
+                if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
                 {
                     updateToken();
                 }
                 else
                 {
-                    //erro
+                    throwError();
                 }
             }
 
@@ -390,22 +419,22 @@ namespace Compilador
         {
             updateToken();
 
-            if (!actualToken.getIsError() && isSimbol(IDENTIFICADOR))
+            if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
             {
                 updateToken();
 
-                if (!actualToken.getIsError() && isSimbol(PONTO_VIRGULA))
+                if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
                 {
                     analisaBloco();
                 }
                 else
                 {
-                    //erro
+                    throwError();
                 }
             }
             else
             {
-                //erro
+                throwError();
             }
         }
 
@@ -413,36 +442,36 @@ namespace Compilador
         {
             updateToken();
 
-            if (!actualToken.getIsError() && isSimbol(IDENTIFICADOR))
+            if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
             {
                 updateToken();
 
-                if (!actualToken.getIsError() && isSimbol(DOIS_PONTOS))
+                if (!hasEndedTokens && isSimbol(DOIS_PONTOS))
                 {
                     updateToken();
 
-                    if (!actualToken.getIsError() && (isSimbol(INTEIRO) || isSimbol(BOOLEANO)))
+                    if (!hasEndedTokens && (isSimbol(INTEIRO) || isSimbol(BOOLEANO)))
                     {
                         updateToken();
 
-                        if (!actualToken.getIsError() && isSimbol(PONTO_VIRGULA))
+                        if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
                         {
                             analisaBloco();
                         }
                     }
                     else
                     {
-                        //erro
+                        throwError();
                     }
                 }
                 else
                 {
-                    //erro
+                    throwError();
                 }
             }
             else
             {
-                //erro
+                throwError();
             }
         }
 
@@ -450,7 +479,7 @@ namespace Compilador
         {
             analisaExpressaoSimples();
 
-            if (!actualToken.getIsError() &&
+            if (!hasEndedTokens &&
                 (isSimbol(MAIOR) || isSimbol(MAIORIG) || isSimbol(IGUAL) || isSimbol(MENOR) || isSimbol(MENORIG) || isSimbol(DIF)))
             {
                 updateToken();
@@ -461,14 +490,14 @@ namespace Compilador
 
         private void analisaExpressaoSimples()
         {
-            if (!actualToken.getIsError() && (isSimbol(MAIS) || isSimbol(MENOS)))
+            if (!hasEndedTokens && (isSimbol(MAIS) || isSimbol(MENOS)))
             {
                 updateToken();
             }
 
             analisaTermo();
 
-            while (!actualToken.getIsError() && (isSimbol(MAIS) || isSimbol(MENOS) || isSimbol(OU)))
+            while (!hasEndedTokens && (isSimbol(MAIS) || isSimbol(MENOS) || isSimbol(OU)))
             {
                 updateToken();
 
@@ -480,7 +509,7 @@ namespace Compilador
         {
             analisaFator();
 
-            if (!actualToken.getIsError() && (isSimbol(MULT) || isSimbol(DIV) || isSimbol(E)))
+            if (!hasEndedTokens && (isSimbol(MULT) || isSimbol(DIV) || isSimbol(E)))
             {
                 updateToken();
 
@@ -490,42 +519,42 @@ namespace Compilador
 
         private void analisaFator()
         {
-            if (!actualToken.getIsError() && isSimbol(IDENTIFICADOR))
+            if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
             {
                 analisaChamadaFuncao();
             }
-            else if (!actualToken.getIsError() && isSimbol(NUMERO))
+            else if (!hasEndedTokens && isSimbol(NUMERO))
             {
                 updateToken();
             }
-            else if (!actualToken.getIsError() && isSimbol(NAO))
+            else if (!hasEndedTokens && isSimbol(NAO))
             {
                 updateToken();
 
                 analisaFator();
             }
-            else if (!actualToken.getIsError() && isSimbol(ABRE_PARENTESES))
+            else if (!hasEndedTokens && isSimbol(ABRE_PARENTESES))
             {
                 updateToken();
 
                 analisaExpressao();
 
-                if (!actualToken.getIsError() && isSimbol(FECHA_PARENTESES))
+                if (!hasEndedTokens && isSimbol(FECHA_PARENTESES))
                 {
                     updateToken();
                 }
                 else
                 {
-                    //erro
+                    throwError();
                 }
             }
-            else if (!actualToken.getIsError() && (isSimbol(VERDADEIRO) || isSimbol(FALSO)))
+            else if (!hasEndedTokens && (isSimbol(VERDADEIRO) || isSimbol(FALSO)))
             {
                 updateToken();
             }
             else
             {
-                //erro
+                throwError();
             }
         }
 

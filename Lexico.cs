@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static Compilador.Constantes;
 
 namespace Compilador
@@ -16,12 +12,23 @@ namespace Compilador
         private string fullString = "";
         private List<Token> tokenList = new List<Token>();
         private bool notEOF = true;
+        public Token errorToken = null;
 
-        public void executeLexico()
+        private void resetValidators()
         {
-            //fullString = fileReader.readFile();
-
+            actualChar = ' ';
+            count = -1;
             lineCount = 1;
+            fullString = "";
+            notEOF = true;
+            errorToken = null;
+            tokenList = new List<Token>();
+        }
+
+        public void executeLexico(String fullString)
+        {
+            resetValidators();
+            this.fullString = fullString;
 
             readCaracter();
 
@@ -84,8 +91,7 @@ namespace Compilador
                         }
                         else
                         {
-                            notEOF = false;
-                            createErrorToken(lineCount, CARACTER_ERROR);
+                            createErrorToken('/'.ToString(), lineCount, CARACTER_ERROR);
                         }
                     }
 
@@ -103,7 +109,8 @@ namespace Compilador
 
                     if (token.getIsError())
                     {
-                        break;
+                        errorToken = token;
+                        throw new Exception(ERRO_LEXICO);
                     }
                 }
             }
@@ -138,14 +145,23 @@ namespace Compilador
 
         private void createErrorToken(int errorLine, int errorType)
         {
-            tokenList.Add(new Token(errorLine, errorType));
+            notEOF = false;
+            errorToken = new Token(actualChar.ToString(), errorLine, errorType);
+            tokenList.Add(errorToken);
+        }
+
+        private void createErrorToken(string lexem, int errorLine, int errorType)
+        {
+            notEOF = false;
+            errorToken = new Token(lexem, errorLine, errorType);
+            tokenList.Add(errorToken);
         }
 
         private bool isDigit()
         {
             return Char.IsDigit(actualChar);
         }
-
+        
         private bool isLetter()
         {
             return Char.IsLetter(actualChar);
@@ -199,7 +215,7 @@ namespace Compilador
             }
             else
             {
-                return new Token(lineCount, 2);
+                return new Token(actualChar.ToString(), lineCount, 2);
             }
         }
 
@@ -229,7 +245,7 @@ namespace Compilador
             }
 
             string simbol;
-            
+
             switch (id)
             {
                 case "programa":
@@ -334,7 +350,7 @@ namespace Compilador
                 case "*":
                     return new Token(MULT, aritmetico, lineCount);
                 default:
-                    return new Token(lineCount, 3);
+                    return new Token(actualChar.ToString(), lineCount, 3);
             }
         }
 
@@ -362,20 +378,20 @@ namespace Compilador
                     }
                     else return new Token(MAIOR, relacional, lineCount);
 
-                    
+
                 case "!":
                     if (caracter.Equals("="))
                     {
                         readCaracter();
                         return new Token(DIF, relacional + caracter, lineCount);
                     }
-                    else return new Token(lineCount, 2);
+                    else return new Token(relacional.ToString(), lineCount, 2);
 
                 case "=":
                     return new Token(IGUAL, relacional, lineCount);
 
                 default:
-                    return new Token(lineCount, 3);
+                    return new Token(relacional.ToString(), lineCount, 3);
             }
         }
 
