@@ -82,7 +82,7 @@ namespace Compilador
             }
             richTextBox1.Font = new Font("Microsoft Sans Serif", 9);
         }
-        
+
         private void richTextBox1_FontChanged(object sender, EventArgs e)
         {
             LineNumberTextBox.Font = richTextBox1.Font;
@@ -92,7 +92,7 @@ namespace Compilador
 
         private void RichTextBox1_KeyDown(object sender, KeyEventArgs e)
         {
-            
+
         }
 
         public void MarkSingleLine()
@@ -116,16 +116,11 @@ namespace Compilador
 
         private void compilarToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            bool lexicoExecutado = executarLexico(lexico);
+            lexico.executeLexico(richTextBox1.Text.Replace("\t", "").Replace("\n", " \n"));
 
-            if (lexicoExecutado)
+            if (executarSintatico(sintatico))
             {
-                bool sintaticoExecutado = executarSintatico(sintatico);
-
-                if (sintaticoExecutado)
-                {
-                    richTextBox2.Text += "Compilado com sucesso!\n";
-                }
+                richTextBox2.Text += "Compilado com sucesso!\n";
             }
         }
 
@@ -138,47 +133,29 @@ namespace Compilador
             }
             catch (Exception exception)
             {
-                if (exception.Message.Equals(ERRO_SINTATICO))
-                {
-                    paintErrorLine(sintatico.errorToken.getLine());
-                    richTextBox2.Text += "Erro-> '" + sintatico.errorToken.getLexem() + "' na linha " + sintatico.errorToken.getLine() + "\n";
-                }
+                Token errorToken = sintatico.errorToken;
 
-                return false;
-            }
-        }
-
-        private bool executarLexico(Lexico lexico)
-        {
-            try
-            {
-                lexico.executeLexico(richTextBox1.Text.Replace("\t", "").Replace("\n", " \n"));
-
-                if (lexico.errorToken != null)
+                switch (exception.Message)
                 {
-                    throw new Exception(ERRO_LEXICO);
-                }
-                else
-                {
-                    return true;
-                }
-            }
-            catch (Exception exception)
-            {
-                if (exception.Message.Equals(ERRO_LEXICO))
-                {
-                    int errorLine = lexico.errorToken.getLine();
-                    paintErrorLine(errorLine);
+                    case ERRO_LEXICO:
+                        paintErrorLine(errorToken.getLine());
 
-                    switch (lexico.errorToken.getErrorType())
-                    {
-                        case COMENTARIO_ERROR:
-                            richTextBox2.Text = richTextBox2.Text + "Comentário aberto mas não fechado na linha " + errorLine.ToString() + "\n";
-                            break;
-                        case CARACTER_ERROR:
-                            richTextBox2.Text = richTextBox2.Text + "Caracter '" + lexico.errorToken.getLexem() + "' não reconhecido na linha " + errorLine.ToString() + "\n";
-                            break;
-                    }
+                        switch (errorToken.getErrorType())
+                        {
+                            case COMENTARIO_ERROR:
+                                richTextBox2.Text = richTextBox2.Text + "Comentário aberto mas não fechado na linha " + errorToken.getLine() + "\n";
+                                break;
+                            case CARACTER_ERROR:
+                                richTextBox2.Text = richTextBox2.Text + "Caracter '" + errorToken.getLexem() + "' não reconhecido na linha " + errorToken.getLine() + "\n";
+                                break;
+                        }
+
+                        break;
+
+                    case ERRO_SINTATICO:
+                        paintErrorLine(errorToken.getLine());
+                        richTextBox2.Text += "Erro-> '" + errorToken.getLexem() + "' na linha " + errorToken.getLine() + "\n";
+                        break;
                 }
 
                 return false;
