@@ -21,29 +21,6 @@ namespace Compilador
         {
             InitializeComponent();
             AddLineNumbers();
-            //richTextBox1.BindScroll(LineNumberTextBox);
-        }
-
-        public int getWidth()
-        {
-            int w = 25;
-            // get total lines of richTextBox1    
-            int line = richTextBox1.Lines.Length;
-
-            if (line <= 99)
-            {
-                w = 20 + (int)richTextBox1.Font.Size;
-            }
-            else if (line <= 999)
-            {
-                w = 30 + (int)richTextBox1.Font.Size;
-            }
-            else
-            {
-                w = 50 + (int)richTextBox1.Font.Size;
-            }
-         
-            return w;
         }
 
         public void AddLineNumbers()
@@ -57,7 +34,6 @@ namespace Compilador
             pt.X = ClientRectangle.Width;
             pt.Y = ClientRectangle.Height;
 
-            Console.WriteLine(pt.X + "///" + pt.Y);
             // get Last Index & Last Line from richTextBox1    
             int Last_Index = richTextBox1.GetCharIndexFromPosition(pt);
             int Last_Line = richTextBox1.GetLineFromCharIndex(Last_Index);
@@ -74,6 +50,7 @@ namespace Compilador
             }
             LineNumberTextBox.Invalidate();
         }
+
         private void CompiladorForm_Load(object sender, EventArgs e)
         {
             LineNumberTextBox.Font = richTextBox1.Font;
