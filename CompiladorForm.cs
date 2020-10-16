@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using static Compilador.Constantes;
@@ -13,33 +14,13 @@ namespace Compilador
         Sintatico sintatico = new Sintatico();
         private int lastIndex = 0;
         private int lastLength = 0;
+        public List<int> KeyCodes = new List<int>() { 17, 86 }; //ctrl + v
+        public int storeLastLine = -1;
 
         public CompiladorForm()
         {
             InitializeComponent();
             AddLineNumbers();
-        }
-
-        public int getWidth()
-        {
-            int w = 25;
-            // get total lines of richTextBox1    
-            int line = richTextBox1.Lines.Length;
-
-            if (line <= 99)
-            {
-                w = 20 + (int)richTextBox1.Font.Size;
-            }
-            else if (line <= 999)
-            {
-                w = 30 + (int)richTextBox1.Font.Size;
-            }
-            else
-            {
-                w = 50 + (int)richTextBox1.Font.Size;
-            }
-
-            return w;
         }
 
         public void AddLineNumbers()
@@ -52,16 +33,18 @@ namespace Compilador
             // set X & Y coordinates of Point pt to ClientRectangle Width & Height respectively    
             pt.X = ClientRectangle.Width;
             pt.Y = ClientRectangle.Height;
+
             // get Last Index & Last Line from richTextBox1    
             int Last_Index = richTextBox1.GetCharIndexFromPosition(pt);
             int Last_Line = richTextBox1.GetLineFromCharIndex(Last_Index);
             // set Center alignment to LineNumberTextBox    
-            LineNumberTextBox.SelectionAlignment = HorizontalAlignment.Center;
+            LineNumberTextBox.SelectionAlignment = HorizontalAlignment.Right;
             // set LineNumberTextBox text to null & width to getWidth() function value    
             LineNumberTextBox.Text = "";
-            LineNumberTextBox.Width = getWidth();
-            // now add each line number to LineNumberTextBox upto last line    
-            for (int i = First_Line; i <= Last_Line + 1; i++)
+
+            //LineNumberTextBox.Width = getWidth();
+            // now add each line number to LineNumberTextBox upto last line   
+            for (int i = First_Line; i < Last_Line + 1; i++)
             {
                 LineNumberTextBox.Text += i + 1 + "\n";
             }
@@ -88,7 +71,7 @@ namespace Compilador
         {
             LineNumberTextBox.Text = "";
             AddLineNumbers();
-            //LineNumberTextBox.Invalidate();
+            LineNumberTextBox.Invalidate();
         }
 
         private void richTextBox1_TextChanged(object sender, EventArgs e)
@@ -97,13 +80,27 @@ namespace Compilador
             {
                 AddLineNumbers();
             }
+            richTextBox1.Font = new Font("Microsoft Sans Serif", 9);
         }
-
+        
         private void richTextBox1_FontChanged(object sender, EventArgs e)
         {
             LineNumberTextBox.Font = richTextBox1.Font;
             richTextBox1.Select();
             AddLineNumbers();
+        }
+
+        private void RichTextBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            
+        }
+
+        public void MarkSingleLine()
+        {
+            int firstCharOfLineIndex = richTextBox1.GetFirstCharIndexOfCurrentLine();
+            int currentLine = richTextBox1.GetLineFromCharIndex(firstCharOfLineIndex);
+            richTextBox1.SelectionStart = currentLine;
+            richTextBox1.SelectionBackColor = Color.Aqua;
         }
 
         private void LineNumberTextBox_MouseDown(object sender, MouseEventArgs e)
@@ -243,5 +240,6 @@ namespace Compilador
         {
             richTextBox2.Text = "";
         }
+
     }
 }
