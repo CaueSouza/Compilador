@@ -12,7 +12,6 @@ namespace Compilador
         private string fullString = "";
         private List<Token> tokenList = new List<Token>();
         private bool notEOF = true;
-        public Token errorToken = null;
 
         private void resetValidators()
         {
@@ -21,7 +20,6 @@ namespace Compilador
             lineCount = 1;
             fullString = "";
             notEOF = true;
-            errorToken = null;
             tokenList = new List<Token>();
         }
 
@@ -106,12 +104,6 @@ namespace Compilador
                 {
                     Token token = readToken();
                     tokenList.Add(token);
-
-                    if (token.getIsError())
-                    {
-                        errorToken = token;
-                        throw new Exception(ERRO_LEXICO);
-                    }
                 }
             }
         }
@@ -146,15 +138,13 @@ namespace Compilador
         private void createErrorToken(int errorLine, int errorType)
         {
             notEOF = false;
-            errorToken = new Token(actualChar.ToString(), errorLine, errorType);
-            tokenList.Add(errorToken);
+            tokenList.Add(new Token(actualChar.ToString(), errorLine, errorType));
         }
 
         private void createErrorToken(string lexem, int errorLine, int errorType)
         {
             notEOF = false;
-            errorToken = new Token(lexem, errorLine, errorType);
-            tokenList.Add(errorToken);
+            tokenList.Add(new Token(lexem, errorLine, errorType));
         }
 
         private bool isDigit()
