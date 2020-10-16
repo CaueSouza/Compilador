@@ -16,6 +16,7 @@ namespace Compilador
         private int lastLength = 0;
         public List<int> KeyCodes = new List<int>() { 17, 86 }; //ctrl + v
         public int storeLastLine = -1;
+
         public CompiladorForm()
         {
             InitializeComponent();
@@ -72,7 +73,6 @@ namespace Compilador
                 LineNumberTextBox.Text += i + 1 + "\n";
             }
             LineNumberTextBox.Invalidate();
-            Console.WriteLine(richTextBox1.SelectionStart);
         }
         private void CompiladorForm_Load(object sender, EventArgs e)
         {
@@ -115,13 +115,7 @@ namespace Compilador
 
         private void RichTextBox1_KeyDown(object sender, KeyEventArgs e)
         {
-            /*if (KeyCodes.Contains(e.KeyValue) && (e.KeyCode == Keys.V && e.Control))
-            {
-                richTextBox1.SelectedText = "";
-                richTextBox1.ScrollToCaret();
-                AddLineNumbers();
-            }*/
-
+            
         }
 
         public void MarkSingleLine()
@@ -271,9 +265,4 @@ namespace Compilador
         }
 
     }
-
-
-
-
-
 }
