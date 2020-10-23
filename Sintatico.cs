@@ -51,7 +51,7 @@ namespace Compilador
 
                                 if (!hasEndedTokens)
                                 {
-                                    throwError(new Exception(ERRO_SINTATICO));
+                                    throwError(new Exception(ERRO_FALTA));
                                 }
                             }
                             else
@@ -61,12 +61,12 @@ namespace Compilador
                         }
                         else
                         {
-                            throwError(new Exception(ERRO_SINTATICO));
+                            throwError(new Exception(ERRO_PV));
                         }
                     }
                     else
                     {
-                        throwError(new Exception(ERRO_SINTATICO));
+                        throwError(new Exception(ERRO_FALTA));
                     }
                 }
                 else
@@ -143,13 +143,13 @@ namespace Compilador
                         }
                         else
                         {
-                            throwError(new Exception(ERRO_SINTATICO));
+                            throwError(new Exception(ERRO_PV));
                         }
                     }
                 }
                 else
                 {
-                    throwError(new Exception(ERRO_SINTATICO));
+                    throwError(new Exception(ERRO_NOME));
                 }
             }
         }
@@ -170,18 +170,18 @@ namespace Compilador
 
                             if (!hasEndedTokens && isSimbol(DOIS_PONTOS))
                             {
-                                throwError(new Exception(ERRO_SINTATICO));
+                                throwError(new Exception(ERRO_FALTA));
                             }
                         }
                     }
                     else
                     {
-                        throwError(new Exception(ERRO_SINTATICO));
+                        throwError(new Exception(ERRO_FALTA));
                     }
                 }
                 else
                 {
-                    throwError(new Exception(ERRO_SINTATICO));
+                    throwError(new Exception(ERRO_NOME));
                 }
             } while (!hasEndedTokens && !isSimbol(DOIS_PONTOS));
 
@@ -194,7 +194,7 @@ namespace Compilador
         {
             if (!hasEndedTokens && !isSimbol(INTEIRO) && !isSimbol(BOOLEANO))
             {
-                throwError(new Exception(ERRO_SINTATICO));
+                throwError(new Exception(ERRO_TIPO));
             }
             else
             {
@@ -223,7 +223,7 @@ namespace Compilador
                     }
                     else
                     {
-                        throwError(new Exception(ERRO_SINTATICO));
+                        throwError(new Exception(ERRO_PV));
                     }
                 }
 
@@ -231,7 +231,7 @@ namespace Compilador
             }
             else
             {
-                throwError(new Exception(ERRO_SINTATICO));
+                throwError(new Exception(ERRO_FALTA));
             }
         }
 
@@ -281,17 +281,17 @@ namespace Compilador
                     }
                     else
                     {
-                        throwError(new Exception(ERRO_SINTATICO));
+                        throwError(new Exception(ERRO_PARENTESIS));
                     }
                 }
                 else
                 {
-                    throwError(new Exception(ERRO_SINTATICO));
+                    throwError(new Exception(ERRO_FALTA));
                 }
             }
             else
             {
-                throwError(new Exception(ERRO_SINTATICO));
+                throwError(new Exception(ERRO_PARENTESIS));
             }
         }
 
@@ -313,17 +313,17 @@ namespace Compilador
                     }
                     else
                     {
-                        throwError(new Exception(ERRO_SINTATICO));
+                        throwError(new Exception(ERRO_PARENTESIS));
                     }
                 }
                 else
                 {
-                    throwError(new Exception(ERRO_SINTATICO));
+                    throwError(new Exception(ERRO_FALTA));
                 }
             }
             else
             {
-                throwError(new Exception(ERRO_SINTATICO));
+                throwError(new Exception(ERRO_PARENTESIS));
             }
         }
 
@@ -341,7 +341,7 @@ namespace Compilador
             }
             else
             {
-                throwError(new Exception(ERRO_SINTATICO));
+                throwError(new Exception(ERRO_FALTA));
             }
         }
 
@@ -363,10 +363,11 @@ namespace Compilador
 
                     analisaComandoSimples();
                 }
+                
             }
             else
             {
-                throwError(new Exception(ERRO_SINTATICO));
+                throwError(new Exception(ERRO_FALTA));
             }
         }
 
@@ -410,7 +411,7 @@ namespace Compilador
                 }
                 else
                 {
-                    throwError(new Exception(ERRO_SINTATICO));
+                    throwError(new Exception(ERRO_PV));
                 }
             }
 
@@ -434,12 +435,12 @@ namespace Compilador
                 }
                 else
                 {
-                    throwError(new Exception(ERRO_SINTATICO));
+                    throwError(new Exception(ERRO_PV));
                 }
             }
             else
             {
-                throwError(new Exception(ERRO_SINTATICO));
+                throwError(new Exception(ERRO_FALTA));
             }
         }
 
@@ -463,20 +464,24 @@ namespace Compilador
                         {
                             analisaBloco();
                         }
+                        else
+                        {
+                            throwError(new Exception(ERRO_PV));
+                        }
                     }
                     else
                     {
-                        throwError(new Exception(ERRO_SINTATICO));
+                        throwError(new Exception(ERRO_TIPO));
                     }
                 }
                 else
                 {
-                    throwError(new Exception(ERRO_SINTATICO));
+                    throwError(new Exception(ERRO_FALTA));
                 }
             }
             else
             {
-                throwError(new Exception(ERRO_SINTATICO));
+                throwError(new Exception(ERRO_FALTA));
             }
         }
 
@@ -550,7 +555,7 @@ namespace Compilador
                 }
                 else
                 {
-                    throwError(new Exception(ERRO_SINTATICO));
+                    throwError(new Exception(ERRO_PARENTESIS));
                 }
             }
             else if (!hasEndedTokens && (isSimbol(VERDADEIRO) || isSimbol(FALSO)))

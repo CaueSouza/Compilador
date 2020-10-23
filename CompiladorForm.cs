@@ -156,6 +156,36 @@ namespace Compilador
                         paintErrorLine(errorToken.getLine());
                         richTextBox2.Text += "Erro-> '" + errorToken.getLexem() + "' na linha " + errorToken.getLine() + "\n";
                         break;
+
+                    case ERRO_PV:
+                        paintErrorLine(errorToken.getLine());
+                        richTextBox2.Text += "Erro-> " + ERRO_PV + " na linha " + errorToken.getLine() + "\n";
+                        break;
+
+                    case ERRO_NOME:
+                        paintErrorLine(errorToken.getLine());
+                        richTextBox2.Text += "Erro-> " + ERRO_NOME + " na linha " + errorToken.getLine() + "\n";
+                        break;
+
+                    case ERRO_FALTA:
+                        paintErrorLine(errorToken.getLine());
+                        richTextBox2.Text += "Erro-> " + ERRO_FALTA + " na linha " + errorToken.getLine() + "\n";
+                        break;
+
+                    case ERRO_INICIO:
+                        paintErrorLine(errorToken.getLine());
+                        richTextBox2.Text += "Erro-> " + ERRO_INICIO + " na linha " + errorToken.getLine() + "\n";
+                        break;
+
+                    case ERRO_PARENTESIS:
+                        paintErrorLine(errorToken.getLine());
+                        richTextBox2.Text += "Erro-> " + ERRO_PARENTESIS + " na linha " + errorToken.getLine() + "\n";
+                        break;
+
+                    case ERRO_TIPO:
+                        paintErrorLine(errorToken.getLine());
+                        richTextBox2.Text += "Erro-> " + ERRO_TIPO + " na linha " + errorToken.getLine() + "\n";
+                        break;
                 }
 
                 return false;
