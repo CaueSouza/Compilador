@@ -15,6 +15,7 @@ namespace Compilador
         public Token errorToken;
         private bool hasEndedTokens = false;
         private Stack stack = Stack.Instance;
+        private Semantico semantico;
 
         private void resetValidators()
         {
@@ -25,8 +26,9 @@ namespace Compilador
             tokenList = null;
         }
 
-        public void executeSintatico(List<Token> tokens)
+        public void executeSintatico(List<Token> tokens, Semantico semantico)
         {
+            this.semantico = semantico;
             resetValidators();
             tokenList = tokens;
 
