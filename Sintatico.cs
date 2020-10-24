@@ -14,6 +14,7 @@ namespace Compilador
         private int tokenCount;
         public Token errorToken;
         private bool hasEndedTokens = false;
+        private Stack stack = Stack.Instance;
 
         private void resetValidators()
         {
