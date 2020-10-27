@@ -49,10 +49,11 @@
         public const string ERRO_SINTATICO = "erro_sintatico";
 
         public const string ERRO_PV = "falta ponto e virgula";
-        public const string ERRO_FALTA = "falta algo ou comando errado";
+        public const string ERRO_FALTA = "falta caracter ou comando errado";
         public const string ERRO_NOME = "não pode usar palavra pré determinada";
         public const string ERRO_TIPO = "são aceitos apenas INTEIRO ou BOOLEANO";
         public const string ERRO_INICIO = "falta INICIO";
         public const string ERRO_PARENTESIS = "falta parentesis";
+        public const string ERRO_MAIS = "linha com caracter a mais ou falta parenteses";
     }
 }

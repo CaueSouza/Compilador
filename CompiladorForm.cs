@@ -186,6 +186,11 @@ namespace Compilador
                         paintErrorLine(errorToken.getLine());
                         richTextBox2.Text += "Erro-> " + ERRO_TIPO + " na linha " + errorToken.getLine() + "\n";
                         break;
+
+                    case ERRO_MAIS:
+                        paintErrorLine(errorToken.getLine());
+                        richTextBox2.Text += "Erro-> " + ERRO_MAIS + " na linha " + errorToken.getLine() + "\n";
+                        break;
                 }
 
                 return false;

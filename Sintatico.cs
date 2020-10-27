@@ -14,6 +14,7 @@ namespace Compilador
         private int tokenCount;
         public Token errorToken;
         private bool hasEndedTokens = false;
+        private bool end_point_exist = false;
 
         private void resetValidators()
         {
@@ -78,10 +79,14 @@ namespace Compilador
 
         private void throwError(Exception exception)
         {
+            if (tokenList[tokenCount].getLine() > tokenList[tokenCount - 2].getLine())
+            {
+                actualToken = tokenList[tokenCount - 2];
+            }
+
             errorToken = actualToken;
             throw exception;
         }
-
 
         private bool isSimbol(string Simbol)
         {
@@ -102,17 +107,17 @@ namespace Compilador
         {
             Token token;
 
-            if (tokenCount == tokenList.Count())
-            {
-                hasEndedTokens = true;
-                token = actualToken;
-            } 
-            else
-            {
-                token = tokenList[tokenCount];
-                tokenCount++;
-            }
-
+               if (tokenCount == tokenList.Count())
+               {
+                    hasEndedTokens = true;
+                    token = actualToken;
+                }
+                else
+                {
+                    token = tokenList[tokenCount];
+                    tokenCount++;
+                }
+      
             return token;
         }
 
@@ -220,6 +225,10 @@ namespace Compilador
                         {
                             analisaComandoSimples();
                         }
+                        else
+                        {
+                            throwError(new Exception(ERRO_FALTA));
+                        }
                     }
                     else
                     {
@@ -228,6 +237,7 @@ namespace Compilador
                 }
 
                 updateToken();
+
             }
             else
             {
@@ -379,10 +389,15 @@ namespace Compilador
             {
                 analisaAtribuicao();
             }
-            else
+            else if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
             {
                 analisaChamadaProcedimento();
             }
+            else
+            {
+                throwError(new Exception(ERRO_FALTA));
+            }
+
         }
 
         private void analisaSubRotinas()
@@ -494,7 +509,7 @@ namespace Compilador
             {
                 updateToken();
 
-                analisaExpressaoSimples();
+                analisaExpressaoSimples(); //
             }
         }
 
@@ -505,7 +520,7 @@ namespace Compilador
                 updateToken();
             }
 
-            analisaTermo();
+            analisaTermo();///
 
             while (!hasEndedTokens && (isSimbol(MAIS) || isSimbol(MENOS) || isSimbol(OU)))
             {
@@ -517,7 +532,7 @@ namespace Compilador
 
         private void analisaTermo()
         {
-            analisaFator();
+            analisaFator();////
 
             if (!hasEndedTokens && (isSimbol(MULT) || isSimbol(DIV) || isSimbol(E)))
             {
@@ -547,7 +562,7 @@ namespace Compilador
             {
                 updateToken();
 
-                analisaExpressao();
+                analisaExpressao(); /////
 
                 if (!hasEndedTokens && isSimbol(FECHA_PARENTESES))
                 {
