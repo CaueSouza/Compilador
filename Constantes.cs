@@ -47,5 +47,11 @@
 
         public const string ERRO_LEXICO = "erro_lexico";
         public const string ERRO_SINTATICO = "erro_sintatico";
+        public const string ERRO_SEMANTICO = "erro_semantico";
+
+        public const string NOME_PROGRAMA = "programa";
+        public const string NOME_VARIAVEL = "variavel";
+        public const string NOME_PROCEDIMENTO = "procedimento";
+        public const string NOME_FUNCAO = "funcao";
     }
 }

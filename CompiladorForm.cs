@@ -12,6 +12,7 @@ namespace Compilador
         public bool pintado = false;
         Lexico lexico = new Lexico();
         Sintatico sintatico = new Sintatico();
+        Semantico semantico = new Semantico();
         private int lastIndex = 0;
         private int lastLength = 0;
         public List<int> KeyCodes = new List<int>() { 17, 86 }; //ctrl + v
@@ -128,7 +129,7 @@ namespace Compilador
         {
             try
             {
-                sintatico.executeSintatico(lexico.getTokens());
+                sintatico.executeSintatico(lexico.getTokens(), semantico);
                 return true;
             }
             catch (Exception exception)
@@ -138,23 +139,23 @@ namespace Compilador
                 switch (exception.Message)
                 {
                     case ERRO_LEXICO:
-                        paintErrorLine(errorToken.getLine());
+                        paintErrorLine(errorToken.line);
 
-                        switch (errorToken.getErrorType())
+                        switch (errorToken.errorType)
                         {
                             case COMENTARIO_ERROR:
-                                richTextBox2.Text = richTextBox2.Text + "Comentário aberto mas não fechado na linha " + errorToken.getLine() + "\n";
+                                richTextBox2.Text = richTextBox2.Text + "Comentário aberto mas não fechado na linha " + errorToken.line + "\n";
                                 break;
                             case CARACTER_ERROR:
-                                richTextBox2.Text = richTextBox2.Text + "Caracter '" + errorToken.getLexem() + "' não reconhecido na linha " + errorToken.getLine() + "\n";
+                                richTextBox2.Text = richTextBox2.Text + "Caracter '" + errorToken.lexem + "' não reconhecido na linha " + errorToken.line + "\n";
                                 break;
                         }
 
                         break;
 
                     case ERRO_SINTATICO:
-                        paintErrorLine(errorToken.getLine());
-                        richTextBox2.Text += "Erro-> '" + errorToken.getLexem() + "' na linha " + errorToken.getLine() + "\n";
+                        paintErrorLine(errorToken.line);
+                        richTextBox2.Text += "Erro-> '" + errorToken.lexem + "' na linha " + errorToken.line + "\n";
                         break;
                 }
 

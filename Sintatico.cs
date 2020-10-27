@@ -14,8 +14,8 @@ namespace Compilador
         private int tokenCount;
         public Token errorToken;
         private bool hasEndedTokens = false;
-        private Stack stack = Stack.Instance;
         private Semantico semantico;
+        private int actualLevel = 0;
 
         private void resetValidators()
         {
@@ -24,6 +24,7 @@ namespace Compilador
             errorToken = null;
             actualToken = null;
             tokenList = null;
+            actualLevel = 0;
         }
 
         public void executeSintatico(List<Token> tokens, Semantico semantico)
@@ -42,6 +43,8 @@ namespace Compilador
 
                     if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                     {
+                        semantico.insereTabela(actualToken.lexem, NOME_PROGRAMA, 0, 0);
+                        actualLevel++;
                         updateToken();
 
                         if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
@@ -88,14 +91,14 @@ namespace Compilador
 
         private bool isSimbol(string Simbol)
         {
-            return actualToken.getSimbol().Equals(Simbol);
+            return actualToken.simbol.Equals(Simbol);
         }
 
         private void updateToken()
         {
             actualToken = getActualToken();
 
-            if (actualToken.getIsError())
+            if (actualToken.isError)
             {
                 throwError(new Exception(ERRO_LEXICO));
             }
@@ -163,23 +166,32 @@ namespace Compilador
             {
                 if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                 {
-                    updateToken();
-
-                    if (!hasEndedTokens && (isSimbol(VIRGULA) || isSimbol(DOIS_PONTOS)))
+                    if (!semantico.pesquisaDuplicVarTabela(actualToken.lexem))
                     {
-                        if (!hasEndedTokens && isSimbol(VIRGULA))
-                        {
-                            updateToken();
+                        semantico.insereTabela(actualToken.lexem, NOME_VARIAVEL, actualLevel, 0);
 
-                            if (!hasEndedTokens && isSimbol(DOIS_PONTOS))
+                        updateToken();
+
+                        if (!hasEndedTokens && (isSimbol(VIRGULA) || isSimbol(DOIS_PONTOS)))
+                        {
+                            if (!hasEndedTokens && isSimbol(VIRGULA))
                             {
-                                throwError(new Exception(ERRO_SINTATICO));
+                                updateToken();
+
+                                if (!hasEndedTokens && isSimbol(DOIS_PONTOS))
+                                {
+                                    throwError(new Exception(ERRO_SINTATICO));
+                                }
                             }
+                        }
+                        else
+                        {
+                            throwError(new Exception(ERRO_SINTATICO));
                         }
                     }
                     else
                     {
-                        throwError(new Exception(ERRO_SINTATICO));
+                        throwError(new Exception(ERRO_SEMANTICO));
                     }
                 }
                 else
@@ -201,6 +213,7 @@ namespace Compilador
             }
             else
             {
+                semantico.colocaTipoTabela(actualToken.lexem);
                 updateToken();
             }
         }
@@ -242,7 +255,7 @@ namespace Compilador
         {
             if (!hasEndedTokens)
             {
-                switch (actualToken.getSimbol())
+                switch (actualToken.simbol)
                 {
                     case IDENTIFICADOR:
                         analisaAtribChamadaProc();
@@ -276,15 +289,22 @@ namespace Compilador
 
                 if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                 {
-                    updateToken();
-
-                    if (!hasEndedTokens && isSimbol(FECHA_PARENTESES))
+                    if (!semantico.pesquisaDeclVarTabela(actualToken.lexem))
                     {
                         updateToken();
+
+                        if (!hasEndedTokens && isSimbol(FECHA_PARENTESES))
+                        {
+                            updateToken();
+                        }
+                        else
+                        {
+                            throwError(new Exception(ERRO_SINTATICO));
+                        }
                     }
                     else
                     {
-                        throwError(new Exception(ERRO_SINTATICO));
+                        throwError(new Exception(ERRO_SEMANTICO));
                     }
                 }
                 else
@@ -308,15 +328,22 @@ namespace Compilador
 
                 if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                 {
-                    updateToken();
-
-                    if (!hasEndedTokens && isSimbol(FECHA_PARENTESES))
+                    if (!semantico.pesquisaDeclVarTabela(actualToken.lexem))
                     {
                         updateToken();
+
+                        if (!hasEndedTokens && isSimbol(FECHA_PARENTESES))
+                        {
+                            updateToken();
+                        }
+                        else
+                        {
+                            throwError(new Exception(ERRO_SINTATICO));
+                        }
                     }
                     else
                     {
-                        throwError(new Exception(ERRO_SINTATICO));
+                        throwError(new Exception(ERRO_SEMANTICO));
                     }
                 }
                 else
@@ -426,46 +453,18 @@ namespace Compilador
         private void analisaDeclaracaoProcedimento()
         {
             updateToken();
+            actualLevel++;
 
             if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
             {
-                updateToken();
-
-                if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
+                if (!semantico.pesquisaDeclProcTabela(actualToken.lexem))
                 {
-                    analisaBloco();
-                }
-                else
-                {
-                    throwError(new Exception(ERRO_SINTATICO));
-                }
-            }
-            else
-            {
-                throwError(new Exception(ERRO_SINTATICO));
-            }
-        }
-
-        private void analisaDeclaracaoFuncao()
-        {
-            updateToken();
-
-            if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
-            {
-                updateToken();
-
-                if (!hasEndedTokens && isSimbol(DOIS_PONTOS))
-                {
+                    semantico.insereTabela(actualToken.lexem, NOME_PROCEDIMENTO, actualLevel, 0);
                     updateToken();
 
-                    if (!hasEndedTokens && (isSimbol(INTEIRO) || isSimbol(BOOLEANO)))
+                    if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
                     {
-                        updateToken();
-
-                        if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
-                        {
-                            analisaBloco();
-                        }
+                        analisaBloco();
                     }
                     else
                     {
@@ -474,13 +473,66 @@ namespace Compilador
                 }
                 else
                 {
-                    throwError(new Exception(ERRO_SINTATICO));
+                    throwError(new Exception(ERRO_SEMANTICO));
                 }
             }
             else
             {
                 throwError(new Exception(ERRO_SINTATICO));
             }
+
+            semantico.voltaNivel(actualLevel);
+            actualLevel--;
+        }
+
+        private void analisaDeclaracaoFuncao()
+        {
+            updateToken();
+            actualLevel++;
+
+            if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
+            {
+                if (!semantico.pesquisaDeclFuncTabela(actualToken.lexem))
+                {
+                    semantico.insereTabela(actualToken.lexem, NOME_FUNCAO, actualLevel, 0);
+                    updateToken();
+
+                    if (!hasEndedTokens && isSimbol(DOIS_PONTOS))
+                    {
+                        updateToken();
+
+                        if (!hasEndedTokens && (isSimbol(INTEIRO) || isSimbol(BOOLEANO)))
+                        {
+                            semantico.colocaTipoTabela();
+                            updateToken();
+
+                            if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
+                            {
+                                analisaBloco();
+                            }
+                        }
+                        else
+                        {
+                            throwError(new Exception(ERRO_SINTATICO));
+                        }
+                    }
+                    else
+                    {
+                        throwError(new Exception(ERRO_SINTATICO));
+                    }
+                } 
+                else
+                {
+                    throwError(new Exception(ERRO_SEMANTICO));
+                }
+            }
+            else
+            {
+                throwError(new Exception(ERRO_SINTATICO));
+            }
+
+            semantico.voltaNivel(actualLevel);
+            actualLevel--;
         }
 
         private void analisaExpressao()
@@ -529,7 +581,23 @@ namespace Compilador
         {
             if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
             {
-                analisaChamadaFuncao();
+                Struct actualItem = semantico.pesquisaTabela(actualToken.lexem, actualLevel, 0);
+
+                if (actualItem != null)//VERIFICAR INDICE
+                {
+                    if (actualItem.tipo == "inteiro" || actualItem.tipo == "booleano")
+                    {
+                        analisaChamadaFuncao();
+                    }
+                    else
+                    {
+                        updateToken();
+                    }
+                }
+                else
+                {
+                    throwError(new Exception(ERRO_SEMANTICO));
+                }
             }
             else if (!hasEndedTokens && isSimbol(NUMERO))
             {
