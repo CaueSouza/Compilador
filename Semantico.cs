@@ -10,15 +10,31 @@ namespace Compilador
     class Semantico
     {
         private Stack stack = Stack.Instance;
+        private int actualLevel = 0;
 
         public Semantico()
         {
 
         }
 
-        public void insereTabela(string lexema, string nome, int nivel, int rotulo)
+        public void increaseLevel()
         {
-            stack.push(new Struct(lexema, nome, nivel, rotulo));
+            actualLevel++;
+        }
+
+        public void decreaseLevel()
+        {
+            actualLevel--;
+        }
+
+        public void resetLevel()
+        {
+            actualLevel = 0;
+        }
+
+        public void insereTabela(string lexema, string nome, int rotulo)
+        {
+            stack.push(new Struct(lexema, nome, actualLevel, rotulo));
         }
 
         public bool pesquisaDuplicVarTabela(string lexema)
@@ -29,7 +45,7 @@ namespace Compilador
             {
                 Struct actualItem = stack.getPosition(i);
 
-                if (actualItem.nome.Equals(NOME_VARIAVEL) && actualItem.lexema.Equals(lexema))
+                if (actualItem.nome.Equals(NOME_VARIAVEL) && actualItem.lexema.Equals(lexema) && actualItem.nivel == actualLevel)
                 {
                     return true;
                 }
@@ -65,7 +81,7 @@ namespace Compilador
             {
                 Struct actualItem = stack.getPosition(i);
 
-                if (actualItem.nome.Equals(NOME_VARIAVEL) && actualItem.lexema.Equals(lexema))
+                if (actualItem.nome.Equals(NOME_VARIAVEL) && actualItem.lexema.Equals(lexema) && actualItem.nivel == actualLevel)
                 {
                     return true;
                 }
@@ -82,7 +98,7 @@ namespace Compilador
             {
                 Struct actualItem = stack.getPosition(i);
 
-                if ((actualItem.nome.Equals(NOME_VARIAVEL) || actualItem.nome.Equals(NOME_FUNCAO)) && actualItem.lexema.Equals(lexema))
+                if ((actualItem.nome.Equals(NOME_VARIAVEL) || actualItem.nome.Equals(NOME_FUNCAO)) && actualItem.lexema.Equals(lexema) && actualItem.nivel == actualLevel)
                 {
                     return true;
                 }
@@ -99,7 +115,7 @@ namespace Compilador
             {
                 Struct actualItem = stack.getPosition(i);
 
-                if (actualItem.nome.Equals(NOME_PROCEDIMENTO) && actualItem.lexema.Equals(lexema))
+                if (actualItem.nome.Equals(NOME_PROCEDIMENTO) && actualItem.lexema.Equals(lexema) && actualItem.nivel == actualLevel)
                 {
                     return true;
                 }
@@ -116,7 +132,7 @@ namespace Compilador
             {
                 Struct actualItem = stack.getPosition(i);
 
-                if (actualItem.nome.Equals(NOME_FUNCAO) && actualItem.lexema.Equals(lexema))
+                if (actualItem.nome.Equals(NOME_FUNCAO) && actualItem.lexema.Equals(lexema) && actualItem.nivel == actualLevel)
                 {
                     return true;
                 }
@@ -125,12 +141,12 @@ namespace Compilador
             return false;
         }
 
-        public Struct pesquisaTabela(string lexema, int nivel, int indice)
+        public Struct pesquisaTabela(string lexema, int indice)
         {
             return null;
         }
 
-        public void voltaNivel(int actualLevel)
+        public void voltaNivel()
         {
             int stackSize = stack.getLength();
 

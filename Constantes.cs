@@ -53,5 +53,14 @@
         public const string NOME_VARIAVEL = "variavel";
         public const string NOME_PROCEDIMENTO = "procedimento";
         public const string NOME_FUNCAO = "funcao";
+
+        public const string TIPO_INTEIRO = "tipo_inteiro";
+        public const string TIPO_BOOLEANO = "tipo_booleano";
+
+        public const int ITEM_NOT_FOUND = 1;
+        public const int DUPLIC_VAR_ERROR = 2;
+        public const int DECL_VAR_ERROR = 3;
+        public const int DECL_PROC_ERROR = 4;
+        public const int DECL_FUNC_ERROR = 5;
     }
 }

@@ -15,7 +15,6 @@ namespace Compilador
         public Token errorToken;
         private bool hasEndedTokens = false;
         private Semantico semantico;
-        private int actualLevel = 0;
 
         private void resetValidators()
         {
@@ -24,7 +23,7 @@ namespace Compilador
             errorToken = null;
             actualToken = null;
             tokenList = null;
-            actualLevel = 0;
+            semantico.resetLevel();
         }
 
         public void executeSintatico(List<Token> tokens, Semantico semantico)
@@ -43,8 +42,7 @@ namespace Compilador
 
                     if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                     {
-                        semantico.insereTabela(actualToken.lexem, NOME_PROGRAMA, 0, 0);
-                        actualLevel++;
+                        semantico.insereTabela(actualToken.lexem, NOME_PROGRAMA, 0);
                         updateToken();
 
                         if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
@@ -88,6 +86,11 @@ namespace Compilador
             throw exception;
         }
 
+        private void throwError(Exception exception, int errorType)
+        {
+            errorToken = new Token(actualToken.lexem, actualToken.line, errorType);
+            throw exception;
+        }
 
         private bool isSimbol(string Simbol)
         {
@@ -168,7 +171,7 @@ namespace Compilador
                 {
                     if (!semantico.pesquisaDuplicVarTabela(actualToken.lexem))
                     {
-                        semantico.insereTabela(actualToken.lexem, NOME_VARIAVEL, actualLevel, 0);
+                        semantico.insereTabela(actualToken.lexem, NOME_VARIAVEL, 0);
 
                         updateToken();
 
@@ -191,7 +194,7 @@ namespace Compilador
                     }
                     else
                     {
-                        throwError(new Exception(ERRO_SEMANTICO));
+                        throwError(new Exception(ERRO_SEMANTICO), DUPLIC_VAR_ERROR);
                     }
                 }
                 else
@@ -304,7 +307,7 @@ namespace Compilador
                     }
                     else
                     {
-                        throwError(new Exception(ERRO_SEMANTICO));
+                        throwError(new Exception(ERRO_SEMANTICO), DECL_VAR_ERROR);
                     }
                 }
                 else
@@ -343,7 +346,7 @@ namespace Compilador
                     }
                     else
                     {
-                        throwError(new Exception(ERRO_SEMANTICO));
+                        throwError(new Exception(ERRO_SEMANTICO), DECL_VAR_ERROR);
                     }
                 }
                 else
@@ -453,13 +456,13 @@ namespace Compilador
         private void analisaDeclaracaoProcedimento()
         {
             updateToken();
-            actualLevel++;
+            semantico.increaseLevel();;
 
             if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
             {
                 if (!semantico.pesquisaDeclProcTabela(actualToken.lexem))
                 {
-                    semantico.insereTabela(actualToken.lexem, NOME_PROCEDIMENTO, actualLevel, 0);
+                    semantico.insereTabela(actualToken.lexem, NOME_PROCEDIMENTO, 0);
                     updateToken();
 
                     if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
@@ -473,7 +476,7 @@ namespace Compilador
                 }
                 else
                 {
-                    throwError(new Exception(ERRO_SEMANTICO));
+                    throwError(new Exception(ERRO_SEMANTICO), DECL_PROC_ERROR);
                 }
             }
             else
@@ -481,20 +484,20 @@ namespace Compilador
                 throwError(new Exception(ERRO_SINTATICO));
             }
 
-            semantico.voltaNivel(actualLevel);
-            actualLevel--;
+            semantico.voltaNivel();
+            semantico.decreaseLevel();;
         }
 
         private void analisaDeclaracaoFuncao()
         {
             updateToken();
-            actualLevel++;
+            semantico.increaseLevel();;
 
             if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
             {
                 if (!semantico.pesquisaDeclFuncTabela(actualToken.lexem))
                 {
-                    semantico.insereTabela(actualToken.lexem, NOME_FUNCAO, actualLevel, 0);
+                    semantico.insereTabela(actualToken.lexem, NOME_FUNCAO, 0);
                     updateToken();
 
                     if (!hasEndedTokens && isSimbol(DOIS_PONTOS))
@@ -503,7 +506,7 @@ namespace Compilador
 
                         if (!hasEndedTokens && (isSimbol(INTEIRO) || isSimbol(BOOLEANO)))
                         {
-                            semantico.colocaTipoTabela();
+                            semantico.colocaTipoTabela(isSimbol(INTEIRO) ? TIPO_INTEIRO : TIPO_BOOLEANO);
                             updateToken();
 
                             if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
@@ -523,7 +526,7 @@ namespace Compilador
                 } 
                 else
                 {
-                    throwError(new Exception(ERRO_SEMANTICO));
+                    throwError(new Exception(ERRO_SEMANTICO), DECL_FUNC_ERROR);
                 }
             }
             else
@@ -531,8 +534,8 @@ namespace Compilador
                 throwError(new Exception(ERRO_SINTATICO));
             }
 
-            semantico.voltaNivel(actualLevel);
-            actualLevel--;
+            semantico.voltaNivel();
+            semantico.decreaseLevel();;
         }
 
         private void analisaExpressao()
@@ -581,7 +584,7 @@ namespace Compilador
         {
             if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
             {
-                Struct actualItem = semantico.pesquisaTabela(actualToken.lexem, actualLevel, 0);
+                Struct actualItem = semantico.pesquisaTabela(actualToken.lexem, 0);
 
                 if (actualItem != null)//VERIFICAR INDICE
                 {
@@ -596,7 +599,7 @@ namespace Compilador
                 }
                 else
                 {
-                    throwError(new Exception(ERRO_SEMANTICO));
+                    throwError(new Exception(ERRO_SEMANTICO), ITEM_NOT_FOUND);
                 }
             }
             else if (!hasEndedTokens && isSimbol(NUMERO))
