@@ -49,7 +49,7 @@ namespace Compilador
                             if (isSimbol(PONTO))
                             {
                                 updateToken();
-
+                                end_point_exist = true;
                                 if (!hasEndedTokens)
                                 {
                                     throwError(new Exception(ERRO_FALTA));
@@ -75,13 +75,22 @@ namespace Compilador
                     throwError(new Exception(ERRO_SINTATICO));
                 }
             }
+
+            if (!end_point_exist)
+                throwError(new Exception(ERRO_NOME));
         }
 
         private void throwError(Exception exception)
         {
-            if (tokenList[tokenCount].getLine() > tokenList[tokenCount - 2].getLine())
+
+            if (tokenCount != tokenList.Count())
             {
-                actualToken = tokenList[tokenCount - 2];
+                if ((tokenList[tokenCount - 1].getLine() > tokenList[tokenCount - 2].getLine()) &&
+                    ((tokenList[tokenCount - 1].getLine() == tokenList[tokenCount].getLine()) ||
+                        (tokenList[tokenCount - 1].getLine() < tokenList[tokenCount].getLine())))
+                {
+                    actualToken = tokenList[tokenCount - 2];
+                }
             }
 
             errorToken = actualToken;
@@ -101,23 +110,29 @@ namespace Compilador
             {
                 throwError(new Exception(ERRO_LEXICO));
             }
+
+            if (!hasEndedTokens && isSimbol(PONTO) && (tokenCount != tokenList.Count()))
+            {
+                throwError(new Exception(ERRO_PONTO));
+            }
         }
 
         private Token getActualToken()
         {
             Token token;
 
-               if (tokenCount == tokenList.Count())
-               {
-                    hasEndedTokens = true;
-                    token = actualToken;
-                }
-                else
-                {
-                    token = tokenList[tokenCount];
-                    tokenCount++;
-                }
-      
+            if (tokenCount == tokenList.Count())
+            {
+                hasEndedTokens = true;
+                token = actualToken;
+
+            }
+            else
+            {
+                token = tokenList[tokenCount];
+                tokenCount++;
+            }
+
             return token;
         }
 
@@ -175,13 +190,13 @@ namespace Compilador
 
                             if (!hasEndedTokens && isSimbol(DOIS_PONTOS))
                             {
-                                throwError(new Exception(ERRO_FALTA));
+                                throwError(new Exception(ERRO_MAIS));
                             }
                         }
                     }
                     else
                     {
-                        throwError(new Exception(ERRO_FALTA));
+                        throwError(new Exception(ERRO_SINTATICO));
                     }
                 }
                 else
@@ -235,14 +250,16 @@ namespace Compilador
                         throwError(new Exception(ERRO_PV));
                     }
                 }
-
                 updateToken();
 
+                if (!hasEndedTokens && (!isSimbol(PONTO_VIRGULA) && !isSimbol(PONTO)))
+                {
+                    throwError(new Exception(ERRO_SINTATICO));
+                }
+
             }
-            else
-            {
-                throwError(new Exception(ERRO_FALTA));
-            }
+
+
         }
 
         private void analisaComandoSimples()
@@ -296,7 +313,7 @@ namespace Compilador
                 }
                 else
                 {
-                    throwError(new Exception(ERRO_FALTA));
+                    throwError(new Exception(ERRO_SINTATICO));
                 }
             }
             else
@@ -328,7 +345,7 @@ namespace Compilador
                 }
                 else
                 {
-                    throwError(new Exception(ERRO_FALTA));
+                    throwError(new Exception(ERRO_SINTATICO));
                 }
             }
             else
@@ -373,7 +390,8 @@ namespace Compilador
 
                     analisaComandoSimples();
                 }
-                
+
+
             }
             else
             {
@@ -395,7 +413,7 @@ namespace Compilador
             }
             else
             {
-                throwError(new Exception(ERRO_FALTA));
+                throwError(new Exception(ERRO_SINTATICO));
             }
 
         }
@@ -489,14 +507,11 @@ namespace Compilador
                         throwError(new Exception(ERRO_TIPO));
                     }
                 }
-                else
-                {
-                    throwError(new Exception(ERRO_FALTA));
-                }
+
             }
             else
             {
-                throwError(new Exception(ERRO_FALTA));
+                throwError(new Exception(ERRO_SINTATICO));
             }
         }
 

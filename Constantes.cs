@@ -54,6 +54,7 @@
         public const string ERRO_TIPO = "são aceitos apenas INTEIRO ou BOOLEANO";
         public const string ERRO_INICIO = "falta INICIO";
         public const string ERRO_PARENTESIS = "falta parentesis";
-        public const string ERRO_MAIS = "linha com caracter a mais ou falta parenteses";
+        public const string ERRO_MAIS = "linha com caracter a mais";
+        public const string ERRO_PONTO = "ponto final apenas no último fim";
     }
 }
