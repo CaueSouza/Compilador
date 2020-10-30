@@ -27,9 +27,9 @@ namespace Compilador
             actualLevel--;
         }
 
-        public void resetLevel()
+        public void resetStack()
         {
-            actualLevel = 0;
+            stack.cleanStack();
         }
 
         public void insereTabela(string lexema, string nome, int rotulo)
@@ -81,7 +81,7 @@ namespace Compilador
             {
                 Struct actualItem = stack.getPosition(i);
 
-                if (actualItem.nome.Equals(NOME_VARIAVEL) && actualItem.lexema.Equals(lexema) && actualItem.nivel == actualLevel)
+                if (actualItem.nome.Equals(NOME_VARIAVEL) && actualItem.lexema.Equals(lexema))
                 {
                     return true;
                 }
@@ -115,7 +115,7 @@ namespace Compilador
             {
                 Struct actualItem = stack.getPosition(i);
 
-                if (actualItem.nome.Equals(NOME_PROCEDIMENTO) && actualItem.lexema.Equals(lexema) && actualItem.nivel == actualLevel)
+                if (actualItem.nome.Equals(NOME_PROCEDIMENTO) && actualItem.lexema.Equals(lexema))
                 {
                     return true;
                 }
@@ -143,6 +143,18 @@ namespace Compilador
 
         public Struct pesquisaTabela(string lexema, int indice)
         {
+            int stackSize = stack.getLength();
+
+            for (int i = stackSize; i >= 0; i--)
+            {
+                Struct actualItem = stack.getPosition(i);
+
+                if (actualItem.lexema.Equals(lexema) && (actualItem.nome.Equals(NOME_VARIAVEL) || actualItem.nome.Equals(NOME_FUNCAO)))
+                {
+                    return actualItem;
+                }
+            }
+
             return null;
         }
 
@@ -160,6 +172,7 @@ namespace Compilador
                 }
                 else
                 {
+                    decreaseLevel();
                     return;
                 }
             }

@@ -23,7 +23,7 @@ namespace Compilador
             errorToken = null;
             actualToken = null;
             tokenList = null;
-            semantico.resetLevel();
+            semantico.resetStack();
         }
 
         public void executeSintatico(List<Token> tokens, Semantico semantico)
@@ -292,7 +292,7 @@ namespace Compilador
 
                 if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                 {
-                    if (!semantico.pesquisaDeclVarTabela(actualToken.lexem))
+                    if (semantico.pesquisaDeclVarTabela(actualToken.lexem))
                     {
                         updateToken();
 
@@ -331,7 +331,7 @@ namespace Compilador
 
                 if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                 {
-                    if (!semantico.pesquisaDeclVarTabela(actualToken.lexem))
+                    if (semantico.pesquisaDeclVarTabela(actualToken.lexem))
                     {
                         updateToken();
 
@@ -456,13 +456,13 @@ namespace Compilador
         private void analisaDeclaracaoProcedimento()
         {
             updateToken();
-            semantico.increaseLevel();;
 
             if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
             {
                 if (!semantico.pesquisaDeclProcTabela(actualToken.lexem))
                 {
                     semantico.insereTabela(actualToken.lexem, NOME_PROCEDIMENTO, 0);
+                    semantico.increaseLevel();
                     updateToken();
 
                     if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
@@ -485,19 +485,18 @@ namespace Compilador
             }
 
             semantico.voltaNivel();
-            semantico.decreaseLevel();;
         }
 
         private void analisaDeclaracaoFuncao()
         {
             updateToken();
-            semantico.increaseLevel();;
 
             if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
             {
                 if (!semantico.pesquisaDeclFuncTabela(actualToken.lexem))
                 {
                     semantico.insereTabela(actualToken.lexem, NOME_FUNCAO, 0);
+                    semantico.increaseLevel();
                     updateToken();
 
                     if (!hasEndedTokens && isSimbol(DOIS_PONTOS))
@@ -535,7 +534,6 @@ namespace Compilador
             }
 
             semantico.voltaNivel();
-            semantico.decreaseLevel();;
         }
 
         private void analisaExpressao()
@@ -586,7 +584,7 @@ namespace Compilador
             {
                 Struct actualItem = semantico.pesquisaTabela(actualToken.lexem, 0);
 
-                if (actualItem != null)//VERIFICAR INDICE
+                if (actualItem != null)
                 {
                     if (actualItem.tipo == "inteiro" || actualItem.tipo == "booleano")
                     {

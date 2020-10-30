@@ -164,16 +164,16 @@ namespace Compilador
                         switch (errorToken.errorType)
                         {
                             case DUPLIC_VAR_ERROR:
-                                richTextBox2.Text += "Variavel '" + errorToken.lexem + "' duplicada na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += "Variavel '" + errorToken.lexem + "' nao declarada ou duplicada na linha " + errorToken.line + "\n";
                                 break;
                             case DECL_VAR_ERROR:
-                                richTextBox2.Text += "Variavel '" + errorToken.lexem + "' duplicada na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += "Variavel '" + errorToken.lexem + "' nao declarada ou duplicada na linha " + errorToken.line + "\n";
                                 break;
                             case DECL_PROC_ERROR:
-                                richTextBox2.Text += "Procedimento '" + errorToken.lexem + "' duplicado na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += "Procedimento '" + errorToken.lexem + "' nao declarada ou duplicado na linha " + errorToken.line + "\n";
                                 break;
                             case DECL_FUNC_ERROR:
-                                richTextBox2.Text += "Funcao '" + errorToken.lexem + "' duplicada na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += "Funcao '" + errorToken.lexem + "' nao declarada ou duplicada na linha " + errorToken.line + "\n";
                                 break;
                             case ITEM_NOT_FOUND:
                                 richTextBox2.Text += "Item '" + errorToken.lexem + "' não encontrado\n";
