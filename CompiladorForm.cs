@@ -9,22 +9,20 @@ namespace Compilador
     public partial class CompiladorForm : Form
     {
         private static FileManager fileReader = new FileManager();
-        public bool pintado = false;
-        Lexico lexico = new Lexico();
-        Sintatico sintatico = new Sintatico();
-        Semantico semantico = new Semantico();
+        private bool pintado = false;
+        private Lexico lexico = new Lexico();
+        private Sintatico sintatico = new Sintatico();
+        private Semantico semantico = new Semantico();
         private int lastIndex = 0;
         private int lastLength = 0;
-        public List<int> KeyCodes = new List<int>() { 17, 86 }; //ctrl + v
-        public int storeLastLine = -1;
 
         public CompiladorForm()
         {
             InitializeComponent();
-            AddLineNumbers();
+            addLineNumbers();
         }
 
-        public void AddLineNumbers()
+        private void addLineNumbers()
         {
             // create & set Point pt to (0,0)    
             Point pt = new Point(0, 0);
@@ -56,7 +54,7 @@ namespace Compilador
         {
             LineNumberTextBox.Font = richTextBox1.Font;
             richTextBox1.Select();
-            AddLineNumbers();
+            addLineNumbers();
         }
 
         private void richTextBox1_SelectionChanged(object sender, EventArgs e)
@@ -64,14 +62,14 @@ namespace Compilador
             Point pt = richTextBox1.GetPositionFromCharIndex(richTextBox1.SelectionStart);
             if (pt.X == 1)
             {
-                AddLineNumbers();
+                addLineNumbers();
             }
         }
 
         private void richTextBox1_VScroll(object sender, EventArgs e)
         {
             LineNumberTextBox.Text = "";
-            AddLineNumbers();
+            addLineNumbers();
             LineNumberTextBox.Invalidate();
         }
 
@@ -79,7 +77,7 @@ namespace Compilador
         {
             if (richTextBox1.Text == "")
             {
-                AddLineNumbers();
+                addLineNumbers();
             }
             richTextBox1.Font = new Font("Microsoft Sans Serif", 9);
         }
@@ -88,7 +86,7 @@ namespace Compilador
         {
             LineNumberTextBox.Font = richTextBox1.Font;
             richTextBox1.Select();
-            AddLineNumbers();
+            addLineNumbers();
         }
 
         private void RichTextBox1_KeyDown(object sender, KeyEventArgs e)
@@ -96,23 +94,9 @@ namespace Compilador
 
         }
 
-        public void MarkSingleLine()
-        {
-            int firstCharOfLineIndex = richTextBox1.GetFirstCharIndexOfCurrentLine();
-            int currentLine = richTextBox1.GetLineFromCharIndex(firstCharOfLineIndex);
-            richTextBox1.SelectionStart = currentLine;
-            richTextBox1.SelectionBackColor = Color.Aqua;
-        }
-
-        private void LineNumberTextBox_MouseDown(object sender, MouseEventArgs e)
-        {
-            richTextBox1.Select();
-            LineNumberTextBox.DeselectAll();
-        }
-
         private void CompiladorForm_Resize(object sender, EventArgs e)
         {
-            AddLineNumbers();
+            addLineNumbers();
         }
 
         private void compilarToolStripMenuItem_Click(object sender, EventArgs e)
@@ -219,7 +203,7 @@ namespace Compilador
         {
             string fullstring = fileReader.readFile();
             richTextBox1.Text = fullstring.Equals("") ? richTextBox1.Text : fullstring;
-            AddLineNumbers();
+            addLineNumbers();
         }
 
         private void salvarToolStripMenuItem_Click(object sender, EventArgs e)

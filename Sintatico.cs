@@ -12,7 +12,7 @@ namespace Compilador
         private Token actualToken;
         private List<Token> tokenList;
         private int tokenCount;
-        public Token errorToken;
+        public Token errorToken { get; }
         private bool hasEndedTokens = false;
         private Semantico semantico;
 
