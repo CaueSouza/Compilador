@@ -240,10 +240,6 @@ namespace Compilador
                         {
                             analisaComandoSimples();
                         }
-                        else
-                        {
-                            throwError(new Exception(ERRO_FALTA));
-                        }
                     }
                     else
                     {
