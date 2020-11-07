@@ -12,9 +12,10 @@ namespace Compilador
         private Token actualToken;
         private List<Token> tokenList;
         private int tokenCount;
-        public Token errorToken { get; }
+        public Token errorToken { get; set; }
         private bool hasEndedTokens = false;
         private Semantico semantico;
+        private int parentesisCount = 0;
 
         private void resetValidators()
         {
@@ -24,6 +25,7 @@ namespace Compilador
             actualToken = null;
             tokenList = null;
             semantico.resetStack();
+            parentesisCount = 0;
         }
 
         public void executeSintatico(List<Token> tokens, Semantico semantico)
@@ -543,9 +545,15 @@ namespace Compilador
             if (!hasEndedTokens &&
                 (isSimbol(MAIOR) || isSimbol(MAIORIG) || isSimbol(IGUAL) || isSimbol(MENOR) || isSimbol(MENORIG) || isSimbol(DIF)))
             {
+                semantico.addCharToExpression(actualToken);
                 updateToken();
 
                 analisaExpressaoSimples();
+            }
+
+            if (parentesisCount == 0)
+            {
+                semantico.analyzeExpression();
             }
         }
 
@@ -553,6 +561,7 @@ namespace Compilador
         {
             if (!hasEndedTokens && (isSimbol(MAIS) || isSimbol(MENOS)))
             {
+                semantico.addCharToExpression(actualToken);
                 updateToken();
             }
 
@@ -560,6 +569,7 @@ namespace Compilador
 
             while (!hasEndedTokens && (isSimbol(MAIS) || isSimbol(MENOS) || isSimbol(OU)))
             {
+                semantico.addCharToExpression(actualToken);
                 updateToken();
 
                 analisaTermo();
@@ -572,6 +582,7 @@ namespace Compilador
 
             if (!hasEndedTokens && (isSimbol(MULT) || isSimbol(DIV) || isSimbol(E)))
             {
+                semantico.addCharToExpression(actualToken);
                 updateToken();
 
                 analisaFator();
@@ -586,6 +597,8 @@ namespace Compilador
 
                 if (actualItem != null)
                 {
+                    semantico.addCharToExpression(actualToken);
+
                     if (actualItem.tipo == "inteiro" || actualItem.tipo == "booleano")
                     {
                         analisaChamadaFuncao();
@@ -602,22 +615,28 @@ namespace Compilador
             }
             else if (!hasEndedTokens && isSimbol(NUMERO))
             {
+                semantico.addCharToExpression(actualToken);
                 updateToken();
             }
             else if (!hasEndedTokens && isSimbol(NAO))
             {
+                semantico.addCharToExpression(actualToken);
                 updateToken();
 
                 analisaFator();
             }
             else if (!hasEndedTokens && isSimbol(ABRE_PARENTESES))
             {
+                parentesisCount++;
+                semantico.addCharToExpression(actualToken);
                 updateToken();
 
                 analisaExpressao();
 
                 if (!hasEndedTokens && isSimbol(FECHA_PARENTESES))
                 {
+                    parentesisCount--;
+                    semantico.addCharToExpression(actualToken);
                     updateToken();
                 }
                 else
@@ -627,6 +646,7 @@ namespace Compilador
             }
             else if (!hasEndedTokens && (isSimbol(VERDADEIRO) || isSimbol(FALSO)))
             {
+                semantico.addCharToExpression(actualToken);
                 updateToken();
             }
             else

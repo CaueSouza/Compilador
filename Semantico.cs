@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Text;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,12 +10,14 @@ namespace Compilador
 {
     class Semantico
     {
-        private Stack stack = Stack.Instance;
+        private Stack stack;
         private int actualLevel = 0;
+        private List<string> expression = new List<string>();
+        private string posFixExpression = "";
 
         public Semantico()
         {
-
+            stack = new Stack();
         }
 
         public void increaseLevel()
@@ -175,6 +178,186 @@ namespace Compilador
                     decreaseLevel();
                     return;
                 }
+            }
+        }
+
+        public void addCharToExpression(Token caractere)
+        {
+            expression.Add(caractere.lexem);
+        }
+
+        public void cleanExpression()
+        {
+            expression.Clear();
+            posFixExpression = "";
+        }
+
+        public string analyzeExpression()
+        {
+            convertExpressionToPosFix();
+            string finalPosFixExpression = posFixExpression;
+            cleanExpression();
+            return finalPosFixExpression;
+        }
+
+        private void convertExpressionToPosFix()
+        {
+            Stack<string> posFixStack = new Stack<string>();
+            int timesPopped;
+
+            for (int i = 0; i < expression.Count; i++)
+            {
+                switch (expression[i])
+                {
+                    case "*":
+                    case "div":
+                    case "=":
+                    case "!=":
+                    case ">":
+                    case ">=":
+                    case "<":
+                    case "<=":
+                    case "e":
+                    case "ou":
+                    case "nao":
+                    case "+":
+                    case "-":
+                        if (posFixStack.Count > 0)
+                        {
+                            int myPriority = getPriority(expression[i], i);
+                            int topStackPriority = getPriority(posFixStack.Peek(), i);
+
+                            if (myPriority <= topStackPriority)
+                            {
+                                try
+                                {
+                                    timesPopped = 0;
+                                    do
+                                    {
+                                        posFixExpression += posFixStack.Pop();
+                                        timesPopped++;
+                                        topStackPriority = getPriority(posFixStack.Peek(), i - timesPopped);
+                                    } while (topStackPriority >= myPriority);
+                                }
+                                catch (InvalidOperationException)
+                                {
+
+                                }
+
+                                if ((expression[i].Equals("+") || expression[i].Equals("-")) && isUnary(i))
+                                {
+                                    expression[i] += "u";
+                                }
+                                posFixStack.Push(expression[i]);
+                            }
+                            else
+                            {
+                                if ((expression[i].Equals("+") || expression[i].Equals("-")) && isUnary(i))
+                                {
+                                    expression[i] += "u";
+                                }
+                                posFixStack.Push(expression[i]);
+                            }
+                        }
+                        else
+                        {
+                            if ((expression[i].Equals("+") || expression[i].Equals("-")) && isUnary(i))
+                            {
+                                expression[i] += "u";
+                            }
+                            
+                            posFixStack.Push(expression[i]);
+
+                        }
+                        break;
+
+                    case "(":
+                        posFixStack.Push(expression[i]);
+                        break;
+                    case ")":
+                        do
+                        {
+                            posFixExpression += posFixStack.Pop();
+                        } while (posFixStack.Peek() != "(");
+
+                        posFixStack.Pop();
+                        break;
+                    default:
+                        posFixExpression += expression[i];
+                        break;
+                }
+            }
+
+            while (posFixStack.Count > 0)
+            {
+                posFixExpression += posFixStack.Pop();
+            }
+        }
+
+        private int getPriority(string caractere, int position)
+        {
+            switch (caractere)
+            {
+                case "ou":
+                    return 1;
+
+                case "e":
+                    return 2;
+
+                case "=":
+                case "!=":
+                    return 3;
+
+                case ">":
+                case ">=":
+                case "<":
+                case "<=":
+                    return 4;
+
+                case "+":
+                case "-":
+                    return 5;
+
+                case "*":
+                case "div":
+                    return 6;
+
+                case "-u":
+                case "+u":
+                case "nao":
+                    return 7;
+
+                default:
+                    return 0;
+            }
+        }
+
+        private bool isUnary(int position)
+        {
+            if (position == 0) return true;
+
+            string pastChar = expression.ElementAt(position - 1);
+
+            switch (pastChar)
+            {
+                case "*":
+                case "div":
+                case "=":
+                case "!=":
+                case ">":
+                case ">=":
+                case "<":
+                case "<=":
+                case "e":
+                case "ou":
+                case "nao":
+                case "+":
+                case "-":
+                case "(":
+                case ")":
+                    return true;
+                default:
+                    return false;
             }
         }
     }

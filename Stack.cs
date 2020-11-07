@@ -8,29 +8,17 @@ namespace Compilador
 {
     class Stack
     {
-		private static Stack instance = null;
 		private int top;
 		private int capacity;
 		private Struct[] array;
 
-		private Stack()
+		public Stack()
 		{
 			capacity = 1;
 			array = new Struct[capacity];
 			top = -1;
 		}
 
-		public static Stack Instance
-		{
-			get
-			{
-				if (instance == null)
-				{
-					instance = new Stack();
-				}
-				return instance;
-			}
-		}
 
 		public void push(Struct data)
 		{
