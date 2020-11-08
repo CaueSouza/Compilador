@@ -116,7 +116,7 @@ namespace Compilador
                 sintatico.executeSintatico(lexico.getTokens(), semantico);
                 return true;
             }
-            catch (Exception exception)
+            catch (CompiladorException exception)
             {
                 Token errorToken = sintatico.errorToken;
 
@@ -161,6 +161,9 @@ namespace Compilador
                                 break;
                             case ITEM_NOT_FOUND:
                                 richTextBox2.Text += "Item '" + errorToken.lexem + "' não encontrado\n";
+                                break;
+                            case INVALID_TYPES:
+                                richTextBox2.Text += "Expressao da linha " + errorToken.line + " com tipos incoerentes\n";
                                 break;
                         }
                         break;

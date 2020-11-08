@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing.Text;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using static Compilador.Constantes;
@@ -13,7 +14,7 @@ namespace Compilador
         private Stack stack;
         private int actualLevel = 0;
         private List<string> expression = new List<string>();
-        private string posFixExpression = "";
+        private List<string> posFixExpression = new List<string>();
 
         public Semantico()
         {
@@ -189,15 +190,23 @@ namespace Compilador
         public void cleanExpression()
         {
             expression.Clear();
-            posFixExpression = "";
+            posFixExpression.Clear();
         }
 
         public string analyzeExpression()
         {
             convertExpressionToPosFix();
-            string finalPosFixExpression = posFixExpression;
+            string expResult = validateExpressionReturnType();
+
+            string finalPosFixExpression = "";
+
+            foreach (string expressao in posFixExpression)
+            {
+                finalPosFixExpression += expressao;
+            }
+
             cleanExpression();
-            return finalPosFixExpression;
+            return finalPosFixExpression + " / " + expResult;
         }
 
         private void convertExpressionToPosFix()
@@ -234,7 +243,7 @@ namespace Compilador
                                     timesPopped = 0;
                                     do
                                     {
-                                        posFixExpression += posFixStack.Pop();
+                                        posFixExpression.Add(posFixStack.Pop());
                                         timesPopped++;
                                         topStackPriority = getPriority(posFixStack.Peek(), i - timesPopped);
                                     } while (topStackPriority >= myPriority);
@@ -261,7 +270,7 @@ namespace Compilador
                         }
                         else
                         {
-                            if ((expression[i].Equals("+") || expression[i].Equals("-")) && isUnary(i))
+                            if (((expression[i].Equals("+") || expression[i].Equals("-")) && isUnary(i)) || expression[i].Equals("nao"))
                             {
                                 expression[i] += "u";
                             }
@@ -277,20 +286,20 @@ namespace Compilador
                     case ")":
                         do
                         {
-                            posFixExpression += posFixStack.Pop();
+                            posFixExpression.Add(posFixStack.Pop());
                         } while (posFixStack.Peek() != "(");
 
                         posFixStack.Pop();
                         break;
                     default:
-                        posFixExpression += expression[i];
+                        posFixExpression.Add(expression[i]);
                         break;
                 }
             }
 
             while (posFixStack.Count > 0)
             {
-                posFixExpression += posFixStack.Pop();
+                posFixExpression.Add(posFixStack.Pop());
             }
         }
 
@@ -324,7 +333,7 @@ namespace Compilador
 
                 case "-u":
                 case "+u":
-                case "nao":
+                case "naou":
                     return 7;
 
                 default:
@@ -359,6 +368,142 @@ namespace Compilador
                 default:
                     return false;
             }
+        }
+
+        private string validateExpressionReturnType()
+        {
+            Stack<string> typesValidationStack = new Stack<string>();
+            string tipoPos1;
+            string tipoPos2;
+
+            for (int i = 0; i < posFixExpression.Count; i++)
+            {
+                switch (posFixExpression[i])
+                {
+                    case "*":
+                    case "div":
+                    case "+":
+                    case "-":
+                    case ">":
+                    case ">=":
+                    case "<":
+                    case "<=":
+                        tipoPos1 = typesValidationStack.Pop();
+                        tipoPos2 = typesValidationStack.Pop();
+
+                        if (tipoPos1 == TIPO_INTEIRO && tipoPos2 == TIPO_INTEIRO)
+                        {
+                            if (posFixExpression[i].Equals("*") || posFixExpression[i].Equals("div") || posFixExpression[i].Equals("+") || posFixExpression[i].Equals("-"))
+                            {
+                                typesValidationStack.Push(TIPO_INTEIRO);
+                            }
+                            else
+                            {
+                                typesValidationStack.Push(TIPO_BOOLEANO);
+                            }
+                        }
+                        else
+                        {
+                            throw new CompiladorException(ERRO_SEMANTICO);
+                        }
+
+                        break;
+
+                    case "=":
+                    case "!=":
+                        tipoPos1 = typesValidationStack.Pop();
+                        tipoPos2 = typesValidationStack.Pop();
+
+                        if (tipoPos1 == TIPO_INTEIRO && tipoPos2 == TIPO_INTEIRO)
+                        {
+                            typesValidationStack.Push(TIPO_BOOLEANO);
+                        }
+                        else if(tipoPos1 == TIPO_BOOLEANO && tipoPos2 == TIPO_BOOLEANO)
+                        {
+                            typesValidationStack.Push(TIPO_BOOLEANO);
+                        }
+                        else
+                        {
+                            throw new CompiladorException(ERRO_SEMANTICO);
+                        }
+                        break;
+                    case "e":
+                    case "ou":
+                        tipoPos1 = typesValidationStack.Pop();
+                        tipoPos2 = typesValidationStack.Pop();
+
+                        if (tipoPos1 == TIPO_BOOLEANO && tipoPos2 == TIPO_BOOLEANO)
+                        {
+                            typesValidationStack.Push(TIPO_BOOLEANO);
+                        }
+                        else
+                        {
+                            throw new CompiladorException(ERRO_SEMANTICO);
+                        }
+                        break;
+
+                    case "naou":
+                        tipoPos1 = typesValidationStack.Pop();
+
+                        if (tipoPos1 == TIPO_BOOLEANO)
+                        {
+                            typesValidationStack.Push(TIPO_BOOLEANO);
+                        }
+                        else
+                        {
+                            throw new CompiladorException(ERRO_SEMANTICO);
+                        }
+                        break;
+
+                    case "+u":
+                    case "-u":
+                        tipoPos1 = typesValidationStack.Pop();
+
+                        if (tipoPos1 == TIPO_INTEIRO)
+                        {
+                            typesValidationStack.Push(TIPO_INTEIRO);
+                        }
+                        else
+                        {
+                            throw new CompiladorException(ERRO_SEMANTICO);
+                        }
+                        break;
+
+                    default:
+                        if (int.TryParse(posFixExpression[i], out _))
+                        {
+                            typesValidationStack.Push(TIPO_INTEIRO);
+                        }
+                        else if (posFixExpression[i].Equals(TIPO_INTEIRO) || posFixExpression[i].Equals(TIPO_BOOLEANO))
+                        {
+                            typesValidationStack.Push(posFixExpression[i]);
+                        }
+                        else
+                        {
+                            typesValidationStack.Push(getIdentifierType(posFixExpression[i]));
+                        }
+                        break;
+                }
+            }
+
+            return typesValidationStack.Pop();
+        }
+
+        private string getIdentifierType(string identificador)
+        {
+            int stackSize = stack.getLength();
+
+            for (int i = stackSize; i >= 0; i--)
+            {
+                Struct actualItem = stack.getPosition(i);
+
+                if (actualItem.lexema.Equals(identificador) && (actualItem.nome.Equals(NOME_VARIAVEL) || actualItem.nome.Equals(NOME_FUNCAO) || actualItem.nome.Equals(NOME_PROCEDIMENTO)))
+                {
+                    return actualItem.tipo;
+                }
+            }
+
+            throw new CompiladorException(ERRO_SEMANTICO);
         }
     }
 }
