@@ -582,18 +582,6 @@ namespace Compilador
 
                 analisaExpressaoSimples();
             }
-
-            if (parentesisCount == 0)
-            {
-                try
-                {
-                    string posfix = semantico.analyzeExpression();
-                }
-                catch (CompiladorException exception)
-                {
-                    throwError(exception, INVALID_TYPES, analyzeExpressionStarterLine);
-                }
-            }
         }
 
         private void analisaExpressaoSimples()
