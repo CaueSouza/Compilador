@@ -139,7 +139,41 @@ namespace Compilador
 
                     case ERRO_SINTATICO:
                         paintErrorLine(errorToken.line);
-                        richTextBox2.Text += "Erro-> '" + errorToken.lexem + "' na linha " + errorToken.line + "\n";
+
+                        switch (errorToken.errorType)
+                        {
+                            case ERRO_PV:                             
+                                richTextBox2.Text += "Erro-> falta ponto e virgula na linha " + errorToken.line + "\n";
+                                break;
+
+                            case ERRO_NOME:                        
+                                richTextBox2.Text += "Erro-> não pode usar palavra pré determinada na linha " + errorToken.line + "\n";
+                                break;
+
+                            case ERRO_FALTA:                      
+                                richTextBox2.Text += "Erro-> falta caracter ou comando errado na linha" + errorToken.line + "\n";
+                                break;
+
+                            case ERRO_INICIO:                   
+                                richTextBox2.Text += "Erro-> falta INICIO na linha " + errorToken.line + "\n";
+                                break;
+
+                            case ERRO_PARENTESIS:                 
+                                richTextBox2.Text += "Erro-> falta parentesis na linha " + errorToken.line + "\n";
+                                break;
+
+                            case ERRO_TIPO:            
+                                richTextBox2.Text += "Erro-> são aceitos apenas INTEIRO ou BOOLEANO na linha " + errorToken.line + "\n";
+                                break;
+
+                            case ERRO_MAIS:        
+                                richTextBox2.Text += "Erro-> linha com caracter a mais na linha " + errorToken.line + "\n";
+                                break;
+
+                            case ERRO_PONTO:        
+                                richTextBox2.Text += "Erro-> ponto final apenas no último fim na linha " + errorToken.line + "\n";
+                                break;
+                        }
                         break;
 
                     case ERRO_SEMANTICO:
