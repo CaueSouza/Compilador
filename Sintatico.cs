@@ -378,6 +378,7 @@ namespace Compilador
         {
             updateToken();
 
+            semantico.cleanExpression();
             analisaExpressao();
 
             returnType = semantico.analyzeExpression();
@@ -385,6 +386,12 @@ namespace Compilador
             if (!returnType.Equals(TIPO_BOOLEANO))
             {
                 throwError(new CompiladorException(), INVALID_TYPES, analyzeExpressionStarterLine);
+            }
+            else
+            {
+                List<string> posFixExpression = semantico.getPosFixExpression();
+
+                //TODO GERAR CODIGO PARA A POSFIXA
             }
 
             if (!hasEndedTokens && isSimbol(FACA))
@@ -403,6 +410,7 @@ namespace Compilador
         {
             updateToken();
 
+            semantico.cleanExpression();
             analisaExpressao();
 
             returnType = semantico.analyzeExpression();
@@ -410,6 +418,12 @@ namespace Compilador
             if (!returnType.Equals(TIPO_BOOLEANO))
             {
                 throwError(new CompiladorException(), INVALID_TYPES, analyzeExpressionStarterLine);
+            }
+            else
+            {
+                List<string> posFixExpression = semantico.getPosFixExpression();
+
+                //TODO GERAR CODIGO PARA A POSFIXA
             }
 
             if (!hasEndedTokens && isSimbol(ENTAO))
@@ -696,6 +710,7 @@ namespace Compilador
         {
             updateToken();
 
+            semantico.cleanExpression();
             analisaExpressao();
 
             returnType = semantico.analyzeExpression();
@@ -703,6 +718,12 @@ namespace Compilador
             if (!returnType.Equals(assignmentVarType))
             {
                 throwError(new CompiladorException(), INVALID_TYPES, analyzeExpressionStarterLine);
+            }
+            else
+            {
+                List<string> posFixExpression = semantico.getPosFixExpression();
+
+                //TODO GERAR CODIGO PARA A POSFIXA
             }
         }
     }
