@@ -42,14 +42,14 @@ namespace Compilador
             stack.push(new Struct(lexema, nome, actualLevel, rotulo));
         }
 
-        public bool pesquisaDuplicVarTabela(string lexema)
+        public bool pesquisaDuplicVarTabela(string lexema)//TODO: OTIMIZAR ESSA FUNCAO
         {
             int stackSize = stack.getLength();
 
             for (int i = stackSize; i >= 0; i--)
             {
                 Struct actualItem = stack.getPosition(i);
-
+                
                 if (actualItem.nome.Equals(NOME_VARIAVEL) && actualItem.lexema.Equals(lexema) && actualItem.nivel == actualLevel)
                 {
                     return true;
@@ -192,6 +192,7 @@ namespace Compilador
         {
             expression.Clear();
             posFixExpression.Clear();
+            finalPosFixExpression = "";
         }
 
         public List<string> getPosFixExpression()

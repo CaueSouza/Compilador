@@ -17,8 +17,8 @@ namespace Compilador
         private Semantico semantico;
         private int parentesisCount = 0;
         private int analyzeExpressionStarterLine = 0;
-        string returnType = "";
-        string assignmentVarType = "";
+        private string returnType = "";
+        private Token tokenAtribuicao;
 
         private void resetValidators()
         {
@@ -31,7 +31,7 @@ namespace Compilador
             parentesisCount = 0;
             analyzeExpressionStarterLine = 0;
             returnType = "";
-            assignmentVarType = "";
+            tokenAtribuicao = null;
         }
 
         public void executeSintatico(List<Token> tokens, Semantico semantico)
@@ -376,12 +376,21 @@ namespace Compilador
 
         private void analisaEnquanto()
         {
+            int auxrot1, auxrot2;
+
             updateToken();
 
             semantico.cleanExpression();
             analisaExpressao();
 
-            returnType = semantico.analyzeExpression();
+            try
+            {
+                returnType = semantico.analyzeExpression();
+            }
+            catch (CompiladorException e)
+            {
+                throwError(e, INVALID_TYPES, analyzeExpressionStarterLine);
+            }
             
             if (!returnType.Equals(TIPO_BOOLEANO))
             {
@@ -413,7 +422,14 @@ namespace Compilador
             semantico.cleanExpression();
             analisaExpressao();
 
-            returnType = semantico.analyzeExpression();
+            try
+            {
+                returnType = semantico.analyzeExpression();
+            }
+            catch (CompiladorException e)
+            {
+                throwError(e, INVALID_TYPES, analyzeExpressionStarterLine);
+            }
 
             if (!returnType.Equals(TIPO_BOOLEANO))
             {
@@ -447,12 +463,19 @@ namespace Compilador
 
         private void analisaAtribChamadaProc()
         {
-            assignmentVarType = semantico.pesquisaTabela(actualToken.lexem, 0).tipo;
+            tokenAtribuicao = actualToken;
             updateToken();
 
             if (!hasEndedTokens && isSimbol(ATRIBUICAO))
             {
-                analisaAtribuicao();
+                if (semantico.pesquisaTabela(tokenAtribuicao.lexem, 0).nome.Equals(NOME_VARIAVEL))
+                {
+                    analisaAtribuicao();
+                }
+                else
+                {
+                    throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_TYPES, tokenAtribuicao.line);
+                }
             }
             else
             {
@@ -713,9 +736,16 @@ namespace Compilador
             semantico.cleanExpression();
             analisaExpressao();
 
-            returnType = semantico.analyzeExpression();
+            try
+            {
+                returnType = semantico.analyzeExpression();
+            }
+            catch (CompiladorException e)
+            {
+                throwError(e, INVALID_TYPES, analyzeExpressionStarterLine);
+            }
 
-            if (!returnType.Equals(assignmentVarType))
+            if (!returnType.Equals(semantico.pesquisaTabela(tokenAtribuicao.lexem, 0).tipo))
             {
                 throwError(new CompiladorException(), INVALID_TYPES, analyzeExpressionStarterLine);
             }
