@@ -19,6 +19,7 @@ namespace Compilador
         private int analyzeExpressionStarterLine = 0;
         private string returnType = "";
         private Token tokenAtribuicao;
+        private int rotulo = 1;
 
         private void resetValidators()
         {
@@ -32,6 +33,7 @@ namespace Compilador
             analyzeExpressionStarterLine = 0;
             returnType = "";
             tokenAtribuicao = null;
+            rotulo = 1;
         }
 
         public void executeSintatico(List<Token> tokens, Semantico semantico)
@@ -306,7 +308,7 @@ namespace Compilador
 
                 if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                 {
-                    if (semantico.pesquisaDeclVarTabela(actualToken.lexem))
+                    if (semantico.pesquisaDeclVarFuncTabela(actualToken.lexem))
                     {
                         updateToken();
 
@@ -321,7 +323,7 @@ namespace Compilador
                     }
                     else
                     {
-                        throwError(new CompiladorException(ERRO_SEMANTICO), DECL_VAR_ERROR);
+                        throwError(new CompiladorException(ERRO_SEMANTICO), DECL_VAR_FUNC_ERROR);
                     }
                 }
                 else

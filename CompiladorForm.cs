@@ -165,6 +165,9 @@ namespace Compilador
                             case INVALID_TYPES:
                                 richTextBox2.Text += "Expressao da linha " + errorToken.line + " com tipos incoerentes\n";
                                 break;
+                            case DECL_VAR_FUNC_ERROR:
+                                richTextBox2.Text += "Variavel ou funcao nao encontrada na linha " + errorToken.line + "\n";
+                                break;
                         }
                         break;
                 }

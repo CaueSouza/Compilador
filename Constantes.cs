@@ -63,5 +63,6 @@
         public const int DECL_PROC_ERROR = 4;
         public const int DECL_FUNC_ERROR = 5;
         public const int INVALID_TYPES = 6;
+        public const int DECL_VAR_FUNC_ERROR = 7;
     }
 }

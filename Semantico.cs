@@ -42,17 +42,24 @@ namespace Compilador
             stack.push(new Struct(lexema, nome, actualLevel, rotulo));
         }
 
-        public bool pesquisaDuplicVarTabela(string lexema)//TODO: OTIMIZAR ESSA FUNCAO
+        public bool pesquisaDuplicVarTabela(string lexema)
         {
             int stackSize = stack.getLength();
 
             for (int i = stackSize; i >= 0; i--)
             {
                 Struct actualItem = stack.getPosition(i);
-                
-                if (actualItem.nome.Equals(NOME_VARIAVEL) && actualItem.lexema.Equals(lexema) && actualItem.nivel == actualLevel)
+
+                if (actualItem.lexema.Equals(lexema))
                 {
-                    return true;
+                    if (actualItem.nome.Equals(NOME_PROCEDIMENTO) || actualItem.nome.Equals(NOME_FUNCAO))
+                    {
+                        return true;
+                    }
+                    else if (actualItem.nome.Equals(NOME_VARIAVEL) && actualItem.nivel == actualLevel)
+                    {
+                        return true;
+                    }
                 }
             }
 
@@ -103,7 +110,7 @@ namespace Compilador
             {
                 Struct actualItem = stack.getPosition(i);
 
-                if ((actualItem.nome.Equals(NOME_VARIAVEL) || actualItem.nome.Equals(NOME_FUNCAO)) && actualItem.lexema.Equals(lexema) && actualItem.nivel == actualLevel)
+                if ((actualItem.nome.Equals(NOME_VARIAVEL) || actualItem.nome.Equals(NOME_FUNCAO)) && actualItem.lexema.Equals(lexema))
                 {
                     return true;
                 }
@@ -137,7 +144,7 @@ namespace Compilador
             {
                 Struct actualItem = stack.getPosition(i);
 
-                if (actualItem.nome.Equals(NOME_FUNCAO) && actualItem.lexema.Equals(lexema) && actualItem.nivel == actualLevel)
+                if (actualItem.nome.Equals(NOME_FUNCAO) && actualItem.lexema.Equals(lexema))
                 {
                     return true;
                 }
