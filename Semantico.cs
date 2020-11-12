@@ -127,7 +127,7 @@ namespace Compilador
             {
                 Struct actualItem = stack.getPosition(i);
 
-                if (actualItem.nome.Equals(NOME_PROCEDIMENTO) && actualItem.lexema.Equals(lexema))
+                if (actualItem.lexema.Equals(lexema))
                 {
                     return true;
                 }
@@ -144,7 +144,7 @@ namespace Compilador
             {
                 Struct actualItem = stack.getPosition(i);
 
-                if (actualItem.nome.Equals(NOME_FUNCAO) && actualItem.lexema.Equals(lexema))
+                if (actualItem.lexema.Equals(lexema))
                 {
                     return true;
                 }
