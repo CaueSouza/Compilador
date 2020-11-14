@@ -20,6 +20,13 @@ namespace Compilador
         private string returnType = "";
         private Token tokenAtribuicao;
         private int rotulo = 1;
+        private int functionReturnsExpected = 0;
+        private string functionLexem = "";
+        private string functionType = "";
+        private int functionLine = 0;
+        private Struct structReceivedForAssignment = null;
+        private bool returnMade = false;
+        private int returnsMade = 0;
 
         private void resetValidators()
         {
@@ -34,6 +41,13 @@ namespace Compilador
             returnType = "";
             tokenAtribuicao = null;
             rotulo = 1;
+            functionReturnsExpected = 0;
+            functionLexem = "";
+            functionType = "";
+            functionLine = 0;
+            structReceivedForAssignment = null;
+            returnMade = false;
+            returnsMade = 0;
         }
 
         public void executeSintatico(List<Token> tokens, Semantico semantico)
@@ -272,6 +286,8 @@ namespace Compilador
 
         private void analisaComandoSimples()
         {
+            returnMade = false;
+
             if (!hasEndedTokens)
             {
                 switch (actualToken.simbol)
@@ -448,15 +464,51 @@ namespace Compilador
 
             if (!hasEndedTokens && isSimbol(ENTAO))
             {
+                int returnsMadeIfElse = 0;
+                int returnsMadeIfElseExpected = 1;
+
                 updateToken();
 
                 analisaComandoSimples();
 
-                if (!hasEndedTokens && isSimbol(SENAO))
+                if (functionReturnsExpected > 0)
                 {
-                    updateToken();
+                    if (returnMade)
+                    {
+                        returnsMadeIfElse++;
+                    }
 
-                    analisaComandoSimples();
+                    if (!hasEndedTokens && isSimbol(SENAO))
+                    {
+                        returnsMadeIfElseExpected++;
+
+                        updateToken();
+
+                        analisaComandoSimples();
+
+                        if (returnMade)
+                        {
+                            returnsMadeIfElse++;
+                        }
+                    }
+
+                    if (returnsMadeIfElse == returnsMadeIfElseExpected)
+                    {
+                        returnsMade++;
+                        returnMade = true;
+                    }
+                    else
+                    {
+                        returnMade = false;
+                    }
+                }
+                else
+                {
+                    if (!hasEndedTokens && isSimbol(SENAO))
+                    {
+                        updateToken();
+                        analisaComandoSimples();
+                    }
                 }
             }
             else
@@ -468,13 +520,20 @@ namespace Compilador
         private void analisaAtribChamadaProc()
         {
             tokenAtribuicao = actualToken;
+            structReceivedForAssignment = semantico.pesquisaTabela(tokenAtribuicao.lexem, 0);
             updateToken();
 
             if (!hasEndedTokens && isSimbol(ATRIBUICAO))
             {
-                if (semantico.pesquisaTabela(tokenAtribuicao.lexem, 0).nome.Equals(NOME_VARIAVEL))
+                if (structReceivedForAssignment.nome.Equals(NOME_VARIAVEL))
                 {
                     analisaAtribuicao();
+                }
+                else if (structReceivedForAssignment.nome.Equals(NOME_FUNCAO) && functionReturnsExpected > 0)
+                {
+                    analisaAtribuicao();
+                    returnsMade++;
+                    returnMade = true;
                 }
                 else
                 {
@@ -567,6 +626,8 @@ namespace Compilador
                 {
                     semantico.insereTabela(actualToken.lexem, NOME_FUNCAO, 0);
                     semantico.increaseLevel();
+                    functionLexem = actualToken.lexem;
+                    functionLine = actualToken.line;
                     updateToken();
 
                     if (!hasEndedTokens && isSimbol(DOIS_PONTOS))
@@ -575,12 +636,21 @@ namespace Compilador
 
                         if (!hasEndedTokens && (isSimbol(INTEIRO) || isSimbol(BOOLEANO)))
                         {
-                            semantico.colocaTipoTabela(isSimbol(INTEIRO) ? TIPO_INTEIRO : TIPO_BOOLEANO);
+                            string type = isSimbol(INTEIRO) ? TIPO_INTEIRO : TIPO_BOOLEANO;
+                            semantico.colocaTipoTabela(type);
+                            functionType = type;
                             updateToken();
 
                             if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
                             {
+                                functionReturnsExpected++;
                                 analisaBloco();
+                                functionReturnsExpected--;
+
+                                if (!returnMade)
+                                {
+                                    throwError(new CompiladorException(ERRO_SEMANTICO), returnsMade > 0 ? FUNCTION_LAST_LINE_NOT_RETURN : EXPECTED_FUNCTION_RETURN, functionLine);
+                                }
                             }
                         }
                         else
@@ -749,9 +819,9 @@ namespace Compilador
                 throwError(e, INVALID_TYPES, analyzeExpressionStarterLine);
             }
 
-            if (!returnType.Equals(semantico.pesquisaTabela(tokenAtribuicao.lexem, 0).tipo))
+            if (!returnType.Equals(structReceivedForAssignment.tipo))
             {
-                throwError(new CompiladorException(), INVALID_TYPES, analyzeExpressionStarterLine);
+                throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_TYPES, analyzeExpressionStarterLine);
             }
             else
             {
