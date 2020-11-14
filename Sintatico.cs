@@ -21,12 +21,11 @@ namespace Compilador
         private Token tokenAtribuicao;
         private int rotulo = 1;
         private int functionReturnsExpected = 0;
-        private string functionLexem = "";
-        private string functionType = "";
-        private int functionLine = 0;
+        private Stack<int> functionLine = new Stack<int>();
         private Struct structReceivedForAssignment = null;
         private bool returnMade = false;
         private int returnsMade = 0;
+        private Stack<string> actualFunctionName = new Stack<string>();
 
         private void resetValidators()
         {
@@ -42,12 +41,11 @@ namespace Compilador
             tokenAtribuicao = null;
             rotulo = 1;
             functionReturnsExpected = 0;
-            functionLexem = "";
-            functionType = "";
-            functionLine = 0;
+            functionLine.Clear();
             structReceivedForAssignment = null;
             returnMade = false;
             returnsMade = 0;
+            actualFunctionName.Clear();
         }
 
         public void executeSintatico(List<Token> tokens, Semantico semantico)
@@ -522,6 +520,23 @@ namespace Compilador
             tokenAtribuicao = actualToken;
             structReceivedForAssignment = semantico.pesquisaTabela(tokenAtribuicao.lexem, 0);
             updateToken();
+            bool hasSameName;
+
+            try
+            {
+                if (structReceivedForAssignment.nome.Equals(NOME_FUNCAO))
+                {
+                    hasSameName = structReceivedForAssignment.lexema.Equals(actualFunctionName.Peek());
+                } 
+                else
+                {
+                    hasSameName = false;
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                hasSameName = false;
+            }
 
             if (!hasEndedTokens && isSimbol(ATRIBUICAO))
             {
@@ -529,7 +544,7 @@ namespace Compilador
                 {
                     analisaAtribuicao();
                 }
-                else if (structReceivedForAssignment.nome.Equals(NOME_FUNCAO) && functionReturnsExpected > 0)
+                else if (hasSameName && structReceivedForAssignment.nome.Equals(NOME_FUNCAO) && functionReturnsExpected > 0)
                 {
                     analisaAtribuicao();
                     returnsMade++;
@@ -537,7 +552,14 @@ namespace Compilador
                 }
                 else
                 {
-                    throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_TYPES, tokenAtribuicao.line);
+                    if (!hasSameName && structReceivedForAssignment.nome.Equals(NOME_FUNCAO))
+                    {
+                        throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_FUNCTION_NAME, tokenAtribuicao.line);
+                    }
+                    else
+                    {
+                        throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_TYPES, tokenAtribuicao.line);
+                    }
                 }
             }
             else
@@ -622,12 +644,13 @@ namespace Compilador
 
             if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
             {
+                actualFunctionName.Push(actualToken.lexem);
+
                 if (!semantico.pesquisaDeclFuncTabela(actualToken.lexem))
                 {
                     semantico.insereTabela(actualToken.lexem, NOME_FUNCAO, 0);
                     semantico.increaseLevel();
-                    functionLexem = actualToken.lexem;
-                    functionLine = actualToken.line;
+                    functionLine.Push(actualToken.line);
                     updateToken();
 
                     if (!hasEndedTokens && isSimbol(DOIS_PONTOS))
@@ -638,7 +661,6 @@ namespace Compilador
                         {
                             string type = isSimbol(INTEIRO) ? TIPO_INTEIRO : TIPO_BOOLEANO;
                             semantico.colocaTipoTabela(type);
-                            functionType = type;
                             updateToken();
 
                             if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
@@ -649,8 +671,11 @@ namespace Compilador
 
                                 if (!returnMade)
                                 {
-                                    throwError(new CompiladorException(ERRO_SEMANTICO), returnsMade > 0 ? FUNCTION_LAST_LINE_NOT_RETURN : EXPECTED_FUNCTION_RETURN, functionLine);
+                                    throwError(new CompiladorException(ERRO_SEMANTICO), returnsMade > 0 ? FUNCTION_LAST_LINE_NOT_RETURN : EXPECTED_FUNCTION_RETURN, functionLine.Peek());
                                 }
+
+                                actualFunctionName.Pop();
+                                functionLine.Pop();
                             }
                         }
                         else

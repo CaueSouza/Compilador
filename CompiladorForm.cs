@@ -174,6 +174,9 @@ namespace Compilador
                             case FUNCTION_LAST_LINE_NOT_RETURN:
                                 richTextBox2.Text += " A ultima linha a ser executada de uma funcao deve ser seu retorno\n";
                                 break;
+                            case INVALID_FUNCTION_NAME:
+                                richTextBox2.Text += " Atribuicao da linha " + errorToken.line + " nao referencia a funcao atual\n";
+                                break;
                         }
                         break;
                 }
