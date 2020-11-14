@@ -400,6 +400,7 @@ namespace Compilador
             }
             else
             {
+                //para usar a lista use posfixExpression, para ter a string completa use finalPosFixExpression
                 List<string> posFixExpression = semantico.getPosFixExpression();
 
                 //TODO GERAR CODIGO PARA A POSFIXA
@@ -439,6 +440,7 @@ namespace Compilador
             }
             else
             {
+                //para usar a lista use posfixExpression, para ter a string completa use finalPosFixExpression
                 List<string> posFixExpression = semantico.getPosFixExpression();
 
                 //TODO GERAR CODIGO PARA A POSFIXA
@@ -753,6 +755,7 @@ namespace Compilador
             }
             else
             {
+                //para usar a lista use posfixExpression, para ter a string completa use finalPosFixExpression
                 List<string> posFixExpression = semantico.getPosFixExpression();
 
                 //TODO GERAR CODIGO PARA A POSFIXA
