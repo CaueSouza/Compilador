@@ -128,10 +128,10 @@ namespace Compilador
                         switch (errorToken.errorType)
                         {
                             case COMENTARIO_ERROR:
-                                richTextBox2.Text += "Comentário aberto mas não fechado na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += " Comentário aberto mas não fechado na linha " + errorToken.line + "\n";
                                 break;
                             case CARACTER_ERROR:
-                                richTextBox2.Text += "Caracter '" + errorToken.lexem + "' não reconhecido na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += " Caracter '" + errorToken.lexem + "' não reconhecido na linha " + errorToken.line + "\n";
                                 break;
                         }
 
@@ -182,22 +182,34 @@ namespace Compilador
                         switch (errorToken.errorType)
                         {
                             case DUPLIC_VAR_ERROR:
-                                richTextBox2.Text += "Variavel '" + errorToken.lexem + "' nao declarada ou duplicada na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += " Variavel '" + errorToken.lexem + "' nao declarada ou duplicada na linha " + errorToken.line + "\n";
                                 break;
                             case DECL_VAR_ERROR:
-                                richTextBox2.Text += "Variavel '" + errorToken.lexem + "' nao declarada ou duplicada na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += " Variavel '" + errorToken.lexem + "' nao declarada ou duplicada na linha " + errorToken.line + "\n";
                                 break;
                             case DECL_PROC_ERROR:
-                                richTextBox2.Text += "Procedimento '" + errorToken.lexem + "' nao declarada ou duplicado na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += " Procedimento '" + errorToken.lexem + "' nao declarada ou duplicado na linha " + errorToken.line + "\n";
                                 break;
                             case DECL_FUNC_ERROR:
-                                richTextBox2.Text += "Funcao '" + errorToken.lexem + "' nao declarada ou duplicada na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += " Funcao '" + errorToken.lexem + "' nao declarada ou duplicada na linha " + errorToken.line + "\n";
                                 break;
                             case ITEM_NOT_FOUND:
-                                richTextBox2.Text += "Item '" + errorToken.lexem + "' não encontrado\n";
+                                richTextBox2.Text += " Item '" + errorToken.lexem + "' não encontrado\n";
                                 break;
                             case INVALID_TYPES:
-                                richTextBox2.Text += "Expressao da linha " + errorToken.line + " com tipos incoerentes\n";
+                                richTextBox2.Text += " Expressao da linha " + errorToken.line + " com tipos incoerentes\n";
+                                break;
+                            case DECL_VAR_FUNC_ERROR:
+                                richTextBox2.Text += " Variavel ou funcao nao encontrada na linha " + errorToken.line + "\n";
+                                break;
+                            case EXPECTED_FUNCTION_RETURN:
+                                richTextBox2.Text += " Faltando retornos da funcao na linha " + errorToken.line + "\n";
+                                break;
+                            case FUNCTION_LAST_LINE_NOT_RETURN:
+                                richTextBox2.Text += " A ultima linha a ser executada de uma funcao deve ser seu retorno\n";
+                                break;
+                            case INVALID_FUNCTION_NAME:
+                                richTextBox2.Text += " Atribuicao da linha " + errorToken.line + " nao referencia a funcao atual\n";
                                 break;
                         }
                         break;

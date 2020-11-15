@@ -305,6 +305,8 @@ namespace Compilador
 
         private void analisaComandoSimples()
         {
+            returnMade = false;
+
             if (!hasEndedTokens)
             {
                 switch (actualToken.simbol)
@@ -341,7 +343,7 @@ namespace Compilador
 
                 if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                 {
-                    if (semantico.pesquisaDeclVarTabela(actualToken.lexem))
+                    if (semantico.pesquisaDeclVarFuncTabela(actualToken.lexem))
                     {
                         updateToken();
 
@@ -356,7 +358,7 @@ namespace Compilador
                     }
                     else
                     {
-                        throwError(new CompiladorException(ERRO_SEMANTICO), DECL_VAR_ERROR);
+                        throwError(new CompiladorException(ERRO_SEMANTICO), DECL_VAR_FUNC_ERROR);
                     }
                 }
                 else
@@ -433,6 +435,7 @@ namespace Compilador
             }
             else
             {
+                //para usar a lista use posfixExpression, para ter a string completa use finalPosFixExpression
                 List<string> posFixExpression = semantico.getPosFixExpression();
 
                 //TODO GERAR CODIGO PARA A POSFIXA
@@ -472,6 +475,7 @@ namespace Compilador
             }
             else
             {
+                //para usar a lista use posfixExpression, para ter a string completa use finalPosFixExpression
                 List<string> posFixExpression = semantico.getPosFixExpression();
 
                 //TODO GERAR CODIGO PARA A POSFIXA
@@ -867,6 +871,7 @@ namespace Compilador
             }
             else
             {
+                //para usar a lista use posfixExpression, para ter a string completa use finalPosFixExpression
                 List<string> posFixExpression = semantico.getPosFixExpression();
 
                 //TODO GERAR CODIGO PARA A POSFIXA
