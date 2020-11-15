@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Compilador
 {
-    class Stack
-    {
+	class Stack
+	{
 		private int top;
 		private int capacity;
 		private Struct[] array;
@@ -101,7 +101,7 @@ namespace Compilador
 		public void setPosition(int position, Struct data)
 		{
 			if (position >= 0 && position <= top)
-            {
+			{
 				array[position] = data;
 			}
 		}
@@ -120,5 +120,5 @@ namespace Compilador
 		{
 			top = -1;
 		}
-    }
+	}
 }

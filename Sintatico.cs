@@ -17,8 +17,15 @@ namespace Compilador
         private Semantico semantico;
         private int parentesisCount = 0;
         private int analyzeExpressionStarterLine = 0;
-        string returnType = "";
-        string assignmentVarType = "";
+        private string returnType = "";
+        private Token tokenAtribuicao;
+        private int rotulo = 1;
+        private int functionReturnsExpected = 0;
+        private Stack<int> functionLine = new Stack<int>();
+        private Struct structReceivedForAssignment = null;
+        private bool returnMade = false;
+        private int returnsMade = 0;
+        private Stack<string> actualFunctionName = new Stack<string>();
 
         private void resetValidators()
         {
@@ -31,7 +38,14 @@ namespace Compilador
             parentesisCount = 0;
             analyzeExpressionStarterLine = 0;
             returnType = "";
-            assignmentVarType = "";
+            tokenAtribuicao = null;
+            rotulo = 1;
+            functionReturnsExpected = 0;
+            functionLine.Clear();
+            structReceivedForAssignment = null;
+            returnMade = false;
+            returnsMade = 0;
+            actualFunctionName.Clear();
         }
 
         public void executeSintatico(List<Token> tokens, Semantico semantico)
@@ -224,7 +238,6 @@ namespace Compilador
                     }
                     else
                     {
-                        ////
                         throwError(new CompiladorException(ERRO_SEMANTICO), DUPLIC_VAR_ERROR);
                     }
                 }
@@ -398,13 +411,22 @@ namespace Compilador
 
         private void analisaEnquanto()
         {
+            int auxrot1, auxrot2;
+
             updateToken();
 
             semantico.cleanExpression();
             analisaExpressao();
 
-            returnType = semantico.analyzeExpression();
-            
+            try
+            {
+                returnType = semantico.analyzeExpression();
+            }
+            catch (CompiladorException e)
+            {
+                throwError(e, INVALID_TYPES, analyzeExpressionStarterLine);
+            }
+
             if (!returnType.Equals(TIPO_BOOLEANO))
             {
                 throwError(new CompiladorException(), INVALID_TYPES, analyzeExpressionStarterLine);
@@ -435,7 +457,14 @@ namespace Compilador
             semantico.cleanExpression();
             analisaExpressao();
 
-            returnType = semantico.analyzeExpression();
+            try
+            {
+                returnType = semantico.analyzeExpression();
+            }
+            catch (CompiladorException e)
+            {
+                throwError(e, INVALID_TYPES, analyzeExpressionStarterLine);
+            }
 
             if (!returnType.Equals(TIPO_BOOLEANO))
             {
@@ -450,15 +479,51 @@ namespace Compilador
 
             if (!hasEndedTokens && isSimbol(ENTAO))
             {
+                int returnsMadeIfElse = 0;
+                int returnsMadeIfElseExpected = 1;
+
                 updateToken();
 
                 analisaComandoSimples();
 
-                if (!hasEndedTokens && isSimbol(SENAO))
+                if (functionReturnsExpected > 0)
                 {
-                    updateToken();
+                    if (returnMade)
+                    {
+                        returnsMadeIfElse++;
+                    }
 
-                    analisaComandoSimples();
+                    if (!hasEndedTokens && isSimbol(SENAO))
+                    {
+                        returnsMadeIfElseExpected++;
+
+                        updateToken();
+
+                        analisaComandoSimples();
+
+                        if (returnMade)
+                        {
+                            returnsMadeIfElse++;
+                        }
+                    }
+
+                    if (returnsMadeIfElse == returnsMadeIfElseExpected)
+                    {
+                        returnsMade++;
+                        returnMade = true;
+                    }
+                    else
+                    {
+                        returnMade = false;
+                    }
+                }
+                else
+                {
+                    if (!hasEndedTokens && isSimbol(SENAO))
+                    {
+                        updateToken();
+                        analisaComandoSimples();
+                    }
                 }
             }
             else
@@ -469,12 +534,50 @@ namespace Compilador
 
         private void analisaAtribChamadaProc()
         {
-            assignmentVarType = semantico.pesquisaTabela(actualToken.lexem, 0).tipo;
+            tokenAtribuicao = actualToken;
+            structReceivedForAssignment = semantico.pesquisaTabela(tokenAtribuicao.lexem, 0);
             updateToken();
+            bool hasSameName;
+
+            try
+            {
+                if (structReceivedForAssignment.nome.Equals(NOME_FUNCAO))
+                {
+                    hasSameName = structReceivedForAssignment.lexema.Equals(actualFunctionName.Peek());
+                }
+                else
+                {
+                    hasSameName = false;
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                hasSameName = false;
+            }
 
             if (!hasEndedTokens && isSimbol(ATRIBUICAO))
             {
-                analisaAtribuicao();
+                if (structReceivedForAssignment.nome.Equals(NOME_VARIAVEL))
+                {
+                    analisaAtribuicao();
+                }
+                else if (hasSameName && structReceivedForAssignment.nome.Equals(NOME_FUNCAO) && functionReturnsExpected > 0)
+                {
+                    analisaAtribuicao();
+                    returnsMade++;
+                    returnMade = true;
+                }
+                else
+                {
+                    if (!hasSameName && structReceivedForAssignment.nome.Equals(NOME_FUNCAO))
+                    {
+                        throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_FUNCTION_NAME, tokenAtribuicao.line);
+                    }
+                    else
+                    {
+                        throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_TYPES, tokenAtribuicao.line);
+                    }
+                }
             }
             else
             {
@@ -558,10 +661,13 @@ namespace Compilador
 
             if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
             {
+                actualFunctionName.Push(actualToken.lexem);
+
                 if (!semantico.pesquisaDeclFuncTabela(actualToken.lexem))
                 {
                     semantico.insereTabela(actualToken.lexem, NOME_FUNCAO, 0);
                     semantico.increaseLevel();
+                    functionLine.Push(actualToken.line);
                     updateToken();
 
                     if (!hasEndedTokens && isSimbol(DOIS_PONTOS))
@@ -570,12 +676,23 @@ namespace Compilador
 
                         if (!hasEndedTokens && (isSimbol(INTEIRO) || isSimbol(BOOLEANO)))
                         {
-                            semantico.colocaTipoTabela(isSimbol(INTEIRO) ? TIPO_INTEIRO : TIPO_BOOLEANO);
+                            string type = isSimbol(INTEIRO) ? TIPO_INTEIRO : TIPO_BOOLEANO;
+                            semantico.colocaTipoTabela(type);
                             updateToken();
 
                             if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
                             {
+                                functionReturnsExpected++;
                                 analisaBloco();
+                                functionReturnsExpected--;
+
+                                if (!returnMade)
+                                {
+                                    throwError(new CompiladorException(ERRO_SEMANTICO), returnsMade > 0 ? FUNCTION_LAST_LINE_NOT_RETURN : EXPECTED_FUNCTION_RETURN, functionLine.Peek());
+                                }
+
+                                actualFunctionName.Pop();
+                                functionLine.Pop();
                             }
                         }
                         else
@@ -735,11 +852,18 @@ namespace Compilador
             semantico.cleanExpression();
             analisaExpressao();
 
-            returnType = semantico.analyzeExpression();
-
-            if (!returnType.Equals(assignmentVarType))
+            try
             {
-                throwError(new CompiladorException(), INVALID_TYPES, analyzeExpressionStarterLine);
+                returnType = semantico.analyzeExpression();
+            }
+            catch (CompiladorException e)
+            {
+                throwError(e, INVALID_TYPES, analyzeExpressionStarterLine);
+            }
+
+            if (!returnType.Equals(structReceivedForAssignment.tipo))
+            {
+                throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_TYPES, analyzeExpressionStarterLine);
             }
             else
             {

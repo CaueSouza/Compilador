@@ -63,6 +63,10 @@
         public const int DECL_PROC_ERROR = 4;
         public const int DECL_FUNC_ERROR = 5;
         public const int INVALID_TYPES = 6;
+        public const int DECL_VAR_FUNC_ERROR = 7;
+        public const int EXPECTED_FUNCTION_RETURN = 8;
+        public const int FUNCTION_LAST_LINE_NOT_RETURN = 9;
+        public const int INVALID_FUNCTION_NAME = 10;
 
         public const int ERRO_PV = 1;
         public const int ERRO_FALTA = 2;

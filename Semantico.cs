@@ -192,6 +192,7 @@ namespace Compilador
         {
             expression.Clear();
             posFixExpression.Clear();
+            finalPosFixExpression = "";
         }
 
         public List<string> getPosFixExpression()
