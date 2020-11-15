@@ -524,7 +524,7 @@ namespace Compilador
 
             try
             {
-                if (structReceivedForAssignment.nome.Equals(NOME_FUNCAO))
+                if (structReceivedForAssignment != null && structReceivedForAssignment.nome.Equals(NOME_FUNCAO))
                 {
                     hasSameName = structReceivedForAssignment.lexema.Equals(actualFunctionName.Peek());
                 } 
@@ -533,7 +533,7 @@ namespace Compilador
                     hasSameName = false;
                 }
             }
-            catch (InvalidOperationException)
+            catch (Exception)
             {
                 hasSameName = false;
             }

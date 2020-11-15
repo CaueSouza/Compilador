@@ -161,7 +161,7 @@ namespace Compilador
             {
                 Struct actualItem = stack.getPosition(i);
 
-                if (actualItem.lexema.Equals(lexema) && (actualItem.nome.Equals(NOME_VARIAVEL) || actualItem.nome.Equals(NOME_FUNCAO)))
+                if (actualItem.lexema.Equals(lexema) && (actualItem.nome.Equals(NOME_VARIAVEL) || actualItem.nome.Equals(NOME_FUNCAO) || actualItem.nome.Equals(NOME_PROCEDIMENTO)))
                 {
                     return actualItem;
                 }
