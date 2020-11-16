@@ -173,6 +173,10 @@ namespace Compilador
                             case ERRO_PONTO:        
                                 richTextBox2.Text += "Erro-> ponto final apenas no último fim na linha " + errorToken.line + "\n";
                                 break;
+
+                            case ERRO_CARACTER:
+                                richTextBox2.Text += "Erro-> '" + errorToken.lexem + "' na linha " + errorToken.line + "\n";
+                                break;
                         }
                         break;
 

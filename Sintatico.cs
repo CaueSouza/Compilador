@@ -83,7 +83,7 @@ namespace Compilador
                             }
                             else
                             {
-                                throwError(new CompiladorException(ERRO_SINTATICO));
+                                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_PONTO);
                             }
                         }
                         else
@@ -98,15 +98,15 @@ namespace Compilador
                 }
                 else
                 {
-                    throwError(new CompiladorException(ERRO_SINTATICO));
+                    throwError(new CompiladorException(ERRO_SINTATICO), ERRO_NOME);
                 }
             }
         }
 
-        private void throwError(CompiladorException exception)
+        private void errorLineCheck()
         {
             if (tokenCount != tokenList.Count())
-            { 
+            {
                 if ((tokenList[tokenCount - 1].line > tokenList[tokenCount - 2].line) &&
                     ((tokenList[tokenCount - 1].line == tokenList[tokenCount].line) ||
                         (tokenList[tokenCount - 1].line < tokenList[tokenCount].line)))
@@ -114,19 +114,24 @@ namespace Compilador
                     actualToken = tokenList[tokenCount - 2];
                 }
             }
+        }
 
+        private void throwError(CompiladorException exception)
+        {
             errorToken = actualToken;
             throw exception;
         }
 
         private void throwError(CompiladorException exception, int errorType)
         {
+            errorLineCheck();
             errorToken = new Token(actualToken.lexem, actualToken.line, errorType);
             throw exception;
         }
 
         private void throwError(CompiladorException exception, int errorType, int errorLine)
         {
+            errorLineCheck();
             errorToken = new Token(actualToken.lexem, errorLine, errorType);
             throw exception;
         }
@@ -233,7 +238,7 @@ namespace Compilador
                         }
                         else
                         {
-                            throwError(new CompiladorException(ERRO_SINTATICO));
+                            throwError(new CompiladorException(ERRO_SINTATICO), ERRO_FALTA);
                         }
                     }
                     else
@@ -286,7 +291,7 @@ namespace Compilador
                     }
                     else
                     {
-                        throwError(new CompiladorException(ERRO_SINTATICO), ERRO_PV);
+                        throwError(new CompiladorException(ERRO_SINTATICO), ERRO_CARACTER);
                     }
                 }
 
@@ -294,13 +299,10 @@ namespace Compilador
 
                 if (!hasEndedTokens && (!isSimbol(PONTO_VIRGULA) && !isSimbol(PONTO)))
                 {
-                    throwError(new CompiladorException(ERRO_SINTATICO));
+                    throwError(new CompiladorException(ERRO_SINTATICO), ERRO_FALTA);
                 }
             }
-            else
-            {
-                throwError(new CompiladorException(ERRO_SINTATICO));
-            }
+
         }
 
         private void analisaComandoSimples()
@@ -363,7 +365,7 @@ namespace Compilador
                 }
                 else
                 {
-                    throwError(new CompiladorException(ERRO_SINTATICO));
+                    throwError(new CompiladorException(ERRO_SINTATICO), ERRO_NOME);
                 }
             }
             else
@@ -402,7 +404,7 @@ namespace Compilador
                 }
                 else
                 {
-                    throwError(new CompiladorException(ERRO_SINTATICO));
+                    throwError(new CompiladorException(ERRO_SINTATICO), ERRO_NOME);
                 }
             }
             else
@@ -716,7 +718,7 @@ namespace Compilador
             }
             else
             {
-                throwError(new CompiladorException(ERRO_SINTATICO));
+                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_NOME);
             }
 
             semantico.voltaNivel();
@@ -835,7 +837,7 @@ namespace Compilador
             }
             else
             {
-                throwError(new CompiladorException(ERRO_SINTATICO));
+                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_CARACTER);
             }
         }
 

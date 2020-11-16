@@ -76,6 +76,7 @@
         public const int ERRO_PARENTESIS = 6;
         public const int ERRO_MAIS = 7;
         public const int ERRO_PONTO = 8;
-    
+        public const int ERRO_CARACTER = 9;
+
     }
 }
