@@ -172,10 +172,16 @@ namespace Compilador
                                 richTextBox2.Text += "Faltando retornos da funcao na linha " + errorToken.line + "\n";
                                 break;
                             case FUNCTION_LAST_LINE_NOT_RETURN:
-                                richTextBox2.Text += "A ultima linha a ser executada de uma funcao deve ser seu retorno\n";
+                                richTextBox2.Text += "Nem todos os caminhos de codigo retornam um valor\n";
                                 break;
                             case INVALID_FUNCTION_NAME:
                                 richTextBox2.Text += "Atribuicao da linha " + errorToken.line + " nao referencia a funcao atual\n";
+                                break;
+                            case WHILE_WITH_RETURN:
+                                richTextBox2.Text += "Enquanto da linha " + errorToken.line + " nao deve conter retorno da funcao\n";
+                                break;
+                            case INVALID_RETURN_TYPE:
+                                richTextBox2.Text += "Tipo atribuido na linha " + errorToken.line + " nao condiz com o tipo da funcao\n";
                                 break;
                         }
                         break;

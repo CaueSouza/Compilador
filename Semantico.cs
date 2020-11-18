@@ -16,10 +16,22 @@ namespace Compilador
         private List<string> expression = new List<string>();
         private List<string> posFixExpression = new List<string>();
         string finalPosFixExpression = "";
+        private bool isAlwaysTrue = false;
+        private bool isAlwaysFalse = false;
 
         public Semantico()
         {
             stack = new Stack();
+        }
+
+        public bool getIsAlwaysTrue()
+        {
+            return isAlwaysTrue;
+        }
+
+        public bool getIsAlwaysFalse()
+        {
+            return isAlwaysFalse;
         }
 
         public void increaseLevel()
@@ -197,6 +209,8 @@ namespace Compilador
 
         public void cleanExpression()
         {
+            isAlwaysTrue = false;
+            isAlwaysFalse = false;
             expression.Clear();
             posFixExpression.Clear();
             finalPosFixExpression = "";
@@ -204,6 +218,23 @@ namespace Compilador
 
         public List<string> getPosFixExpression()
         {
+            if (posFixExpression.Count == 1)
+            {
+                switch (posFixExpression[0])
+                {
+                    case "verdadeiro":
+                        isAlwaysTrue = true;
+                        break;
+                    case "falso":
+                        isAlwaysFalse = true;
+                        break;
+                    default:
+                        isAlwaysFalse = false;
+                        isAlwaysFalse = false;
+                        break;
+                }
+            }
+
             return posFixExpression;
         }
 
@@ -302,6 +333,7 @@ namespace Compilador
 
                         posFixStack.Pop();
                         break;
+
                     default:
                         posFixExpression.Add(expression[i]);
                         break;
@@ -489,7 +521,11 @@ namespace Compilador
                         {
                             typesValidationStack.Push(posFixExpression[i]);
                         }
-                        else
+                        else if (posFixExpression[i].Equals("verdadeiro") || posFixExpression[i].Equals("falso"))
+                        {
+                            typesValidationStack.Push(TIPO_BOOLEANO);
+                        }
+                        else //if (posFixExpression[i].Equals())
                         {
                             typesValidationStack.Push(getIdentifierType(posFixExpression[i]));
                         }

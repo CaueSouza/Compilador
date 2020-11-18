@@ -410,7 +410,7 @@ namespace Compilador
             
             if (!returnType.Equals(TIPO_BOOLEANO))
             {
-                throwError(new CompiladorException(), INVALID_TYPES, analyzeExpressionStarterLine);
+                throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_TYPES, analyzeExpressionStarterLine);
             }
             else
             {
@@ -422,9 +422,28 @@ namespace Compilador
 
             if (!hasEndedTokens && isSimbol(FACA))
             {
+                bool shouldHaveReturnOnWhile = false;
+
+                if (semantico.getIsAlwaysTrue())
+                {
+                    shouldHaveReturnOnWhile = true;
+                }
+                else if (semantico.getIsAlwaysFalse())
+                {
+                    shouldHaveReturnOnWhile = false;
+                }
+
                 updateToken();
 
                 analisaComandoSimples();
+
+                if (returnMade && functionReturnsExpected > 0)
+                {
+                    if (!shouldHaveReturnOnWhile)
+                    {
+                        returnMade = false;
+                    }
+                }
             }
             else
             {
@@ -439,31 +458,47 @@ namespace Compilador
             semantico.cleanExpression();
             analisaExpressao();
 
-            try
-            {
-                returnType = semantico.analyzeExpression();
-            }
-            catch (CompiladorException e)
-            {
-                throwError(e, INVALID_TYPES, analyzeExpressionStarterLine);
-            }
-
-            if (!returnType.Equals(TIPO_BOOLEANO))
-            {
-                throwError(new CompiladorException(), INVALID_TYPES, analyzeExpressionStarterLine);
-            }
-            else
-            {
-                //para usar a lista use posfixExpression, para ter a string completa use finalPosFixExpression
-                List<string> posFixExpression = semantico.getPosFixExpression();
-
-                //TODO GERAR CODIGO PARA A POSFIXA
-            }
-
             if (!hasEndedTokens && isSimbol(ENTAO))
             {
-                int returnsMadeIfElse = 0;
-                int returnsMadeIfElseExpected = 1;
+                try
+                {
+                    returnType = semantico.analyzeExpression();
+                }
+                catch (CompiladorException e)
+                {
+                    throwError(e, INVALID_TYPES, analyzeExpressionStarterLine);
+                }
+
+                if (!returnType.Equals(TIPO_BOOLEANO))
+                {
+                    throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_TYPES, analyzeExpressionStarterLine);
+                }
+                else
+                {
+                    //para usar a lista use posfixExpression, para ter a string completa use finalPosFixExpression
+                    List<string> posFixExpression = semantico.getPosFixExpression();
+
+                    //TODO GERAR CODIGO PARA A POSFIXA
+                }
+
+                bool entaoReturnMade = false;
+                bool senaoReturnMade = false;
+                bool entaoNeedsReturn = false;
+                bool senaoNeedsReturn = false;
+
+                if (semantico.getIsAlwaysTrue())
+                {
+                    entaoNeedsReturn = true;
+                }
+                else if (semantico.getIsAlwaysFalse())
+                {
+                    senaoNeedsReturn = true;
+                }
+                else
+                {
+                    entaoNeedsReturn = true;
+                    senaoNeedsReturn = true;
+                }
 
                 updateToken();
 
@@ -473,24 +508,22 @@ namespace Compilador
                 {
                     if (returnMade)
                     {
-                        returnsMadeIfElse++;
+                        entaoReturnMade = true;
                     }
 
                     if (!hasEndedTokens && isSimbol(SENAO))
                     {
-                        returnsMadeIfElseExpected++;
-
                         updateToken();
 
                         analisaComandoSimples();
 
                         if (returnMade)
                         {
-                            returnsMadeIfElse++;
+                            senaoReturnMade = true;
                         }
                     }
 
-                    if (returnsMadeIfElse == returnsMadeIfElseExpected)
+                    if (entaoReturnMade == entaoNeedsReturn && senaoReturnMade == senaoNeedsReturn)
                     {
                         returnsMade++;
                         returnMade = true;
@@ -846,7 +879,7 @@ namespace Compilador
 
             if (!returnType.Equals(structReceivedForAssignment.tipo))
             {
-                throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_TYPES, analyzeExpressionStarterLine);
+                throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_RETURN_TYPE, analyzeExpressionStarterLine);
             }
             else
             {

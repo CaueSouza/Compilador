@@ -67,5 +67,7 @@
         public const int EXPECTED_FUNCTION_RETURN = 8;
         public const int FUNCTION_LAST_LINE_NOT_RETURN = 9;
         public const int INVALID_FUNCTION_NAME = 10;
+        public const int WHILE_WITH_RETURN = 11;
+        public const int INVALID_RETURN_TYPE = 12;
     }
 }
