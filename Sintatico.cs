@@ -483,33 +483,16 @@ namespace Compilador
 
                 bool entaoReturnMade = false;
                 bool senaoReturnMade = false;
-                bool entaoNeedsReturn = false;
-                bool senaoNeedsReturn = false;
-
-                if (semantico.getIsAlwaysTrue())
-                {
-                    entaoNeedsReturn = true;
-                }
-                else if (semantico.getIsAlwaysFalse())
-                {
-                    senaoNeedsReturn = true;
-                }
-                else
-                {
-                    entaoNeedsReturn = true;
-                    senaoNeedsReturn = true;
-                }
-
+                bool isAlwaysTrue = semantico.getIsAlwaysTrue();
+                bool isAlwaysFalse = semantico.getIsAlwaysFalse();
+                
                 updateToken();
 
                 analisaComandoSimples();
 
                 if (functionReturnsExpected > 0)
                 {
-                    if (returnMade)
-                    {
-                        entaoReturnMade = true;
-                    }
+                    entaoReturnMade = returnMade;
 
                     if (!hasEndedTokens && isSimbol(SENAO))
                     {
@@ -517,20 +500,20 @@ namespace Compilador
 
                         analisaComandoSimples();
 
-                        if (returnMade)
-                        {
-                            senaoReturnMade = true;
-                        }
+                        senaoReturnMade = returnMade;
                     }
 
-                    if (entaoReturnMade == entaoNeedsReturn && senaoReturnMade == senaoNeedsReturn)
+                    if (isAlwaysTrue)
                     {
-                        returnsMade++;
-                        returnMade = true;
+                        returnMade = entaoReturnMade;
+                    }
+                    else if (isAlwaysFalse)
+                    {
+                        returnMade = senaoReturnMade;
                     }
                     else
                     {
-                        returnMade = false;
+                        returnMade = entaoReturnMade && senaoReturnMade;
                     }
                 }
                 else
@@ -743,7 +726,7 @@ namespace Compilador
 
             analisaExpressaoSimples();
 
-            if (!hasEndedTokens &&
+            while (!hasEndedTokens &&
                 (isSimbol(MAIOR) || isSimbol(MAIORIG) || isSimbol(IGUAL) || isSimbol(MENOR) || isSimbol(MENORIG) || isSimbol(DIF)))
             {
                 semantico.addCharToExpression(actualToken);
@@ -776,7 +759,7 @@ namespace Compilador
         {
             analisaFator();
 
-            if (!hasEndedTokens && (isSimbol(MULT) || isSimbol(DIV) || isSimbol(E)))
+            while (!hasEndedTokens && (isSimbol(MULT) || isSimbol(DIV) || isSimbol(E)))
             {
                 semantico.addCharToExpression(actualToken);
                 updateToken();
