@@ -420,7 +420,7 @@ namespace Compilador
 
         private void analisaEnquanto()
         {
-            int auxrot1, auxrot2;
+            //int auxrot1, auxrot2;
 
             updateToken();
 
