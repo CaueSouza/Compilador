@@ -299,7 +299,7 @@ namespace Compilador
 
                 if (!hasEndedTokens && (!isSimbol(PONTO_VIRGULA) && !isSimbol(PONTO)))
                 {
-                    throwError(new CompiladorException(ERRO_SINTATICO), ERRO_FALTA);
+                    throwError(new CompiladorException(ERRO_SINTATICO), ERRO_MAIS);
                 }
             }
 
@@ -309,7 +309,8 @@ namespace Compilador
         {
             returnMade = false;
 
-            if (!hasEndedTokens)
+            if (!hasEndedTokens && (isSimbol(IDENTIFICADOR) || isSimbol(SE) || isSimbol(ENQUANTO) ||
+                isSimbol(LEIA) || isSimbol(ESCREVA) || isSimbol(INICIO)))
             {
                 switch (actualToken.simbol)
                 {
@@ -332,6 +333,10 @@ namespace Compilador
                         analisaComandos();
                         break;
                 }
+            }
+            else
+            {
+                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_MAIS);
             }
         }
 
