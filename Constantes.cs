@@ -69,5 +69,6 @@
         public const int INVALID_FUNCTION_NAME = 10;
         public const int WHILE_WITH_RETURN = 11;
         public const int INVALID_RETURN_TYPE = 12;
+        public const int INVALID_ASSIGNMENT_TYPE = 13;
     }
 }

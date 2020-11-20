@@ -326,12 +326,23 @@ namespace Compilador
                         posFixStack.Push(expression[i]);
                         break;
                     case ")":
-                        do
+                        try
                         {
-                            posFixExpression.Add(posFixStack.Pop());
-                        } while (posFixStack.Peek() != "(");
+                            while (posFixStack.Peek() != "(")
+                            {
+                                posFixExpression.Add(posFixStack.Pop());
+                            }
+                            //    do
+                            //{
+                                
+                            //} while (posFixStack.Peek() != "(");
 
-                        posFixStack.Pop();
+                            posFixStack.Pop();
+                        }
+                        catch (InvalidOperationException)
+                        {
+
+                        }
                         break;
 
                     default:
@@ -544,7 +555,7 @@ namespace Compilador
             {
                 Struct actualItem = stack.getPosition(i);
 
-                if (actualItem.lexema.Equals(identificador) && (actualItem.nome.Equals(NOME_VARIAVEL) || actualItem.nome.Equals(NOME_FUNCAO) || actualItem.nome.Equals(NOME_PROCEDIMENTO)))
+                if (actualItem.lexema.Equals(identificador) && (actualItem.nome.Equals(NOME_VARIAVEL) || actualItem.nome.Equals(NOME_FUNCAO)))
                 {
                     return actualItem.tipo;
                 }

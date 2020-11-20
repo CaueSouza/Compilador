@@ -183,6 +183,9 @@ namespace Compilador
                             case INVALID_RETURN_TYPE:
                                 richTextBox2.Text += "Tipo atribuido na linha " + errorToken.line + " nao condiz com o tipo da funcao\n";
                                 break;
+                            case INVALID_ASSIGNMENT_TYPE:
+                                richTextBox2.Text += "Tipo atribuido na linha " + errorToken.line + " nao condiz com o tipo da variavel\n";
+                                break;
                         }
                         break;
                 }

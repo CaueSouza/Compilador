@@ -862,7 +862,14 @@ namespace Compilador
 
             if (!returnType.Equals(structReceivedForAssignment.tipo))
             {
-                throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_RETURN_TYPE, analyzeExpressionStarterLine);
+                if (structReceivedForAssignment.nome.Equals(NOME_FUNCAO))
+                {
+                    throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_RETURN_TYPE, analyzeExpressionStarterLine);
+                }
+                else
+                {
+                    throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_ASSIGNMENT_TYPE, analyzeExpressionStarterLine);
+                }
             }
             else
             {
