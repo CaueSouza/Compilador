@@ -33,7 +33,7 @@
         public const string DIF = "sdif";
         public const string MAIS = "smais";
         public const string MENOS = "smenos";
-        public const string MULT = "smult";
+        public const string MULTI = "smult";
         public const string DIV = "sdiv";
         public const string E = "se";
         public const string OU = "sou";
@@ -70,5 +70,37 @@
         public const int WHILE_WITH_RETURN = 11;
         public const int INVALID_RETURN_TYPE = 12;
         public const int INVALID_ASSIGNMENT_TYPE = 13;
+
+        
+        public const string EMPTY_STRING = "";
+
+        public const string LDC = "LDC";
+        public const string LDV = "LDV";
+        public const string ADD = "ADD";
+        public const string SUB = "SUB";
+        public const string MULT = "MULT";
+        public const string DIVI = "DIVI";
+        public const string INV = "INV";
+        public const string AND = "AND";
+        public const string OR = "OR";
+        public const string NEG = "NEG";
+        public const string CME = "CME";
+        public const string CMA = "CMA";
+        public const string CEQ = "CEQ";
+        public const string CDIF = "CDIF";
+        public const string CMEQ = "CMEQ";
+        public const string CMAQ = "CMAQ";
+        public const string START = "START";
+        public const string HLT = "HLT";
+        public const string STR = "STR";
+        public const string JMP = "JMP";
+        public const string JMPF = "JMPF";
+        public const string NULL = "NULL";
+        public const string RD = "RD";
+        public const string PRN = "PRN";
+        public const string ALLOC = "ALLOC";
+        public const string DALLOC = "DALLOC";
+        public const string CALL = "CALL";
+        public const string RETURN = "RETURN";
     }
 }

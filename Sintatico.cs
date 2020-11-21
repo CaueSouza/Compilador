@@ -65,6 +65,8 @@ namespace Compilador
                     if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                     {
                         semantico.insereTabela(actualToken.lexem, NOME_PROGRAMA, 0);
+                        CodeGenerator.gera(EMPTY_STRING, START, EMPTY_STRING, EMPTY_STRING);
+
                         updateToken();
 
                         if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
@@ -79,6 +81,8 @@ namespace Compilador
                                 {
                                     throwError(new CompiladorException(ERRO_SINTATICO));
                                 }
+
+                                CodeGenerator.gera(EMPTY_STRING, HLT, EMPTY_STRING, EMPTY_STRING);
                             }
                             else
                             {
@@ -394,6 +398,10 @@ namespace Compilador
         {
             int auxrot1, auxrot2;
 
+            auxrot1 = rotulo;
+            CodeGenerator.gera(rotulo.ToString(), NULL, EMPTY_STRING, EMPTY_STRING);
+            rotulo++;
+
             updateToken();
 
             semantico.cleanExpression();
@@ -422,6 +430,10 @@ namespace Compilador
 
             if (!hasEndedTokens && isSimbol(FACA))
             {
+                auxrot2 = rotulo;
+                CodeGenerator.gera(EMPTY_STRING, JMPF, rotulo.ToString(), EMPTY_STRING);
+                rotulo++;
+
                 bool shouldHaveReturnOnWhile = false;
 
                 if (semantico.getIsAlwaysTrue())
@@ -444,6 +456,9 @@ namespace Compilador
                         returnMade = false;
                     }
                 }
+
+                CodeGenerator.gera(EMPTY_STRING, JMP, auxrot1.ToString(), EMPTY_STRING);
+                CodeGenerator.gera(auxrot2.ToString(), NULL, EMPTY_STRING, EMPTY_STRING);
             }
             else
             {
@@ -587,10 +602,13 @@ namespace Compilador
         private void analisaSubRotinas()
         {
             int flag = 0;
+            int auxrot = rotulo;
 
             if (!hasEndedTokens && (isSimbol(PROCEDIMENTO) || isSimbol(FUNCAO)))
             {
-                //cod semantico
+                CodeGenerator.gera(EMPTY_STRING, JMP, rotulo.ToString(), EMPTY_STRING);
+                rotulo++;
+                flag = 1;
             }
 
             while (!hasEndedTokens && (isSimbol(PROCEDIMENTO) || isSimbol(FUNCAO)))
@@ -616,7 +634,7 @@ namespace Compilador
 
             if (flag == 1)
             {
-                //cod semantico
+                CodeGenerator.gera(auxrot.ToString(), NULL, EMPTY_STRING, EMPTY_STRING);
             }
         }
 
@@ -628,7 +646,10 @@ namespace Compilador
             {
                 if (!semantico.pesquisaDeclProcTabela(actualToken.lexem))
                 {
-                    semantico.insereTabela(actualToken.lexem, NOME_PROCEDIMENTO, 0);
+                    semantico.insereTabela(actualToken.lexem, NOME_PROCEDIMENTO, rotulo);
+                    CodeGenerator.gera(rotulo.ToString(), NULL, EMPTY_STRING, EMPTY_STRING);
+                    rotulo++;
+
                     semantico.increaseLevel();
                     updateToken();
 
@@ -664,7 +685,10 @@ namespace Compilador
 
                 if (!semantico.pesquisaDeclFuncTabela(actualToken.lexem))
                 {
-                    semantico.insereTabela(actualToken.lexem, NOME_FUNCAO, 0);
+                    semantico.insereTabela(actualToken.lexem, NOME_FUNCAO, rotulo);
+                    CodeGenerator.gera(rotulo.ToString(), NULL, EMPTY_STRING, EMPTY_STRING);//TODO: CHECK IF THIS IS RIGHT
+                    rotulo++;
+
                     semantico.increaseLevel();
                     functionLine.Push(actualToken.line);
                     updateToken();
@@ -759,7 +783,7 @@ namespace Compilador
         {
             analisaFator();
 
-            while (!hasEndedTokens && (isSimbol(MULT) || isSimbol(DIV) || isSimbol(E)))
+            while (!hasEndedTokens && (isSimbol(MULTI) || isSimbol(DIV) || isSimbol(E)))
             {
                 semantico.addCharToExpression(actualToken);
                 updateToken();

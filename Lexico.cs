@@ -338,7 +338,7 @@ namespace Compilador
                 case "-":
                     return new Token(MENOS, aritmetico, lineCount);
                 case "*":
-                    return new Token(MULT, aritmetico, lineCount);
+                    return new Token(MULTI, aritmetico, lineCount);
                 default:
                     return new Token(actualChar.ToString(), lineCount, 3);
             }
