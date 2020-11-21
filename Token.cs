@@ -8,11 +8,11 @@ namespace Compilador
 {
     class Token
     {
-        private String simbol;
-        private String lexem;
-        private bool isError;
-        private int line;
-        private int errorType;
+        public String simbol { get; }
+        public String lexem { get; }
+        public bool isError { get; }
+        public int line { get; }
+        public int errorType { get; }
 
         public Token(string simbol, string lexem, int line)
         {
@@ -29,15 +29,5 @@ namespace Compilador
             line = errorLine;
             this.errorType = errorType;
         }
-
-        public string getSimbol() { return simbol; }
-
-        public string getLexem() { return lexem; }
-
-        public bool getIsError() { return isError; }
-
-        public int getLine() { return line; }
-
-        public int getErrorType() { return errorType; }
     }
 }

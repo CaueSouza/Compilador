@@ -12,8 +12,20 @@ namespace Compilador
         private Token actualToken;
         private List<Token> tokenList;
         private int tokenCount;
-        public Token errorToken;
+        public Token errorToken { get; set; }
         private bool hasEndedTokens = false;
+        private Semantico semantico;
+        private int parentesisCount = 0;
+        private int analyzeExpressionStarterLine = 0;
+        private string returnType = "";
+        private Token tokenAtribuicao;
+        private int rotulo = 1;
+        private int functionReturnsExpected = 0;
+        private Stack<int> functionLine = new Stack<int>();
+        private Struct structReceivedForAssignment = null;
+        private bool returnMade = false;
+        private int returnsMade = 0;
+        private Stack<string> actualFunctionName = new Stack<string>();
 
         private void resetValidators()
         {
@@ -22,10 +34,23 @@ namespace Compilador
             errorToken = null;
             actualToken = null;
             tokenList = null;
+            semantico.resetStack();
+            parentesisCount = 0;
+            analyzeExpressionStarterLine = 0;
+            returnType = "";
+            tokenAtribuicao = null;
+            rotulo = 1;
+            functionReturnsExpected = 0;
+            functionLine.Clear();
+            structReceivedForAssignment = null;
+            returnMade = false;
+            returnsMade = 0;
+            actualFunctionName.Clear();
         }
 
-        public void executeSintatico(List<Token> tokens)
+        public void executeSintatico(List<Token> tokens, Semantico semantico)
         {
+            this.semantico = semantico;
             resetValidators();
             tokenList = tokens;
 
@@ -39,6 +64,7 @@ namespace Compilador
 
                     if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                     {
+                        semantico.insereTabela(actualToken.lexem, NOME_PROGRAMA, 0);
                         updateToken();
 
                         if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
@@ -51,50 +77,61 @@ namespace Compilador
 
                                 if (!hasEndedTokens)
                                 {
-                                    throwError(new Exception(ERRO_SINTATICO));
+                                    throwError(new CompiladorException(ERRO_SINTATICO));
                                 }
                             }
                             else
                             {
-                                throwError(new Exception(ERRO_SINTATICO));
+                                throwError(new CompiladorException(ERRO_SINTATICO));
                             }
                         }
                         else
                         {
-                            throwError(new Exception(ERRO_SINTATICO));
+                            throwError(new CompiladorException(ERRO_SINTATICO));
                         }
                     }
                     else
                     {
-                        throwError(new Exception(ERRO_SINTATICO));
+                        throwError(new CompiladorException(ERRO_SINTATICO));
                     }
                 }
                 else
                 {
-                    throwError(new Exception(ERRO_SINTATICO));
+                    throwError(new CompiladorException(ERRO_SINTATICO));
                 }
             }
         }
 
-        private void throwError(Exception exception)
+        private void throwError(CompiladorException exception)
         {
             errorToken = actualToken;
             throw exception;
         }
 
+        private void throwError(CompiladorException exception, int errorType)
+        {
+            errorToken = new Token(actualToken.lexem, actualToken.line, errorType);
+            throw exception;
+        }
+
+        private void throwError(CompiladorException exception, int errorType, int errorLine)
+        {
+            errorToken = new Token(actualToken.lexem, errorLine, errorType);
+            throw exception;
+        }
 
         private bool isSimbol(string Simbol)
         {
-            return actualToken.getSimbol().Equals(Simbol);
+            return actualToken.simbol.Equals(Simbol);
         }
 
         private void updateToken()
         {
             actualToken = getActualToken();
 
-            if (actualToken.getIsError())
+            if (actualToken.isError)
             {
-                throwError(new Exception(ERRO_LEXICO));
+                throwError(new CompiladorException(ERRO_LEXICO));
             }
         }
 
@@ -143,13 +180,13 @@ namespace Compilador
                         }
                         else
                         {
-                            throwError(new Exception(ERRO_SINTATICO));
+                            throwError(new CompiladorException(ERRO_SINTATICO));
                         }
                     }
                 }
                 else
                 {
-                    throwError(new Exception(ERRO_SINTATICO));
+                    throwError(new CompiladorException(ERRO_SINTATICO));
                 }
             }
         }
@@ -160,28 +197,37 @@ namespace Compilador
             {
                 if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                 {
-                    updateToken();
-
-                    if (!hasEndedTokens && (isSimbol(VIRGULA) || isSimbol(DOIS_PONTOS)))
+                    if (!semantico.pesquisaDuplicVarTabela(actualToken.lexem))
                     {
-                        if (!hasEndedTokens && isSimbol(VIRGULA))
-                        {
-                            updateToken();
+                        semantico.insereTabela(actualToken.lexem, NOME_VARIAVEL, 0);
 
-                            if (!hasEndedTokens && isSimbol(DOIS_PONTOS))
+                        updateToken();
+
+                        if (!hasEndedTokens && (isSimbol(VIRGULA) || isSimbol(DOIS_PONTOS)))
+                        {
+                            if (!hasEndedTokens && isSimbol(VIRGULA))
                             {
-                                throwError(new Exception(ERRO_SINTATICO));
+                                updateToken();
+
+                                if (!hasEndedTokens && isSimbol(DOIS_PONTOS))
+                                {
+                                    throwError(new CompiladorException(ERRO_SINTATICO));
+                                }
                             }
+                        }
+                        else
+                        {
+                            throwError(new CompiladorException(ERRO_SINTATICO));
                         }
                     }
                     else
                     {
-                        throwError(new Exception(ERRO_SINTATICO));
+                        throwError(new CompiladorException(ERRO_SEMANTICO), DUPLIC_VAR_ERROR);
                     }
                 }
                 else
                 {
-                    throwError(new Exception(ERRO_SINTATICO));
+                    throwError(new CompiladorException(ERRO_SINTATICO));
                 }
             } while (!hasEndedTokens && !isSimbol(DOIS_PONTOS));
 
@@ -194,10 +240,11 @@ namespace Compilador
         {
             if (!hasEndedTokens && !isSimbol(INTEIRO) && !isSimbol(BOOLEANO))
             {
-                throwError(new Exception(ERRO_SINTATICO));
+                throwError(new CompiladorException(ERRO_SINTATICO));
             }
             else
             {
+                semantico.colocaTipoTabela(isSimbol(INTEIRO) ? TIPO_INTEIRO : TIPO_BOOLEANO);
                 updateToken();
             }
         }
@@ -223,7 +270,7 @@ namespace Compilador
                     }
                     else
                     {
-                        throwError(new Exception(ERRO_SINTATICO));
+                        throwError(new CompiladorException(ERRO_SINTATICO));
                     }
                 }
 
@@ -231,15 +278,17 @@ namespace Compilador
             }
             else
             {
-                throwError(new Exception(ERRO_SINTATICO));
+                throwError(new CompiladorException(ERRO_SINTATICO));
             }
         }
 
         private void analisaComandoSimples()
         {
+            returnMade = false;
+
             if (!hasEndedTokens)
             {
-                switch (actualToken.getSimbol())
+                switch (actualToken.simbol)
                 {
                     case IDENTIFICADOR:
                         analisaAtribChamadaProc();
@@ -273,25 +322,32 @@ namespace Compilador
 
                 if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                 {
-                    updateToken();
-
-                    if (!hasEndedTokens && isSimbol(FECHA_PARENTESES))
+                    if (semantico.pesquisaDeclVarFuncTabela(actualToken.lexem))
                     {
                         updateToken();
+
+                        if (!hasEndedTokens && isSimbol(FECHA_PARENTESES))
+                        {
+                            updateToken();
+                        }
+                        else
+                        {
+                            throwError(new CompiladorException(ERRO_SINTATICO));
+                        }
                     }
                     else
                     {
-                        throwError(new Exception(ERRO_SINTATICO));
+                        throwError(new CompiladorException(ERRO_SEMANTICO), DECL_VAR_FUNC_ERROR);
                     }
                 }
                 else
                 {
-                    throwError(new Exception(ERRO_SINTATICO));
+                    throwError(new CompiladorException(ERRO_SINTATICO));
                 }
             }
             else
             {
-                throwError(new Exception(ERRO_SINTATICO));
+                throwError(new CompiladorException(ERRO_SINTATICO));
             }
         }
 
@@ -305,43 +361,93 @@ namespace Compilador
 
                 if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                 {
-                    updateToken();
-
-                    if (!hasEndedTokens && isSimbol(FECHA_PARENTESES))
+                    if (semantico.pesquisaDeclVarTabela(actualToken.lexem))
                     {
                         updateToken();
+
+                        if (!hasEndedTokens && isSimbol(FECHA_PARENTESES))
+                        {
+                            updateToken();
+                        }
+                        else
+                        {
+                            throwError(new CompiladorException(ERRO_SINTATICO));
+                        }
                     }
                     else
                     {
-                        throwError(new Exception(ERRO_SINTATICO));
+                        throwError(new CompiladorException(ERRO_SEMANTICO), DECL_VAR_ERROR);
                     }
                 }
                 else
                 {
-                    throwError(new Exception(ERRO_SINTATICO));
+                    throwError(new CompiladorException(ERRO_SINTATICO));
                 }
             }
             else
             {
-                throwError(new Exception(ERRO_SINTATICO));
+                throwError(new CompiladorException(ERRO_SINTATICO));
             }
         }
 
         private void analisaEnquanto()
         {
+            int auxrot1, auxrot2;
+
             updateToken();
 
+            semantico.cleanExpression();
             analisaExpressao();
 
-            if (!hasEndedTokens && isSimbol(FACA))
+            try
             {
-                updateToken();
-
-                analisaComandoSimples();
+                returnType = semantico.analyzeExpression();
+            }
+            catch (CompiladorException e)
+            {
+                throwError(e, INVALID_TYPES, analyzeExpressionStarterLine);
+            }
+            
+            if (!returnType.Equals(TIPO_BOOLEANO))
+            {
+                throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_TYPES, analyzeExpressionStarterLine);
             }
             else
             {
-                throwError(new Exception(ERRO_SINTATICO));
+                //para usar a lista use posfixExpression, para ter a string completa use finalPosFixExpression
+                List<string> posFixExpression = semantico.getPosFixExpression();
+
+                //TODO GERAR CODIGO PARA A POSFIXA
+            }
+
+            if (!hasEndedTokens && isSimbol(FACA))
+            {
+                bool shouldHaveReturnOnWhile = false;
+
+                if (semantico.getIsAlwaysTrue())
+                {
+                    shouldHaveReturnOnWhile = true;
+                }
+                else if (semantico.getIsAlwaysFalse())
+                {
+                    shouldHaveReturnOnWhile = false;
+                }
+
+                updateToken();
+
+                analisaComandoSimples();
+
+                if (returnMade && functionReturnsExpected > 0)
+                {
+                    if (!shouldHaveReturnOnWhile)
+                    {
+                        returnMade = false;
+                    }
+                }
+            }
+            else
+            {
+                throwError(new CompiladorException(ERRO_SINTATICO));
             }
         }
 
@@ -349,34 +455,128 @@ namespace Compilador
         {
             updateToken();
 
+            semantico.cleanExpression();
             analisaExpressao();
 
             if (!hasEndedTokens && isSimbol(ENTAO))
             {
+                try
+                {
+                    returnType = semantico.analyzeExpression();
+                }
+                catch (CompiladorException e)
+                {
+                    throwError(e, INVALID_TYPES, analyzeExpressionStarterLine);
+                }
+
+                if (!returnType.Equals(TIPO_BOOLEANO))
+                {
+                    throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_TYPES, analyzeExpressionStarterLine);
+                }
+                else
+                {
+                    //para usar a lista use posfixExpression, para ter a string completa use finalPosFixExpression
+                    List<string> posFixExpression = semantico.getPosFixExpression();
+
+                    //TODO GERAR CODIGO PARA A POSFIXA
+                }
+
+                bool entaoReturnMade = false;
+                bool senaoReturnMade = false;
+                bool isAlwaysTrue = semantico.getIsAlwaysTrue();
+                bool isAlwaysFalse = semantico.getIsAlwaysFalse();
+                
                 updateToken();
 
                 analisaComandoSimples();
 
-                if (!hasEndedTokens && isSimbol(SENAO))
+                if (functionReturnsExpected > 0)
                 {
-                    updateToken();
+                    entaoReturnMade = returnMade;
 
-                    analisaComandoSimples();
+                    if (!hasEndedTokens && isSimbol(SENAO))
+                    {
+                        updateToken();
+
+                        analisaComandoSimples();
+
+                        senaoReturnMade = returnMade;
+                    }
+
+                    if (isAlwaysTrue)
+                    {
+                        returnMade = entaoReturnMade;
+                    }
+                    else if (isAlwaysFalse)
+                    {
+                        returnMade = senaoReturnMade;
+                    }
+                    else
+                    {
+                        returnMade = entaoReturnMade && senaoReturnMade;
+                    }
+                }
+                else
+                {
+                    if (!hasEndedTokens && isSimbol(SENAO))
+                    {
+                        updateToken();
+                        analisaComandoSimples();
+                    }
                 }
             }
             else
             {
-                throwError(new Exception(ERRO_SINTATICO));
+                throwError(new CompiladorException(ERRO_SINTATICO));
             }
         }
 
         private void analisaAtribChamadaProc()
         {
+            tokenAtribuicao = actualToken;
+            structReceivedForAssignment = semantico.pesquisaTabela(tokenAtribuicao.lexem, 0);
             updateToken();
+            bool hasSameName;
+
+            try
+            {
+                if (structReceivedForAssignment != null && structReceivedForAssignment.nome.Equals(NOME_FUNCAO))
+                {
+                    hasSameName = structReceivedForAssignment.lexema.Equals(actualFunctionName.Peek());
+                } 
+                else
+                {
+                    hasSameName = false;
+                }
+            }
+            catch (Exception)
+            {
+                hasSameName = false;
+            }
 
             if (!hasEndedTokens && isSimbol(ATRIBUICAO))
             {
-                analisaAtribuicao();
+                if (structReceivedForAssignment.nome.Equals(NOME_VARIAVEL))
+                {
+                    analisaAtribuicao();
+                }
+                else if (hasSameName && structReceivedForAssignment.nome.Equals(NOME_FUNCAO) && functionReturnsExpected > 0)
+                {
+                    analisaAtribuicao();
+                    returnsMade++;
+                    returnMade = true;
+                }
+                else
+                {
+                    if (!hasSameName && structReceivedForAssignment.nome.Equals(NOME_FUNCAO))
+                    {
+                        throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_FUNCTION_NAME, tokenAtribuicao.line);
+                    }
+                    else
+                    {
+                        throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_TYPES, tokenAtribuicao.line);
+                    }
+                }
             }
             else
             {
@@ -410,7 +610,7 @@ namespace Compilador
                 }
                 else
                 {
-                    throwError(new Exception(ERRO_SINTATICO));
+                    throwError(new CompiladorException(ERRO_SINTATICO));
                 }
             }
 
@@ -426,21 +626,32 @@ namespace Compilador
 
             if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
             {
-                updateToken();
-
-                if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
+                if (!semantico.pesquisaDeclProcTabela(actualToken.lexem))
                 {
-                    analisaBloco();
+                    semantico.insereTabela(actualToken.lexem, NOME_PROCEDIMENTO, 0);
+                    semantico.increaseLevel();
+                    updateToken();
+
+                    if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
+                    {
+                        analisaBloco();
+                    }
+                    else
+                    {
+                        throwError(new CompiladorException(ERRO_SINTATICO));
+                    }
                 }
                 else
                 {
-                    throwError(new Exception(ERRO_SINTATICO));
+                    throwError(new CompiladorException(ERRO_SEMANTICO), DECL_PROC_ERROR);
                 }
             }
             else
             {
-                throwError(new Exception(ERRO_SINTATICO));
+                throwError(new CompiladorException(ERRO_SINTATICO));
             }
+
+            semantico.voltaNivel();
         }
 
         private void analisaDeclaracaoFuncao()
@@ -449,44 +660,76 @@ namespace Compilador
 
             if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
             {
-                updateToken();
+                actualFunctionName.Push(actualToken.lexem);
 
-                if (!hasEndedTokens && isSimbol(DOIS_PONTOS))
+                if (!semantico.pesquisaDeclFuncTabela(actualToken.lexem))
                 {
+                    semantico.insereTabela(actualToken.lexem, NOME_FUNCAO, 0);
+                    semantico.increaseLevel();
+                    functionLine.Push(actualToken.line);
                     updateToken();
 
-                    if (!hasEndedTokens && (isSimbol(INTEIRO) || isSimbol(BOOLEANO)))
+                    if (!hasEndedTokens && isSimbol(DOIS_PONTOS))
                     {
                         updateToken();
 
-                        if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
+                        if (!hasEndedTokens && (isSimbol(INTEIRO) || isSimbol(BOOLEANO)))
                         {
-                            analisaBloco();
+                            string type = isSimbol(INTEIRO) ? TIPO_INTEIRO : TIPO_BOOLEANO;
+                            semantico.colocaTipoTabela(type);
+                            updateToken();
+
+                            if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
+                            {
+                                functionReturnsExpected++;
+                                analisaBloco();
+                                functionReturnsExpected--;
+
+                                if (!returnMade)
+                                {
+                                    throwError(new CompiladorException(ERRO_SEMANTICO), returnsMade > 0 ? FUNCTION_LAST_LINE_NOT_RETURN : EXPECTED_FUNCTION_RETURN, functionLine.Peek());
+                                }
+
+                                actualFunctionName.Pop();
+                                functionLine.Pop();
+                            }
+                        }
+                        else
+                        {
+                            throwError(new CompiladorException(ERRO_SINTATICO));
                         }
                     }
                     else
                     {
-                        throwError(new Exception(ERRO_SINTATICO));
+                        throwError(new CompiladorException(ERRO_SINTATICO));
                     }
-                }
+                } 
                 else
                 {
-                    throwError(new Exception(ERRO_SINTATICO));
+                    throwError(new CompiladorException(ERRO_SEMANTICO), DECL_FUNC_ERROR);
                 }
             }
             else
             {
-                throwError(new Exception(ERRO_SINTATICO));
+                throwError(new CompiladorException(ERRO_SINTATICO));
             }
+
+            semantico.voltaNivel();
         }
 
         private void analisaExpressao()
         {
+            if (parentesisCount == 0)
+            {
+                analyzeExpressionStarterLine = actualToken.line;
+            }
+
             analisaExpressaoSimples();
 
-            if (!hasEndedTokens &&
+            while (!hasEndedTokens &&
                 (isSimbol(MAIOR) || isSimbol(MAIORIG) || isSimbol(IGUAL) || isSimbol(MENOR) || isSimbol(MENORIG) || isSimbol(DIF)))
             {
+                semantico.addCharToExpression(actualToken);
                 updateToken();
 
                 analisaExpressaoSimples();
@@ -497,6 +740,7 @@ namespace Compilador
         {
             if (!hasEndedTokens && (isSimbol(MAIS) || isSimbol(MENOS)))
             {
+                semantico.addCharToExpression(actualToken);
                 updateToken();
             }
 
@@ -504,6 +748,7 @@ namespace Compilador
 
             while (!hasEndedTokens && (isSimbol(MAIS) || isSimbol(MENOS) || isSimbol(OU)))
             {
+                semantico.addCharToExpression(actualToken);
                 updateToken();
 
                 analisaTermo();
@@ -514,8 +759,9 @@ namespace Compilador
         {
             analisaFator();
 
-            if (!hasEndedTokens && (isSimbol(MULT) || isSimbol(DIV) || isSimbol(E)))
+            while (!hasEndedTokens && (isSimbol(MULT) || isSimbol(DIV) || isSimbol(E)))
             {
+                semantico.addCharToExpression(actualToken);
                 updateToken();
 
                 analisaFator();
@@ -526,40 +772,65 @@ namespace Compilador
         {
             if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
             {
-                analisaChamadaFuncao();
+                Struct actualItem = semantico.pesquisaTabela(actualToken.lexem, 0);
+
+                if (actualItem != null)
+                {
+                    semantico.addCharToExpression(actualToken);
+
+                    if (actualItem.tipo == TIPO_INTEIRO || actualItem.tipo == TIPO_BOOLEANO)
+                    {
+                        analisaChamadaFuncao();
+                    }
+                    else
+                    {
+                        updateToken();
+                    }
+                }
+                else
+                {
+                    throwError(new CompiladorException(ERRO_SEMANTICO), ITEM_NOT_FOUND);
+                }
             }
             else if (!hasEndedTokens && isSimbol(NUMERO))
             {
+                semantico.addCharToExpression(actualToken);
                 updateToken();
             }
             else if (!hasEndedTokens && isSimbol(NAO))
             {
+                semantico.addCharToExpression(actualToken);
                 updateToken();
 
                 analisaFator();
             }
             else if (!hasEndedTokens && isSimbol(ABRE_PARENTESES))
             {
+                parentesisCount++;
+                semantico.addCharToExpression(actualToken);
                 updateToken();
 
                 analisaExpressao();
 
                 if (!hasEndedTokens && isSimbol(FECHA_PARENTESES))
                 {
+                    parentesisCount--;
+                    semantico.addCharToExpression(actualToken);
                     updateToken();
                 }
                 else
                 {
-                    throwError(new Exception(ERRO_SINTATICO));
+                    throwError(new CompiladorException(ERRO_SINTATICO));
                 }
             }
             else if (!hasEndedTokens && (isSimbol(VERDADEIRO) || isSimbol(FALSO)))
             {
+                semantico.addCharToExpression(actualToken);
                 updateToken();
             }
             else
             {
-                throwError(new Exception(ERRO_SINTATICO));
+                throwError(new CompiladorException(ERRO_SINTATICO));
             }
         }
 
@@ -577,7 +848,36 @@ namespace Compilador
         {
             updateToken();
 
+            semantico.cleanExpression();
             analisaExpressao();
+
+            try
+            {
+                returnType = semantico.analyzeExpression();
+            }
+            catch (CompiladorException e)
+            {
+                throwError(e, INVALID_TYPES, analyzeExpressionStarterLine);
+            }
+
+            if (!returnType.Equals(structReceivedForAssignment.tipo))
+            {
+                if (structReceivedForAssignment.nome.Equals(NOME_FUNCAO))
+                {
+                    throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_RETURN_TYPE, analyzeExpressionStarterLine);
+                }
+                else
+                {
+                    throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_ASSIGNMENT_TYPE, analyzeExpressionStarterLine);
+                }
+            }
+            else
+            {
+                //para usar a lista use posfixExpression, para ter a string completa use finalPosFixExpression
+                List<string> posFixExpression = semantico.getPosFixExpression();
+
+                //TODO GERAR CODIGO PARA A POSFIXA
+            }
         }
     }
 }

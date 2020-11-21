@@ -47,5 +47,28 @@
 
         public const string ERRO_LEXICO = "erro_lexico";
         public const string ERRO_SINTATICO = "erro_sintatico";
+        public const string ERRO_SEMANTICO = "erro_semantico";
+
+        public const string NOME_PROGRAMA = "programa";
+        public const string NOME_VARIAVEL = "variavel";
+        public const string NOME_PROCEDIMENTO = "procedimento";
+        public const string NOME_FUNCAO = "funcao";
+
+        public const string TIPO_INTEIRO = "inteiro";
+        public const string TIPO_BOOLEANO = "booleano";
+
+        public const int ITEM_NOT_FOUND = 1;
+        public const int DUPLIC_VAR_ERROR = 2;
+        public const int DECL_VAR_ERROR = 3;
+        public const int DECL_PROC_ERROR = 4;
+        public const int DECL_FUNC_ERROR = 5;
+        public const int INVALID_TYPES = 6;
+        public const int DECL_VAR_FUNC_ERROR = 7;
+        public const int EXPECTED_FUNCTION_RETURN = 8;
+        public const int FUNCTION_LAST_LINE_NOT_RETURN = 9;
+        public const int INVALID_FUNCTION_NAME = 10;
+        public const int WHILE_WITH_RETURN = 11;
+        public const int INVALID_RETURN_TYPE = 12;
+        public const int INVALID_ASSIGNMENT_TYPE = 13;
     }
 }

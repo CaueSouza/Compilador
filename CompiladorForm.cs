@@ -9,21 +9,20 @@ namespace Compilador
     public partial class CompiladorForm : Form
     {
         private static FileManager fileReader = new FileManager();
-        public bool pintado = false;
-        Lexico lexico = new Lexico();
-        Sintatico sintatico = new Sintatico();
+        private bool pintado = false;
+        private Lexico lexico = new Lexico();
+        private Sintatico sintatico = new Sintatico();
+        private Semantico semantico = new Semantico();
         private int lastIndex = 0;
         private int lastLength = 0;
-        public List<int> KeyCodes = new List<int>() { 17, 86 }; //ctrl + v
-        public int storeLastLine = -1;
 
         public CompiladorForm()
         {
             InitializeComponent();
-            AddLineNumbers();
+            addLineNumbers();
         }
 
-        public void AddLineNumbers()
+        private void addLineNumbers()
         {
             // create & set Point pt to (0,0)    
             Point pt = new Point(0, 0);
@@ -55,7 +54,7 @@ namespace Compilador
         {
             LineNumberTextBox.Font = richTextBox1.Font;
             richTextBox1.Select();
-            AddLineNumbers();
+            addLineNumbers();
         }
 
         private void richTextBox1_SelectionChanged(object sender, EventArgs e)
@@ -63,14 +62,14 @@ namespace Compilador
             Point pt = richTextBox1.GetPositionFromCharIndex(richTextBox1.SelectionStart);
             if (pt.X == 1)
             {
-                AddLineNumbers();
+                addLineNumbers();
             }
         }
 
         private void richTextBox1_VScroll(object sender, EventArgs e)
         {
             LineNumberTextBox.Text = "";
-            AddLineNumbers();
+            addLineNumbers();
             LineNumberTextBox.Invalidate();
         }
 
@@ -78,7 +77,7 @@ namespace Compilador
         {
             if (richTextBox1.Text == "")
             {
-                AddLineNumbers();
+                addLineNumbers();
             }
             richTextBox1.Font = new Font("Microsoft Sans Serif", 9);
         }
@@ -87,7 +86,7 @@ namespace Compilador
         {
             LineNumberTextBox.Font = richTextBox1.Font;
             richTextBox1.Select();
-            AddLineNumbers();
+            addLineNumbers();
         }
 
         private void RichTextBox1_KeyDown(object sender, KeyEventArgs e)
@@ -95,23 +94,9 @@ namespace Compilador
 
         }
 
-        public void MarkSingleLine()
-        {
-            int firstCharOfLineIndex = richTextBox1.GetFirstCharIndexOfCurrentLine();
-            int currentLine = richTextBox1.GetLineFromCharIndex(firstCharOfLineIndex);
-            richTextBox1.SelectionStart = currentLine;
-            richTextBox1.SelectionBackColor = Color.Aqua;
-        }
-
-        private void LineNumberTextBox_MouseDown(object sender, MouseEventArgs e)
-        {
-            richTextBox1.Select();
-            LineNumberTextBox.DeselectAll();
-        }
-
         private void CompiladorForm_Resize(object sender, EventArgs e)
         {
-            AddLineNumbers();
+            addLineNumbers();
         }
 
         private void compilarToolStripMenuItem_Click(object sender, EventArgs e)
@@ -128,33 +113,80 @@ namespace Compilador
         {
             try
             {
-                sintatico.executeSintatico(lexico.getTokens());
+                sintatico.executeSintatico(lexico.getTokens(), semantico);
                 return true;
             }
-            catch (Exception exception)
+            catch (CompiladorException exception)
             {
                 Token errorToken = sintatico.errorToken;
 
                 switch (exception.Message)
                 {
                     case ERRO_LEXICO:
-                        paintErrorLine(errorToken.getLine());
+                        paintErrorLine(errorToken.line);
 
-                        switch (errorToken.getErrorType())
+                        switch (errorToken.errorType)
                         {
                             case COMENTARIO_ERROR:
-                                richTextBox2.Text = richTextBox2.Text + "Comentário aberto mas não fechado na linha " + errorToken.getLine() + "\n";
+                                richTextBox2.Text += "Comentário aberto mas não fechado na linha " + errorToken.line + "\n";
                                 break;
                             case CARACTER_ERROR:
-                                richTextBox2.Text = richTextBox2.Text + "Caracter '" + errorToken.getLexem() + "' não reconhecido na linha " + errorToken.getLine() + "\n";
+                                richTextBox2.Text += "Caracter '" + errorToken.lexem + "' não reconhecido na linha " + errorToken.line + "\n";
                                 break;
                         }
 
                         break;
 
                     case ERRO_SINTATICO:
-                        paintErrorLine(errorToken.getLine());
-                        richTextBox2.Text += "Erro-> '" + errorToken.getLexem() + "' na linha " + errorToken.getLine() + "\n";
+                        paintErrorLine(errorToken.line);
+                        richTextBox2.Text += "Erro-> '" + errorToken.lexem + "' na linha " + errorToken.line + "\n";
+                        break;
+
+                    case ERRO_SEMANTICO:
+                        paintErrorLine(errorToken.line);
+
+                        switch (errorToken.errorType)
+                        {
+                            case DUPLIC_VAR_ERROR:
+                                richTextBox2.Text += "Variavel '" + errorToken.lexem + "' nao declarada ou duplicada na linha " + errorToken.line + "\n";
+                                break;
+                            case DECL_VAR_ERROR:
+                                richTextBox2.Text += "Variavel '" + errorToken.lexem + "' nao declarada ou duplicada na linha " + errorToken.line + "\n";
+                                break;
+                            case DECL_PROC_ERROR:
+                                richTextBox2.Text += "Procedimento '" + errorToken.lexem + "' nao declarada ou duplicado na linha " + errorToken.line + "\n";
+                                break;
+                            case DECL_FUNC_ERROR:
+                                richTextBox2.Text += "Funcao '" + errorToken.lexem + "' nao declarada ou duplicada na linha " + errorToken.line + "\n";
+                                break;
+                            case ITEM_NOT_FOUND:
+                                richTextBox2.Text += "Item '" + errorToken.lexem + "' não encontrado\n";
+                                break;
+                            case INVALID_TYPES:
+                                richTextBox2.Text += "Expressao da linha " + errorToken.line + " com tipos incoerentes\n";
+                                break;
+                            case DECL_VAR_FUNC_ERROR:
+                                richTextBox2.Text += "Variavel ou funcao nao encontrada na linha " + errorToken.line + "\n";
+                                break;
+                            case EXPECTED_FUNCTION_RETURN:
+                                richTextBox2.Text += "Faltando retornos da funcao na linha " + errorToken.line + "\n";
+                                break;
+                            case FUNCTION_LAST_LINE_NOT_RETURN:
+                                richTextBox2.Text += "Nem todos os caminhos de codigo retornam um valor\n";
+                                break;
+                            case INVALID_FUNCTION_NAME:
+                                richTextBox2.Text += "Atribuicao da linha " + errorToken.line + " nao referencia a funcao atual\n";
+                                break;
+                            case WHILE_WITH_RETURN:
+                                richTextBox2.Text += "Enquanto da linha " + errorToken.line + " nao deve conter retorno da funcao\n";
+                                break;
+                            case INVALID_RETURN_TYPE:
+                                richTextBox2.Text += "Tipo atribuido na linha " + errorToken.line + " nao condiz com o tipo da funcao\n";
+                                break;
+                            case INVALID_ASSIGNMENT_TYPE:
+                                richTextBox2.Text += "Tipo atribuido na linha " + errorToken.line + " nao condiz com o tipo da variavel\n";
+                                break;
+                        }
                         break;
                 }
 
@@ -195,7 +227,7 @@ namespace Compilador
         {
             string fullstring = fileReader.readFile();
             richTextBox1.Text = fullstring.Equals("") ? richTextBox1.Text : fullstring;
-            AddLineNumbers();
+            addLineNumbers();
         }
 
         private void salvarToolStripMenuItem_Click(object sender, EventArgs e)
