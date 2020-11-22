@@ -180,11 +180,20 @@ namespace Compilador
                             case WHILE_WITH_RETURN:
                                 richTextBox2.Text += "Enquanto da linha " + errorToken.line + " nao deve conter retorno da funcao\n";
                                 break;
-                            case INVALID_RETURN_TYPE:
-                                richTextBox2.Text += "Tipo atribuido na linha " + errorToken.line + " nao condiz com o tipo da funcao\n";
+                            case ASSIGNMENT_EXPRESSION_MUST_BE_BOOL:
+                                richTextBox2.Text += "Tipo atribuido na linha " + errorToken.line + " deve ser booleano\n";
                                 break;
-                            case INVALID_ASSIGNMENT_TYPE:
-                                richTextBox2.Text += "Tipo atribuido na linha " + errorToken.line + " nao condiz com o tipo da variavel\n";
+                            case ASSIGNMENT_EXPRESSION_MUST_BE_INT:
+                                richTextBox2.Text += "Tipo atribuido na linha " + errorToken.line + " deve ser inteiro\n";
+                                break;
+                            case EXPRESSION_MUST_BE_BOOL:
+                                richTextBox2.Text += "Expressao da linha " + errorToken.line + " deve ter resultado booleano\n";
+                                break;
+                            case EXPRESSION_MUST_BE_INT:
+                                richTextBox2.Text += "Expressao da linha " + errorToken.line + " deve ter resultado inteiro\n";
+                                break;
+                            case ANALYZING_EXPRESSION_ERROR:
+                                richTextBox2.Text += "Erro na linha " + errorToken.line + ": " + exception.InnerException.Message + "\n";
                                 break;
                         }
                         break;

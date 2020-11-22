@@ -413,12 +413,12 @@ namespace Compilador
             }
             catch (CompiladorException e)
             {
-                throwError(e, INVALID_TYPES, analyzeExpressionStarterLine);
+                throwError(e, ANALYZING_EXPRESSION_ERROR, analyzeExpressionStarterLine);
             }
             
             if (!returnType.Equals(TIPO_BOOLEANO))
             {
-                throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_TYPES, analyzeExpressionStarterLine);
+                throwError(new CompiladorException(ERRO_SEMANTICO), EXPRESSION_MUST_BE_BOOL, analyzeExpressionStarterLine);
             }
             else
             {
@@ -481,12 +481,12 @@ namespace Compilador
                 }
                 catch (CompiladorException e)
                 {
-                    throwError(e, INVALID_TYPES, analyzeExpressionStarterLine);
+                    throwError(e, ANALYZING_EXPRESSION_ERROR, analyzeExpressionStarterLine);
                 }
 
                 if (!returnType.Equals(TIPO_BOOLEANO))
                 {
-                    throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_TYPES, analyzeExpressionStarterLine);
+                    throwError(new CompiladorException(ERRO_SEMANTICO), EXPRESSION_MUST_BE_BOOL, analyzeExpressionStarterLine);
                 }
                 else
                 {
@@ -550,6 +550,12 @@ namespace Compilador
         {
             tokenAtribuicao = actualToken;
             structReceivedForAssignment = semantico.pesquisaTabela(tokenAtribuicao.lexem, 0);
+
+            if (structReceivedForAssignment == null)
+            {
+                throwError(new CompiladorException(ERRO_SEMANTICO), ITEM_NOT_FOUND);
+            }
+            
             updateToken();
             bool hasSameName;
 
@@ -589,7 +595,14 @@ namespace Compilador
                     }
                     else
                     {
-                        throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_TYPES, tokenAtribuicao.line);
+                        if (structReceivedForAssignment.tipo.Equals(TIPO_BOOLEANO))
+                        {
+                            throwError(new CompiladorException(ERRO_SEMANTICO), ASSIGNMENT_EXPRESSION_MUST_BE_BOOL, tokenAtribuicao.line);
+                        }
+                        else
+                        {
+                            throwError(new CompiladorException(ERRO_SEMANTICO), ASSIGNMENT_EXPRESSION_MUST_BE_INT, tokenAtribuicao.line);
+                        }
                     }
                 }
             }
@@ -881,18 +894,18 @@ namespace Compilador
             }
             catch (CompiladorException e)
             {
-                throwError(e, INVALID_TYPES, analyzeExpressionStarterLine);
+                throwError(e, ANALYZING_EXPRESSION_ERROR, analyzeExpressionStarterLine);
             }
 
             if (!returnType.Equals(structReceivedForAssignment.tipo))
             {
-                if (structReceivedForAssignment.nome.Equals(NOME_FUNCAO))
+                if (structReceivedForAssignment.tipo.Equals(TIPO_BOOLEANO))
                 {
-                    throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_RETURN_TYPE, analyzeExpressionStarterLine);
+                    throwError(new CompiladorException(ERRO_SEMANTICO), ASSIGNMENT_EXPRESSION_MUST_BE_BOOL, analyzeExpressionStarterLine);
                 }
                 else
                 {
-                    throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_ASSIGNMENT_TYPE, analyzeExpressionStarterLine);
+                    throwError(new CompiladorException(ERRO_SEMANTICO), ASSIGNMENT_EXPRESSION_MUST_BE_INT, analyzeExpressionStarterLine);
                 }
             }
             else

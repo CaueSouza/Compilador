@@ -16,10 +16,9 @@ namespace Compilador
             switch (comando)
             {
                 case LDC:
-                    break;
                 case LDV:
-                    break;
                 case STR:
+                    geraComando1Param(comando, parametro1);
                     break;
 
                 case ADD:
@@ -56,25 +55,35 @@ namespace Compilador
                     break;
 
                 case ALLOC:
-                    break;
                 case DALLOC:
+                    geraComando2Param(comando, parametro1, parametro2);
                     break;
             }
         }
 
-        public static void geraComandoSemParam(string comando)
+        private static void geraComandoSemParam(string comando)
         {
             VMCommands.Add(comando);
         }
 
-        public static void geraLabelCommand(string comando, string rotulo)
+        private static void geraLabelCommand(string comando, string rotulo)
         {
             VMCommands.Add(comando + " L" + rotulo);
         }
 
-        public static void geraLabel(string rotulo)
+        private static void geraLabel(string rotulo)
         {
             VMCommands.Add("L" + rotulo + NULL);
+        }
+
+        private static void geraComando2Param(string comando, string parametro1, string parametro2)
+        {
+            VMCommands.Add(comando + " " + parametro1 + "," + parametro2);
+        }
+
+        private static void geraComando1Param(string comando, string parametro)
+        {
+            VMCommands.Add(comando + " " + parametro);
         }
     }
 }

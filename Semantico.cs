@@ -332,10 +332,6 @@ namespace Compilador
                             {
                                 posFixExpression.Add(posFixStack.Pop());
                             }
-                            //    do
-                            //{
-                                
-                            //} while (posFixStack.Peek() != "(");
 
                             posFixStack.Pop();
                         }
@@ -458,7 +454,7 @@ namespace Compilador
                         }
                         else
                         {
-                            throw new CompiladorException(ERRO_SEMANTICO);
+                            throw new CompiladorException(ERRO_SEMANTICO, new CompiladorException(String.Format(ERROR_MESSAGE_NORMAL_OP, posFixExpression[i])));
                         }
 
                         break;
@@ -478,7 +474,7 @@ namespace Compilador
                         }
                         else
                         {
-                            throw new CompiladorException(ERRO_SEMANTICO);
+                            throw new CompiladorException(ERRO_SEMANTICO, new CompiladorException(ERROR_MESSAGE_EQUAL_DIF));
                         }
                         break;
                     case "e":
@@ -492,7 +488,7 @@ namespace Compilador
                         }
                         else
                         {
-                            throw new CompiladorException(ERRO_SEMANTICO);
+                            throw new CompiladorException(ERRO_SEMANTICO, new CompiladorException(ERROR_MESSAGE_E_OU));
                         }
                         break;
 
@@ -505,7 +501,7 @@ namespace Compilador
                         }
                         else
                         {
-                            throw new CompiladorException(ERRO_SEMANTICO);
+                            throw new CompiladorException(ERRO_SEMANTICO, new CompiladorException(ERROR_MESSAGE_BOOL_UNARY));
                         }
                         break;
 
@@ -519,7 +515,7 @@ namespace Compilador
                         }
                         else
                         {
-                            throw new CompiladorException(ERRO_SEMANTICO);
+                            throw new CompiladorException(ERRO_SEMANTICO, new CompiladorException(ERROR_MESSAGE_INT_UNARY));
                         }
                         break;
 
@@ -536,7 +532,7 @@ namespace Compilador
                         {
                             typesValidationStack.Push(TIPO_BOOLEANO);
                         }
-                        else //if (posFixExpression[i].Equals())
+                        else
                         {
                             typesValidationStack.Push(getIdentifierType(posFixExpression[i]));
                         }
@@ -561,7 +557,7 @@ namespace Compilador
                 }
             }
 
-            throw new CompiladorException(ERRO_SEMANTICO);
+            throw new CompiladorException(ERRO_SEMANTICO, new CompiladorException(ERROR_MESSAGE_IDENTIFIER_NOT_FOUND));
         }
     }
 }

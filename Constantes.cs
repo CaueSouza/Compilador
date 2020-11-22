@@ -68,10 +68,20 @@
         public const int FUNCTION_LAST_LINE_NOT_RETURN = 9;
         public const int INVALID_FUNCTION_NAME = 10;
         public const int WHILE_WITH_RETURN = 11;
-        public const int INVALID_RETURN_TYPE = 12;
-        public const int INVALID_ASSIGNMENT_TYPE = 13;
+        public const int ASSIGNMENT_EXPRESSION_MUST_BE_BOOL = 12;
+        public const int ASSIGNMENT_EXPRESSION_MUST_BE_INT = 13;
+        public const int EXPRESSION_MUST_BE_BOOL = 14;
+        public const int EXPRESSION_MUST_BE_INT = 15;
+        public const int ANALYZING_EXPRESSION_ERROR = 16;
 
         
+        public const string ERROR_MESSAGE_INT_UNARY = "Operacao unaria +/- deve ser feita com tipo inteiro";
+        public const string ERROR_MESSAGE_BOOL_UNARY = "Operacao unaria 'nao' deve ser feita com tipo booleano";
+        public const string ERROR_MESSAGE_E_OU = "Operacao E/OU deve ser feita com dois booleanos";
+        public const string ERROR_MESSAGE_EQUAL_DIF = "Tipos comparados incompativeis";
+        public const string ERROR_MESSAGE_NORMAL_OP = "Tipos incompatives para operacao {0}";
+        public const string ERROR_MESSAGE_IDENTIFIER_NOT_FOUND = "Identificador nao encontrado";
+
         public const string EMPTY_STRING = "";
 
         public const string LDC = "LDC";
