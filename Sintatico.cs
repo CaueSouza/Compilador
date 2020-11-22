@@ -434,27 +434,13 @@ namespace Compilador
                 CodeGenerator.gera(EMPTY_STRING, JMPF, rotulo.ToString(), EMPTY_STRING);
                 rotulo++;
 
-                bool shouldHaveReturnOnWhile = false;
-
-                if (semantico.getIsAlwaysTrue())
-                {
-                    shouldHaveReturnOnWhile = true;
-                }
-                else if (semantico.getIsAlwaysFalse())
-                {
-                    shouldHaveReturnOnWhile = false;
-                }
-
                 updateToken();
 
                 analisaComandoSimples();
 
-                if (returnMade && functionReturnsExpected > 0)
+                if (!returnMade && functionReturnsExpected > 0)
                 {
-                    if (!shouldHaveReturnOnWhile)
-                    {
-                        returnMade = false;
-                    }
+                    returnMade = false;
                 }
 
                 CodeGenerator.gera(EMPTY_STRING, JMP, auxrot1.ToString(), EMPTY_STRING);
@@ -498,8 +484,6 @@ namespace Compilador
 
                 bool entaoReturnMade = false;
                 bool senaoReturnMade = false;
-                bool isAlwaysTrue = semantico.getIsAlwaysTrue();
-                bool isAlwaysFalse = semantico.getIsAlwaysFalse();
                 
                 updateToken();
 
@@ -518,18 +502,7 @@ namespace Compilador
                         senaoReturnMade = returnMade;
                     }
 
-                    if (isAlwaysTrue)
-                    {
-                        returnMade = entaoReturnMade;
-                    }
-                    else if (isAlwaysFalse)
-                    {
-                        returnMade = senaoReturnMade;
-                    }
-                    else
-                    {
-                        returnMade = entaoReturnMade && senaoReturnMade;
-                    }
+                    returnMade = entaoReturnMade && senaoReturnMade;
                 }
                 else
                 {
