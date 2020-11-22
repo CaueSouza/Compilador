@@ -77,6 +77,7 @@
         public const int ERRO_MAIS = 7;
         public const int ERRO_PONTO = 8;
         public const int ERRO_CARACTER = 9;
+        public const int ERRO_CORPO = 10;
 
     }
 }

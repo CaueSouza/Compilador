@@ -151,7 +151,7 @@ namespace Compilador
                                 break;
 
                             case ERRO_FALTA:                      
-                                richTextBox2.Text += "Erro-> falta caracter ou comando errado na linha" + errorToken.line + "\n";
+                                richTextBox2.Text += "Erro-> falta caracter ou comando errado na linha " + errorToken.line + "\n";
                                 break;
 
                             case ERRO_INICIO:                   
@@ -176,6 +176,10 @@ namespace Compilador
 
                             case ERRO_CARACTER:
                                 richTextBox2.Text += "Erro-> '" + errorToken.lexem + "' na linha " + errorToken.line + "\n";
+                                break;
+
+                            case ERRO_CORPO:
+                                richTextBox2.Text += "Erro-> Corpo vazio na linha " + errorToken.line + "\n";
                                 break;
                         }
                         break;

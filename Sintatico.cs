@@ -105,8 +105,9 @@ namespace Compilador
 
         private void errorLineCheck()
         {
-            if (tokenCount != tokenList.Count())
+            if (tokenCount != tokenList.Count() && tokenCount > 1)
             {
+
                 if ((tokenList[tokenCount - 1].line > tokenList[tokenCount - 2].line) &&
                     ((tokenList[tokenCount - 1].line == tokenList[tokenCount].line) ||
                         (tokenList[tokenCount - 1].line < tokenList[tokenCount].line)))
@@ -143,6 +144,7 @@ namespace Compilador
 
         private void updateToken()
         {
+
             actualToken = getActualToken();
 
             if (actualToken.isError)
@@ -276,6 +278,11 @@ namespace Compilador
             {
                 updateToken();
 
+                if (isSimbol(FIM))
+                {
+                    throwError(new CompiladorException(ERRO_SINTATICO), ERRO_CORPO);
+                }
+
                 analisaComandoSimples();
 
                 while (!hasEndedTokens && !isSimbol(FIM))
@@ -299,7 +306,7 @@ namespace Compilador
 
                 if (!hasEndedTokens && (!isSimbol(PONTO_VIRGULA) && !isSimbol(PONTO)))
                 {
-                    throwError(new CompiladorException(ERRO_SINTATICO), ERRO_MAIS);
+                    throwError(new CompiladorException(ERRO_SINTATICO), ERRO_FALTA);
                 }
             }
 
