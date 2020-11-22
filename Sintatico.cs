@@ -26,6 +26,7 @@ namespace Compilador
         private bool returnMade = false;
         private int returnsMade = 0;
         private Stack<string> actualFunctionName = new Stack<string>();
+        private bool returnAlreadyMade = false;
 
         private void resetValidators()
         {
@@ -46,6 +47,7 @@ namespace Compilador
             returnMade = false;
             returnsMade = 0;
             actualFunctionName.Clear();
+            returnAlreadyMade = false;
         }
 
         public void executeSintatico(List<Token> tokens, Semantico semantico)
@@ -278,6 +280,8 @@ namespace Compilador
                     }
                 }
 
+                returnAlreadyMade = false;
+
                 updateToken();
             }
             else
@@ -288,6 +292,11 @@ namespace Compilador
 
         private void analisaComandoSimples()
         {
+            if (returnAlreadyMade)
+            {
+                throwError(new CompiladorException(ERRO_SEMANTICO), UNREACHABLE_CODE, functionLine.Peek());
+            }
+
             returnMade = false;
 
             if (!hasEndedTokens)
@@ -438,10 +447,7 @@ namespace Compilador
 
                 analisaComandoSimples();
 
-                if (!returnMade && functionReturnsExpected > 0)
-                {
-                    returnMade = false;
-                }
+                returnMade = false;
 
                 CodeGenerator.gera(EMPTY_STRING, JMP, auxrot1.ToString(), EMPTY_STRING);
                 CodeGenerator.gera(auxrot2.ToString(), NULL, EMPTY_STRING, EMPTY_STRING);
@@ -503,6 +509,7 @@ namespace Compilador
                     }
 
                     returnMade = entaoReturnMade && senaoReturnMade;
+                    returnAlreadyMade = returnMade;
                 }
                 else
                 {
@@ -559,6 +566,7 @@ namespace Compilador
                     analisaAtribuicao();
                     returnsMade++;
                     returnMade = true;
+                    returnAlreadyMade = true;
                 }
                 else
                 {
@@ -697,7 +705,7 @@ namespace Compilador
 
                                 if (!returnMade)
                                 {
-                                    throwError(new CompiladorException(ERRO_SEMANTICO), returnsMade > 0 ? FUNCTION_LAST_LINE_NOT_RETURN : EXPECTED_FUNCTION_RETURN, functionLine.Peek());
+                                    throwError(new CompiladorException(ERRO_SEMANTICO, new CompiladorException(actualFunctionName.Peek())), returnsMade > 0 ? FUNCTION_LAST_LINE_NOT_RETURN : EXPECTED_FUNCTION_RETURN, functionLine.Peek());
                                 }
 
                                 actualFunctionName.Pop();

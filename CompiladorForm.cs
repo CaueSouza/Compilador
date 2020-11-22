@@ -172,7 +172,7 @@ namespace Compilador
                                 richTextBox2.Text += "Faltando retornos da funcao na linha " + errorToken.line + "\n";
                                 break;
                             case FUNCTION_LAST_LINE_NOT_RETURN:
-                                richTextBox2.Text += "Nem todos os caminhos de codigo retornam um valor\n";
+                                richTextBox2.Text += "Nem todos os caminhos de codigo da funcao " + exception.InnerException.Message + " retornam um valor\n";
                                 break;
                             case INVALID_FUNCTION_NAME:
                                 richTextBox2.Text += "Atribuicao da linha " + errorToken.line + " nao referencia a funcao atual\n";
@@ -194,6 +194,9 @@ namespace Compilador
                                 break;
                             case ANALYZING_EXPRESSION_ERROR:
                                 richTextBox2.Text += "Erro na linha " + errorToken.line + ": " + exception.InnerException.Message + "\n";
+                                break;
+                            case UNREACHABLE_CODE:
+                                richTextBox2.Text += "Funcao da linha " + errorToken.line + " possui codigo inalcançavel\n";
                                 break;
                         }
                         break;

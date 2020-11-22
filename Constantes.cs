@@ -73,6 +73,7 @@
         public const int EXPRESSION_MUST_BE_BOOL = 14;
         public const int EXPRESSION_MUST_BE_INT = 15;
         public const int ANALYZING_EXPRESSION_ERROR = 16;
+        public const int UNREACHABLE_CODE = 17;
 
         
         public const string ERROR_MESSAGE_INT_UNARY = "Operacao unaria +/- deve ser feita com tipo inteiro";
