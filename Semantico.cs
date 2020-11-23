@@ -223,7 +223,6 @@ namespace Compilador
         private void convertExpressionToPosFix()
         {
             Stack<string> posFixStack = new Stack<string>();
-            int timesPopped;
 
             for (int i = 0; i < expression.Count; i++)
             {
@@ -244,38 +243,33 @@ namespace Compilador
                     case "-":
                         if (posFixStack.Count > 0)
                         {
-                            int myPriority = getPriority(expression[i], i);
-                            int topStackPriority = getPriority(posFixStack.Peek(), i);
+                            if (((expression[i].Equals("+") || expression[i].Equals("-")) && isUnary(i)) || expression[i].Equals("nao"))
+                            {
+                                expression[i] += "u";
+                            }
+
+                            int myPriority = getPriority(expression[i]);
+                            int topStackPriority = getPriority(posFixStack.Peek());
 
                             if (myPriority <= topStackPriority)
                             {
                                 try
                                 {
-                                    timesPopped = 0;
                                     do
                                     {
                                         posFixExpression.Add(posFixStack.Pop());
-                                        timesPopped++;
-                                        topStackPriority = getPriority(posFixStack.Peek(), i - timesPopped);
+                                        topStackPriority = getPriority(posFixStack.Peek());
                                     } while (topStackPriority >= myPriority);
                                 }
                                 catch (InvalidOperationException)
                                 {
 
                                 }
-
-                                if ((expression[i].Equals("+") || expression[i].Equals("-")) && isUnary(i))
-                                {
-                                    expression[i] += "u";
-                                }
+                                
                                 posFixStack.Push(expression[i]);
                             }
                             else
                             {
-                                if ((expression[i].Equals("+") || expression[i].Equals("-")) && isUnary(i))
-                                {
-                                    expression[i] += "u";
-                                }
                                 posFixStack.Push(expression[i]);
                             }
                         }
@@ -322,7 +316,7 @@ namespace Compilador
             }
         }
 
-        private int getPriority(string caractere, int position)
+        private int getPriority(string caractere)
         {
             switch (caractere)
             {
