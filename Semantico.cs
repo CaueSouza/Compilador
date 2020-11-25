@@ -15,7 +15,6 @@ namespace Compilador
         private int actualLevel = 0;
         private List<string> expression = new List<string>();
         private List<string> posFixExpression = new List<string>();
-        string finalPosFixExpression = "";
 
         public Semantico()
         {
@@ -199,7 +198,6 @@ namespace Compilador
         {
             expression.Clear();
             posFixExpression.Clear();
-            finalPosFixExpression = "";
         }
 
         public List<string> getPosFixExpression()
@@ -211,11 +209,6 @@ namespace Compilador
         {
             convertExpressionToPosFix();
             string expResult = validateExpressionReturnType();
-
-            foreach (string expressao in posFixExpression)
-            {
-                finalPosFixExpression += expressao;
-            }
 
             return expResult;
         }
