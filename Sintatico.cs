@@ -501,6 +501,7 @@ namespace Compilador
 
                     if (!hasEndedTokens && isSimbol(SENAO))
                     {
+                        returnAlreadyMade = false;
                         updateToken();
 
                         analisaComandoSimples();

@@ -228,7 +228,7 @@ namespace Compilador
             string id = actualChar.ToString();
             readCaracter();
 
-            while ((isLetter() || isDigit() || actualChar.Equals("_")) && notEOF)
+            while ((isLetter() || isDigit() || actualChar.Equals('_')) && notEOF)
             {
                 id += actualChar.ToString();
                 readCaracter();

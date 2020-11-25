@@ -154,7 +154,7 @@ namespace Compilador
                                 richTextBox2.Text += "Variavel '" + errorToken.lexem + "' nao declarada ou duplicada na linha " + errorToken.line + "\n";
                                 break;
                             case DECL_PROC_ERROR:
-                                richTextBox2.Text += "Procedimento '" + errorToken.lexem + "' nao declarada ou duplicado na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += "Procedimento '" + errorToken.lexem + "' nao declarado ou duplicado na linha " + errorToken.line + "\n";
                                 break;
                             case DECL_FUNC_ERROR:
                                 richTextBox2.Text += "Funcao '" + errorToken.lexem + "' nao declarada ou duplicada na linha " + errorToken.line + "\n";

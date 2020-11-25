@@ -253,17 +253,20 @@ namespace Compilador
 
                             if (myPriority <= topStackPriority)
                             {
-                                try
+                                if (!expression[i].Equals("naou") && !posFixStack.Peek().Equals("naou"))
                                 {
-                                    do
+                                    try
                                     {
-                                        posFixExpression.Add(posFixStack.Pop());
-                                        topStackPriority = getPriority(posFixStack.Peek());
-                                    } while (topStackPriority >= myPriority);
-                                }
-                                catch (InvalidOperationException)
-                                {
+                                        do
+                                        {
+                                            posFixExpression.Add(posFixStack.Pop());
+                                            topStackPriority = getPriority(posFixStack.Peek());
+                                        } while (topStackPriority >= myPriority);
+                                    }
+                                    catch (InvalidOperationException)
+                                    {
 
+                                    }
                                 }
                                 
                                 posFixStack.Push(expression[i]);
