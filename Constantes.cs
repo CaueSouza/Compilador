@@ -44,6 +44,7 @@
 
         public const int COMENTARIO_ERROR = 1;
         public const int CARACTER_ERROR = 2;
+        public const int IDENTIFICADOR_COM_UNDERLINE = 3;
 
         public const string ERRO_LEXICO = "erro_lexico";
         public const string ERRO_SINTATICO = "erro_sintatico";

@@ -135,6 +135,12 @@ namespace Compilador
             }
         }
 
+        private Token createUnderlineErrorToken(int errorLine, int errorType)
+        {
+            notEOF = false;
+            return new Token(actualChar.ToString(), errorLine, errorType);
+        }
+
         private void createErrorToken(int errorLine, int errorType)
         {
             notEOF = false;
@@ -205,7 +211,15 @@ namespace Compilador
             }
             else
             {
-                return new Token(actualChar.ToString(), lineCount, 2);
+                if (actualChar.Equals('_'))
+                {
+                    return createUnderlineErrorToken(lineCount, IDENTIFICADOR_COM_UNDERLINE);
+                }
+                else
+                {
+                    return new Token(actualChar.ToString(), lineCount, 2);
+                }
+                
             }
         }
 

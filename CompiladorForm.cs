@@ -133,6 +133,9 @@ namespace Compilador
                             case CARACTER_ERROR:
                                 richTextBox2.Text += "Caracter '" + errorToken.lexem + "' não reconhecido na linha " + errorToken.line + "\n";
                                 break;
+                            case IDENTIFICADOR_COM_UNDERLINE:
+                                richTextBox2.Text += "Identificador comecando com underline na linha " + errorToken.line + "\n";
+                                break;
                         }
 
                         break;
