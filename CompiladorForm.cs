@@ -147,7 +147,7 @@ namespace Compilador
                                 break;
 
                             case ERRO_NOME:                        
-                                richTextBox2.Text += "Erro-> não pode usar palavra pré determinada na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += "Erro-> não pode usar '" + errorToken.lexem + "' palavra pré determinada na linha " + errorToken.line + "\n";
                                 break;
 
                             case ERRO_FALTA:                      
@@ -171,7 +171,7 @@ namespace Compilador
                                 break;
 
                             case ERRO_PONTO:        
-                                richTextBox2.Text += "Erro-> ponto final apenas no último fim na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += "Erro-> ponto final apenas na última linha e não na linha " + errorToken.line + "\n";
                                 break;
 
                             case ERRO_CARACTER:
@@ -180,6 +180,19 @@ namespace Compilador
 
                             case ERRO_CORPO:
                                 richTextBox2.Text += "Erro-> Corpo vazio na linha " + errorToken.line + "\n";
+                                break;
+                            case ERRO_VAR:
+                                richTextBox2.Text += "Erro-> Apenas variável após a virgula na linha " + errorToken.line + "\n";
+                                break;
+                            case ERRO_DOIS_PONTOS:
+                                richTextBox2.Text += "Erro-> Espera-se ' : ' após a última variável e não ' " + errorToken.lexem + 
+                                    " ' na linha " + errorToken.line + "\n";
+                                break;
+                            case ERRO_VAR_ONDE:
+                                richTextBox2.Text += "Erro-> Não há variáveis declaradas após a linha " + errorToken.line + "\n";
+                                break;
+                            case ERRO_FALTA_DPS:
+                                richTextBox2.Text += "Erro-> Falta comando após a linha " + errorToken.line + "\n";
                                 break;
                         }
                         break;

@@ -78,6 +78,10 @@
         public const int ERRO_PONTO = 8;
         public const int ERRO_CARACTER = 9;
         public const int ERRO_CORPO = 10;
+        public const int ERRO_VAR = 11;
+        public const int ERRO_DOIS_PONTOS = 12;
+        public const int ERRO_VAR_ONDE = 13;
+        public const int ERRO_FALTA_DPS = 14;
 
     }
 }

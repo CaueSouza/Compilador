@@ -212,6 +212,18 @@ namespace Compilador
                     throwError(new CompiladorException(ERRO_SINTATICO), ERRO_NOME);
                 }
             }
+            else if (!hasEndedTokens && isSimbol(INICIO))
+            {
+
+            }
+            else if (!hasEndedTokens && (isSimbol(PROCEDIMENTO) || !isSimbol(PROCEDIMENTO)))
+            {
+                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_VAR_ONDE);
+            }
+            else
+            {
+                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_CARACTER);
+            }
         }
 
         private void analisaVariaveis()
@@ -232,15 +244,15 @@ namespace Compilador
                             {
                                 updateToken();
 
-                                if (!hasEndedTokens && isSimbol(DOIS_PONTOS))
+                                if (!hasEndedTokens && !isSimbol(IDENTIFICADOR))
                                 {
-                                    throwError(new CompiladorException(ERRO_SINTATICO), ERRO_MAIS);
+                                    throwError(new CompiladorException(ERRO_SINTATICO), ERRO_VAR);
                                 }
                             }
                         }
                         else
                         {
-                            throwError(new CompiladorException(ERRO_SINTATICO), ERRO_FALTA);
+                            throwError(new CompiladorException(ERRO_SINTATICO), ERRO_DOIS_PONTOS);
                         }
                     }
                     else
@@ -306,8 +318,12 @@ namespace Compilador
 
                 if (!hasEndedTokens && (!isSimbol(PONTO_VIRGULA) && !isSimbol(PONTO)))
                 {
-                    throwError(new CompiladorException(ERRO_SINTATICO), ERRO_FALTA);
+                    throwError(new CompiladorException(ERRO_SINTATICO), ERRO_PV);
                 }
+            }
+            else
+            {
+                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_FALTA_DPS);
             }
 
         }
