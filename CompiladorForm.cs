@@ -160,7 +160,7 @@ namespace Compilador
                                 richTextBox2.Text += "Funcao '" + errorToken.lexem + "' nao declarada ou duplicada na linha " + errorToken.line + "\n";
                                 break;
                             case ITEM_NOT_FOUND:
-                                richTextBox2.Text += "Item '" + errorToken.lexem + "' não encontrado\n";
+                                richTextBox2.Text += "Identificador '" + errorToken.lexem + "' não encontrado\n";
                                 break;
                             case INVALID_TYPES:
                                 richTextBox2.Text += "Expressao da linha " + errorToken.line + " com tipos incoerentes\n";
