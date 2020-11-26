@@ -26,6 +26,7 @@ namespace Compilador
         private bool returnMade = false;
         private int returnsMade = 0;
         private Stack<string> actualFunctionName = new Stack<string>();
+        private bool returnAlreadyMade = false;
 
         private void resetValidators()
         {
@@ -46,6 +47,7 @@ namespace Compilador
             returnMade = false;
             returnsMade = 0;
             actualFunctionName.Clear();
+            returnAlreadyMade = false;
         }
 
         public void executeSintatico(List<Token> tokens, Semantico semantico)
@@ -65,6 +67,8 @@ namespace Compilador
                     if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                     {
                         semantico.insereTabela(actualToken.lexem, NOME_PROGRAMA, 0);
+                        CodeGenerator.gera(EMPTY_STRING, START, EMPTY_STRING, EMPTY_STRING);
+
                         updateToken();
 
                         if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
@@ -79,6 +83,8 @@ namespace Compilador
                                 {
                                     throwError(new CompiladorException(ERRO_SINTATICO));
                                 }
+
+                                CodeGenerator.gera(EMPTY_STRING, HLT, EMPTY_STRING, EMPTY_STRING);
                             }
                             else
                             {
@@ -274,6 +280,8 @@ namespace Compilador
                     }
                 }
 
+                returnAlreadyMade = false;
+
                 updateToken();
             }
             else
@@ -284,6 +292,11 @@ namespace Compilador
 
         private void analisaComandoSimples()
         {
+            if (returnAlreadyMade)
+            {
+                throwError(new CompiladorException(ERRO_SEMANTICO), UNREACHABLE_CODE, functionLine.Peek());
+            }
+
             returnMade = false;
 
             if (!hasEndedTokens)
@@ -394,6 +407,10 @@ namespace Compilador
         {
             int auxrot1, auxrot2;
 
+            auxrot1 = rotulo;
+            CodeGenerator.gera(rotulo.ToString(), NULL, EMPTY_STRING, EMPTY_STRING);
+            rotulo++;
+
             updateToken();
 
             semantico.cleanExpression();
@@ -405,12 +422,12 @@ namespace Compilador
             }
             catch (CompiladorException e)
             {
-                throwError(e, INVALID_TYPES, analyzeExpressionStarterLine);
+                throwError(e, ANALYZING_EXPRESSION_ERROR, analyzeExpressionStarterLine);
             }
             
             if (!returnType.Equals(TIPO_BOOLEANO))
             {
-                throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_TYPES, analyzeExpressionStarterLine);
+                throwError(new CompiladorException(ERRO_SEMANTICO), EXPRESSION_MUST_BE_BOOL, analyzeExpressionStarterLine);
             }
             else
             {
@@ -422,28 +439,18 @@ namespace Compilador
 
             if (!hasEndedTokens && isSimbol(FACA))
             {
-                bool shouldHaveReturnOnWhile = false;
-
-                if (semantico.getIsAlwaysTrue())
-                {
-                    shouldHaveReturnOnWhile = true;
-                }
-                else if (semantico.getIsAlwaysFalse())
-                {
-                    shouldHaveReturnOnWhile = false;
-                }
+                auxrot2 = rotulo;
+                CodeGenerator.gera(EMPTY_STRING, JMPF, rotulo.ToString(), EMPTY_STRING);
+                rotulo++;
 
                 updateToken();
 
                 analisaComandoSimples();
 
-                if (returnMade && functionReturnsExpected > 0)
-                {
-                    if (!shouldHaveReturnOnWhile)
-                    {
-                        returnMade = false;
-                    }
-                }
+                returnMade = false;
+
+                CodeGenerator.gera(EMPTY_STRING, JMP, auxrot1.ToString(), EMPTY_STRING);
+                CodeGenerator.gera(auxrot2.ToString(), NULL, EMPTY_STRING, EMPTY_STRING);
             }
             else
             {
@@ -466,12 +473,12 @@ namespace Compilador
                 }
                 catch (CompiladorException e)
                 {
-                    throwError(e, INVALID_TYPES, analyzeExpressionStarterLine);
+                    throwError(e, ANALYZING_EXPRESSION_ERROR, analyzeExpressionStarterLine);
                 }
 
                 if (!returnType.Equals(TIPO_BOOLEANO))
                 {
-                    throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_TYPES, analyzeExpressionStarterLine);
+                    throwError(new CompiladorException(ERRO_SEMANTICO), EXPRESSION_MUST_BE_BOOL, analyzeExpressionStarterLine);
                 }
                 else
                 {
@@ -483,8 +490,6 @@ namespace Compilador
 
                 bool entaoReturnMade = false;
                 bool senaoReturnMade = false;
-                bool isAlwaysTrue = semantico.getIsAlwaysTrue();
-                bool isAlwaysFalse = semantico.getIsAlwaysFalse();
                 
                 updateToken();
 
@@ -496,6 +501,7 @@ namespace Compilador
 
                     if (!hasEndedTokens && isSimbol(SENAO))
                     {
+                        returnAlreadyMade = false;
                         updateToken();
 
                         analisaComandoSimples();
@@ -503,18 +509,8 @@ namespace Compilador
                         senaoReturnMade = returnMade;
                     }
 
-                    if (isAlwaysTrue)
-                    {
-                        returnMade = entaoReturnMade;
-                    }
-                    else if (isAlwaysFalse)
-                    {
-                        returnMade = senaoReturnMade;
-                    }
-                    else
-                    {
-                        returnMade = entaoReturnMade && senaoReturnMade;
-                    }
+                    returnMade = entaoReturnMade && senaoReturnMade;
+                    returnAlreadyMade = returnMade;
                 }
                 else
                 {
@@ -535,6 +531,12 @@ namespace Compilador
         {
             tokenAtribuicao = actualToken;
             structReceivedForAssignment = semantico.pesquisaTabela(tokenAtribuicao.lexem, 0);
+
+            if (structReceivedForAssignment == null)
+            {
+                throwError(new CompiladorException(ERRO_SEMANTICO), ITEM_NOT_FOUND);
+            }
+            
             updateToken();
             bool hasSameName;
 
@@ -565,6 +567,7 @@ namespace Compilador
                     analisaAtribuicao();
                     returnsMade++;
                     returnMade = true;
+                    returnAlreadyMade = true;
                 }
                 else
                 {
@@ -574,7 +577,14 @@ namespace Compilador
                     }
                     else
                     {
-                        throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_TYPES, tokenAtribuicao.line);
+                        if (structReceivedForAssignment.tipo.Equals(TIPO_BOOLEANO))
+                        {
+                            throwError(new CompiladorException(ERRO_SEMANTICO), ASSIGNMENT_EXPRESSION_MUST_BE_BOOL, tokenAtribuicao.line);
+                        }
+                        else
+                        {
+                            throwError(new CompiladorException(ERRO_SEMANTICO), ASSIGNMENT_EXPRESSION_MUST_BE_INT, tokenAtribuicao.line);
+                        }
                     }
                 }
             }
@@ -587,10 +597,13 @@ namespace Compilador
         private void analisaSubRotinas()
         {
             int flag = 0;
+            int auxrot = rotulo;
 
             if (!hasEndedTokens && (isSimbol(PROCEDIMENTO) || isSimbol(FUNCAO)))
             {
-                //cod semantico
+                CodeGenerator.gera(EMPTY_STRING, JMP, rotulo.ToString(), EMPTY_STRING);
+                rotulo++;
+                flag = 1;
             }
 
             while (!hasEndedTokens && (isSimbol(PROCEDIMENTO) || isSimbol(FUNCAO)))
@@ -616,7 +629,7 @@ namespace Compilador
 
             if (flag == 1)
             {
-                //cod semantico
+                CodeGenerator.gera(auxrot.ToString(), NULL, EMPTY_STRING, EMPTY_STRING);
             }
         }
 
@@ -628,7 +641,10 @@ namespace Compilador
             {
                 if (!semantico.pesquisaDeclProcTabela(actualToken.lexem))
                 {
-                    semantico.insereTabela(actualToken.lexem, NOME_PROCEDIMENTO, 0);
+                    semantico.insereTabela(actualToken.lexem, NOME_PROCEDIMENTO, rotulo);
+                    CodeGenerator.gera(rotulo.ToString(), NULL, EMPTY_STRING, EMPTY_STRING);
+                    rotulo++;
+
                     semantico.increaseLevel();
                     updateToken();
 
@@ -664,7 +680,10 @@ namespace Compilador
 
                 if (!semantico.pesquisaDeclFuncTabela(actualToken.lexem))
                 {
-                    semantico.insereTabela(actualToken.lexem, NOME_FUNCAO, 0);
+                    semantico.insereTabela(actualToken.lexem, NOME_FUNCAO, rotulo);
+                    CodeGenerator.gera(rotulo.ToString(), NULL, EMPTY_STRING, EMPTY_STRING);//TODO: CHECK IF THIS IS RIGHT
+                    rotulo++;
+
                     semantico.increaseLevel();
                     functionLine.Push(actualToken.line);
                     updateToken();
@@ -687,7 +706,7 @@ namespace Compilador
 
                                 if (!returnMade)
                                 {
-                                    throwError(new CompiladorException(ERRO_SEMANTICO), returnsMade > 0 ? FUNCTION_LAST_LINE_NOT_RETURN : EXPECTED_FUNCTION_RETURN, functionLine.Peek());
+                                    throwError(new CompiladorException(ERRO_SEMANTICO, new CompiladorException(actualFunctionName.Peek())), returnsMade > 0 ? FUNCTION_LAST_LINE_NOT_RETURN : EXPECTED_FUNCTION_RETURN, functionLine.Peek());
                                 }
 
                                 actualFunctionName.Pop();
@@ -759,7 +778,7 @@ namespace Compilador
         {
             analisaFator();
 
-            while (!hasEndedTokens && (isSimbol(MULT) || isSimbol(DIV) || isSimbol(E)))
+            while (!hasEndedTokens && (isSimbol(MULTI) || isSimbol(DIV) || isSimbol(E)))
             {
                 semantico.addCharToExpression(actualToken);
                 updateToken();
@@ -857,18 +876,18 @@ namespace Compilador
             }
             catch (CompiladorException e)
             {
-                throwError(e, INVALID_TYPES, analyzeExpressionStarterLine);
+                throwError(e, ANALYZING_EXPRESSION_ERROR, analyzeExpressionStarterLine);
             }
 
             if (!returnType.Equals(structReceivedForAssignment.tipo))
             {
-                if (structReceivedForAssignment.nome.Equals(NOME_FUNCAO))
+                if (structReceivedForAssignment.tipo.Equals(TIPO_BOOLEANO))
                 {
-                    throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_RETURN_TYPE, analyzeExpressionStarterLine);
+                    throwError(new CompiladorException(ERRO_SEMANTICO), ASSIGNMENT_EXPRESSION_MUST_BE_BOOL, analyzeExpressionStarterLine);
                 }
                 else
                 {
-                    throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_ASSIGNMENT_TYPE, analyzeExpressionStarterLine);
+                    throwError(new CompiladorException(ERRO_SEMANTICO), ASSIGNMENT_EXPRESSION_MUST_BE_INT, analyzeExpressionStarterLine);
                 }
             }
             else
