@@ -186,9 +186,21 @@ namespace Compilador
         {
             updateToken();
 
-            analisaEtVariaveis();
-            analisaSubRotinas();
-            analisaComandos();
+            if (!hasEndedTokens && (isSimbol(PROCEDIMENTO) || isSimbol(FIM) || isSimbol(VAR) || isSimbol(FUNCAO) || isSimbol(INICIO)))
+            {
+                analisaEtVariaveis();
+                analisaSubRotinas();
+                analisaComandos();
+                
+            }
+            else
+            {
+                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_CARACTER);
+            }
+
+            
+
+            
         }
 
         private void analisaEtVariaveis()
@@ -444,7 +456,7 @@ namespace Compilador
 
         private void analisaEnquanto()
         {
-            //int auxrot1, auxrot2;
+            int auxrot1, auxrot2;
 
             auxrot1 = rotulo;
             CodeGenerator.gera(rotulo.ToString(), NULL, EMPTY_STRING, EMPTY_STRING);
