@@ -212,18 +212,6 @@ namespace Compilador
                     throwError(new CompiladorException(ERRO_SINTATICO), ERRO_NOME);
                 }
             }
-            else if (!hasEndedTokens && isSimbol(INICIO))
-            {
-
-            }
-            else if (!hasEndedTokens && (isSimbol(PROCEDIMENTO) || !isSimbol(PROCEDIMENTO)))
-            {
-                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_VAR_ONDE);
-            }
-            else
-            {
-                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_CARACTER);
-            }
         }
 
         private void analisaVariaveis()
