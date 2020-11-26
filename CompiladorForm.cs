@@ -133,6 +133,9 @@ namespace Compilador
                             case CARACTER_ERROR:
                                 richTextBox2.Text += "Caracter '" + errorToken.lexem + "' não reconhecido na linha " + errorToken.line + "\n";
                                 break;
+                            case IDENTIFICADOR_COM_UNDERLINE:
+                                richTextBox2.Text += "Identificador comecando com underline na linha " + errorToken.line + "\n";
+                                break;
                         }
 
                         break;
@@ -209,13 +212,13 @@ namespace Compilador
                                 richTextBox2.Text += "Variavel '" + errorToken.lexem + "' nao declarada ou duplicada na linha " + errorToken.line + "\n";
                                 break;
                             case DECL_PROC_ERROR:
-                                richTextBox2.Text += "Procedimento '" + errorToken.lexem + "' nao declarada ou duplicado na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += "Procedimento '" + errorToken.lexem + "' nao declarado ou duplicado na linha " + errorToken.line + "\n";
                                 break;
                             case DECL_FUNC_ERROR:
                                 richTextBox2.Text += "Funcao '" + errorToken.lexem + "' nao declarada ou duplicada na linha " + errorToken.line + "\n";
                                 break;
                             case ITEM_NOT_FOUND:
-                                richTextBox2.Text += "Item '" + errorToken.lexem + "' não encontrado\n";
+                                richTextBox2.Text += "Identificador '" + errorToken.lexem + "' não encontrado\n";
                                 break;
                             case INVALID_TYPES:
                                 richTextBox2.Text += "Expressao da linha " + errorToken.line + " com tipos incoerentes\n";
@@ -227,10 +230,31 @@ namespace Compilador
                                 richTextBox2.Text += "Faltando retornos da funcao na linha " + errorToken.line + "\n";
                                 break;
                             case FUNCTION_LAST_LINE_NOT_RETURN:
-                                richTextBox2.Text += "A ultima linha a ser executada de uma funcao deve ser seu retorno\n";
+                                richTextBox2.Text += "Nem todos os caminhos de codigo da funcao " + exception.InnerException.Message + " retornam um valor\n";
                                 break;
                             case INVALID_FUNCTION_NAME:
                                 richTextBox2.Text += "Atribuicao da linha " + errorToken.line + " nao referencia a funcao atual\n";
+                                break;
+                            case WHILE_WITH_RETURN:
+                                richTextBox2.Text += "Enquanto da linha " + errorToken.line + " nao deve conter retorno da funcao\n";
+                                break;
+                            case ASSIGNMENT_EXPRESSION_MUST_BE_BOOL:
+                                richTextBox2.Text += "Tipo atribuido na linha " + errorToken.line + " deve ser booleano\n";
+                                break;
+                            case ASSIGNMENT_EXPRESSION_MUST_BE_INT:
+                                richTextBox2.Text += "Tipo atribuido na linha " + errorToken.line + " deve ser inteiro\n";
+                                break;
+                            case EXPRESSION_MUST_BE_BOOL:
+                                richTextBox2.Text += "Expressao da linha " + errorToken.line + " deve ter resultado booleano\n";
+                                break;
+                            case EXPRESSION_MUST_BE_INT:
+                                richTextBox2.Text += "Expressao da linha " + errorToken.line + " deve ter resultado inteiro\n";
+                                break;
+                            case ANALYZING_EXPRESSION_ERROR:
+                                richTextBox2.Text += "Erro na linha " + errorToken.line + ": " + exception.InnerException.Message + "\n";
+                                break;
+                            case UNREACHABLE_CODE:
+                                richTextBox2.Text += "Funcao da linha " + errorToken.line + " possui codigo inalcançavel\n";
                                 break;
                         }
                         break;

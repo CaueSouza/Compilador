@@ -135,6 +135,12 @@ namespace Compilador
             }
         }
 
+        private Token createUnderlineErrorToken(int errorLine, int errorType)
+        {
+            notEOF = false;
+            return new Token(actualChar.ToString(), errorLine, errorType);
+        }
+
         private void createErrorToken(int errorLine, int errorType)
         {
             notEOF = false;
@@ -205,7 +211,15 @@ namespace Compilador
             }
             else
             {
-                return new Token(actualChar.ToString(), lineCount, 2);
+                if (actualChar.Equals('_'))
+                {
+                    return createUnderlineErrorToken(lineCount, IDENTIFICADOR_COM_UNDERLINE);
+                }
+                else
+                {
+                    return new Token(actualChar.ToString(), lineCount, 2);
+                }
+                
             }
         }
 
@@ -228,7 +242,7 @@ namespace Compilador
             string id = actualChar.ToString();
             readCaracter();
 
-            while ((isLetter() || isDigit() || actualChar.Equals("_")) && notEOF)
+            while ((isLetter() || isDigit() || actualChar.Equals('_')) && notEOF)
             {
                 id += actualChar.ToString();
                 readCaracter();
@@ -338,7 +352,7 @@ namespace Compilador
                 case "-":
                     return new Token(MENOS, aritmetico, lineCount);
                 case "*":
-                    return new Token(MULT, aritmetico, lineCount);
+                    return new Token(MULTI, aritmetico, lineCount);
                 default:
                     return new Token(actualChar.ToString(), lineCount, 3);
             }

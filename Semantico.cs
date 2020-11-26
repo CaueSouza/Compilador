@@ -15,7 +15,6 @@ namespace Compilador
         private int actualLevel = 0;
         private List<string> expression = new List<string>();
         private List<string> posFixExpression = new List<string>();
-        string finalPosFixExpression = "";
 
         public Semantico()
         {
@@ -199,7 +198,6 @@ namespace Compilador
         {
             expression.Clear();
             posFixExpression.Clear();
-            finalPosFixExpression = "";
         }
 
         public List<string> getPosFixExpression()
@@ -212,18 +210,12 @@ namespace Compilador
             convertExpressionToPosFix();
             string expResult = validateExpressionReturnType();
 
-            foreach (string expressao in posFixExpression)
-            {
-                finalPosFixExpression += expressao;
-            }
-
             return expResult;
         }
 
         private void convertExpressionToPosFix()
         {
             Stack<string> posFixStack = new Stack<string>();
-            int timesPopped;
 
             for (int i = 0; i < expression.Count; i++)
             {
@@ -244,38 +236,36 @@ namespace Compilador
                     case "-":
                         if (posFixStack.Count > 0)
                         {
-                            int myPriority = getPriority(expression[i], i);
-                            int topStackPriority = getPriority(posFixStack.Peek(), i);
+                            if (((expression[i].Equals("+") || expression[i].Equals("-")) && isUnary(i)) || expression[i].Equals("nao"))
+                            {
+                                expression[i] += "u";
+                            }
+
+                            int myPriority = getPriority(expression[i]);
+                            int topStackPriority = getPriority(posFixStack.Peek());
 
                             if (myPriority <= topStackPriority)
                             {
-                                try
+                                if (!expression[i].Equals("naou") && !posFixStack.Peek().Equals("naou"))
                                 {
-                                    timesPopped = 0;
-                                    do
+                                    try
                                     {
-                                        posFixExpression.Add(posFixStack.Pop());
-                                        timesPopped++;
-                                        topStackPriority = getPriority(posFixStack.Peek(), i - timesPopped);
-                                    } while (topStackPriority >= myPriority);
-                                }
-                                catch (InvalidOperationException)
-                                {
+                                        do
+                                        {
+                                            posFixExpression.Add(posFixStack.Pop());
+                                            topStackPriority = getPriority(posFixStack.Peek());
+                                        } while (topStackPriority >= myPriority);
+                                    }
+                                    catch (InvalidOperationException)
+                                    {
 
+                                    }
                                 }
-
-                                if ((expression[i].Equals("+") || expression[i].Equals("-")) && isUnary(i))
-                                {
-                                    expression[i] += "u";
-                                }
+                                
                                 posFixStack.Push(expression[i]);
                             }
                             else
                             {
-                                if ((expression[i].Equals("+") || expression[i].Equals("-")) && isUnary(i))
-                                {
-                                    expression[i] += "u";
-                                }
                                 posFixStack.Push(expression[i]);
                             }
                         }
@@ -295,13 +285,21 @@ namespace Compilador
                         posFixStack.Push(expression[i]);
                         break;
                     case ")":
-                        do
+                        try
                         {
-                            posFixExpression.Add(posFixStack.Pop());
-                        } while (posFixStack.Peek() != "(");
+                            while (posFixStack.Peek() != "(")
+                            {
+                                posFixExpression.Add(posFixStack.Pop());
+                            }
 
-                        posFixStack.Pop();
+                            posFixStack.Pop();
+                        }
+                        catch (InvalidOperationException)
+                        {
+
+                        }
                         break;
+
                     default:
                         posFixExpression.Add(expression[i]);
                         break;
@@ -314,7 +312,7 @@ namespace Compilador
             }
         }
 
-        private int getPriority(string caractere, int position)
+        private int getPriority(string caractere)
         {
             switch (caractere)
             {
@@ -415,7 +413,7 @@ namespace Compilador
                         }
                         else
                         {
-                            throw new CompiladorException(ERRO_SEMANTICO);
+                            throw new CompiladorException(ERRO_SEMANTICO, new CompiladorException(String.Format(ERROR_MESSAGE_NORMAL_OP, posFixExpression[i])));
                         }
 
                         break;
@@ -435,7 +433,7 @@ namespace Compilador
                         }
                         else
                         {
-                            throw new CompiladorException(ERRO_SEMANTICO);
+                            throw new CompiladorException(ERRO_SEMANTICO, new CompiladorException(ERROR_MESSAGE_EQUAL_DIF));
                         }
                         break;
                     case "e":
@@ -449,7 +447,7 @@ namespace Compilador
                         }
                         else
                         {
-                            throw new CompiladorException(ERRO_SEMANTICO);
+                            throw new CompiladorException(ERRO_SEMANTICO, new CompiladorException(ERROR_MESSAGE_E_OU));
                         }
                         break;
 
@@ -462,7 +460,7 @@ namespace Compilador
                         }
                         else
                         {
-                            throw new CompiladorException(ERRO_SEMANTICO);
+                            throw new CompiladorException(ERRO_SEMANTICO, new CompiladorException(ERROR_MESSAGE_BOOL_UNARY));
                         }
                         break;
 
@@ -476,7 +474,7 @@ namespace Compilador
                         }
                         else
                         {
-                            throw new CompiladorException(ERRO_SEMANTICO);
+                            throw new CompiladorException(ERRO_SEMANTICO, new CompiladorException(ERROR_MESSAGE_INT_UNARY));
                         }
                         break;
 
@@ -488,6 +486,10 @@ namespace Compilador
                         else if (posFixExpression[i].Equals(TIPO_INTEIRO) || posFixExpression[i].Equals(TIPO_BOOLEANO))
                         {
                             typesValidationStack.Push(posFixExpression[i]);
+                        }
+                        else if (posFixExpression[i].Equals("verdadeiro") || posFixExpression[i].Equals("falso"))
+                        {
+                            typesValidationStack.Push(TIPO_BOOLEANO);
                         }
                         else
                         {
@@ -508,13 +510,13 @@ namespace Compilador
             {
                 Struct actualItem = stack.getPosition(i);
 
-                if (actualItem.lexema.Equals(identificador) && (actualItem.nome.Equals(NOME_VARIAVEL) || actualItem.nome.Equals(NOME_FUNCAO) || actualItem.nome.Equals(NOME_PROCEDIMENTO)))
+                if (actualItem.lexema.Equals(identificador) && (actualItem.nome.Equals(NOME_VARIAVEL) || actualItem.nome.Equals(NOME_FUNCAO)))
                 {
                     return actualItem.tipo;
                 }
             }
 
-            throw new CompiladorException(ERRO_SEMANTICO);
+            throw new CompiladorException(ERRO_SEMANTICO, new CompiladorException(ERROR_MESSAGE_IDENTIFIER_NOT_FOUND));
         }
     }
 }
