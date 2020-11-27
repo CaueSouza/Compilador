@@ -81,47 +81,57 @@ namespace Compilador
 
                                 if (!hasEndedTokens)
                                 {
-                                    throwError(new CompiladorException(ERRO_SINTATICO));
+                                    throwError(new CompiladorException(ERRO_SINTATICO), ERRO_FALTA);
                                 }
 
                                 CodeGenerator.gera(EMPTY_STRING, HLT, EMPTY_STRING, EMPTY_STRING);
                             }
                             else
                             {
-                                throwError(new CompiladorException(ERRO_SINTATICO));
+                                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_PONTO);
                             }
                         }
                         else
                         {
-                            throwError(new CompiladorException(ERRO_SINTATICO));
+                            throwError(new CompiladorException(ERRO_SINTATICO), ERRO_PV);
                         }
                     }
                     else
                     {
-                        throwError(new CompiladorException(ERRO_SINTATICO));
+                        throwError(new CompiladorException(ERRO_SINTATICO), ERRO_FALTA);
                     }
                 }
                 else
                 {
-                    throwError(new CompiladorException(ERRO_SINTATICO));
+                    throwError(new CompiladorException(ERRO_SINTATICO), ERRO_NOME);
                 }
             }
         }
 
-        private void throwError(CompiladorException exception)
+        private void errorLineCheck()
         {
-            errorToken = actualToken;
-            throw exception;
+            if (tokenCount != tokenList.Count() && tokenCount > 1)
+            {
+
+                if ((tokenList[tokenCount - 1].line > tokenList[tokenCount - 2].line) &&
+                    ((tokenList[tokenCount - 1].line == tokenList[tokenCount].line) ||
+                        (tokenList[tokenCount - 1].line < tokenList[tokenCount].line)))
+                {
+                    actualToken = tokenList[tokenCount - 2];
+                }
+            }
         }
 
         private void throwError(CompiladorException exception, int errorType)
         {
+            errorLineCheck();
             errorToken = new Token(actualToken.lexem, actualToken.line, errorType);
             throw exception;
         }
 
         private void throwError(CompiladorException exception, int errorType, int errorLine)
         {
+            errorLineCheck();
             errorToken = new Token(actualToken.lexem, errorLine, errorType);
             throw exception;
         }
@@ -133,11 +143,12 @@ namespace Compilador
 
         private void updateToken()
         {
+
             actualToken = getActualToken();
 
             if (actualToken.isError)
             {
-                throwError(new CompiladorException(ERRO_LEXICO));
+                throwError(new CompiladorException(ERRO_LEXICO), ERRO_CARACTER);
             }
         }
 
@@ -186,13 +197,13 @@ namespace Compilador
                         }
                         else
                         {
-                            throwError(new CompiladorException(ERRO_SINTATICO));
+                            throwError(new CompiladorException(ERRO_SINTATICO), ERRO_PV);
                         }
                     }
                 }
                 else
                 {
-                    throwError(new CompiladorException(ERRO_SINTATICO));
+                    throwError(new CompiladorException(ERRO_SINTATICO), ERRO_NOME);
                 }
             }
         }
@@ -215,15 +226,15 @@ namespace Compilador
                             {
                                 updateToken();
 
-                                if (!hasEndedTokens && isSimbol(DOIS_PONTOS))
+                                if (!hasEndedTokens && !isSimbol(IDENTIFICADOR))
                                 {
-                                    throwError(new CompiladorException(ERRO_SINTATICO));
+                                    throwError(new CompiladorException(ERRO_SINTATICO), ERRO_VAR);
                                 }
                             }
                         }
                         else
                         {
-                            throwError(new CompiladorException(ERRO_SINTATICO));
+                            throwError(new CompiladorException(ERRO_SINTATICO), ERRO_DOIS_PONTOS);
                         }
                     }
                     else
@@ -233,7 +244,7 @@ namespace Compilador
                 }
                 else
                 {
-                    throwError(new CompiladorException(ERRO_SINTATICO));
+                    throwError(new CompiladorException(ERRO_SINTATICO), ERRO_NOME);
                 }
             } while (!hasEndedTokens && !isSimbol(DOIS_PONTOS));
 
@@ -246,7 +257,7 @@ namespace Compilador
         {
             if (!hasEndedTokens && !isSimbol(INTEIRO) && !isSimbol(BOOLEANO))
             {
-                throwError(new CompiladorException(ERRO_SINTATICO));
+                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_TIPO);
             }
             else
             {
@@ -260,6 +271,11 @@ namespace Compilador
             if (!hasEndedTokens && isSimbol(INICIO))
             {
                 updateToken();
+
+                if (isSimbol(FIM))
+                {
+                    throwError(new CompiladorException(ERRO_SINTATICO), ERRO_CORPO);
+                }
 
                 analisaComandoSimples();
 
@@ -276,7 +292,7 @@ namespace Compilador
                     }
                     else
                     {
-                        throwError(new CompiladorException(ERRO_SINTATICO));
+                        throwError(new CompiladorException(ERRO_SINTATICO), ERRO_CARACTER);
                     }
                 }
 
@@ -286,8 +302,9 @@ namespace Compilador
             }
             else
             {
-                throwError(new CompiladorException(ERRO_SINTATICO));
+                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_FALTA_DPS);
             }
+
         }
 
         private void analisaComandoSimples()
@@ -345,7 +362,7 @@ namespace Compilador
                         }
                         else
                         {
-                            throwError(new CompiladorException(ERRO_SINTATICO));
+                            throwError(new CompiladorException(ERRO_SINTATICO), ERRO_PARENTESIS);
                         }
                     }
                     else
@@ -355,12 +372,12 @@ namespace Compilador
                 }
                 else
                 {
-                    throwError(new CompiladorException(ERRO_SINTATICO));
+                    throwError(new CompiladorException(ERRO_SINTATICO), ERRO_NOME);
                 }
             }
             else
             {
-                throwError(new CompiladorException(ERRO_SINTATICO));
+                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_PARENTESIS);
             }
         }
 
@@ -384,7 +401,7 @@ namespace Compilador
                         }
                         else
                         {
-                            throwError(new CompiladorException(ERRO_SINTATICO));
+                            throwError(new CompiladorException(ERRO_SINTATICO), ERRO_PARENTESIS);
                         }
                     }
                     else
@@ -394,12 +411,12 @@ namespace Compilador
                 }
                 else
                 {
-                    throwError(new CompiladorException(ERRO_SINTATICO));
+                    throwError(new CompiladorException(ERRO_SINTATICO), ERRO_NOME);
                 }
             }
             else
             {
-                throwError(new CompiladorException(ERRO_SINTATICO));
+                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_PARENTESIS);
             }
         }
 
@@ -424,7 +441,7 @@ namespace Compilador
             {
                 throwError(e, ANALYZING_EXPRESSION_ERROR, analyzeExpressionStarterLine);
             }
-            
+
             if (!returnType.Equals(TIPO_BOOLEANO))
             {
                 throwError(new CompiladorException(ERRO_SEMANTICO), EXPRESSION_MUST_BE_BOOL, analyzeExpressionStarterLine);
@@ -454,7 +471,7 @@ namespace Compilador
             }
             else
             {
-                throwError(new CompiladorException(ERRO_SINTATICO));
+                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_FALTA);
             }
         }
 
@@ -523,7 +540,7 @@ namespace Compilador
             }
             else
             {
-                throwError(new CompiladorException(ERRO_SINTATICO));
+                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_FALTA);
             }
         }
 
@@ -545,7 +562,7 @@ namespace Compilador
                 if (structReceivedForAssignment != null && structReceivedForAssignment.nome.Equals(NOME_FUNCAO))
                 {
                     hasSameName = structReceivedForAssignment.lexema.Equals(actualFunctionName.Peek());
-                } 
+                }
                 else
                 {
                     hasSameName = false;
@@ -623,7 +640,7 @@ namespace Compilador
                 }
                 else
                 {
-                    throwError(new CompiladorException(ERRO_SINTATICO));
+                    throwError(new CompiladorException(ERRO_SINTATICO), ERRO_PV);
                 }
             }
 
@@ -654,7 +671,7 @@ namespace Compilador
                     }
                     else
                     {
-                        throwError(new CompiladorException(ERRO_SINTATICO));
+                        throwError(new CompiladorException(ERRO_SINTATICO), ERRO_PV);
                     }
                 }
                 else
@@ -664,7 +681,7 @@ namespace Compilador
             }
             else
             {
-                throwError(new CompiladorException(ERRO_SINTATICO));
+                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_FALTA);
             }
 
             semantico.voltaNivel();
@@ -715,12 +732,12 @@ namespace Compilador
                         }
                         else
                         {
-                            throwError(new CompiladorException(ERRO_SINTATICO));
+                            throwError(new CompiladorException(ERRO_SINTATICO), ERRO_TIPO);
                         }
                     }
                     else
                     {
-                        throwError(new CompiladorException(ERRO_SINTATICO));
+                        throwError(new CompiladorException(ERRO_SINTATICO), ERRO_FALTA);
                     }
                 } 
                 else
@@ -730,7 +747,7 @@ namespace Compilador
             }
             else
             {
-                throwError(new CompiladorException(ERRO_SINTATICO));
+                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_NOME);
             }
 
             semantico.voltaNivel();
@@ -839,7 +856,7 @@ namespace Compilador
                 }
                 else
                 {
-                    throwError(new CompiladorException(ERRO_SINTATICO));
+                    throwError(new CompiladorException(ERRO_SINTATICO), ERRO_PARENTESIS);
                 }
             }
             else if (!hasEndedTokens && (isSimbol(VERDADEIRO) || isSimbol(FALSO)))
@@ -849,7 +866,7 @@ namespace Compilador
             }
             else
             {
-                throwError(new CompiladorException(ERRO_SINTATICO));
+                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_CARACTER);
             }
         }
 

@@ -114,5 +114,21 @@
         public const string DALLOC = "DALLOC";
         public const string CALL = "CALL";
         public const string RETURN = "RETURN";
+
+        public const int ERRO_PV = 1;
+        public const int ERRO_FALTA = 2;
+        public const int ERRO_NOME = 3;
+        public const int ERRO_TIPO = 4;
+        public const int ERRO_INICIO = 5;
+        public const int ERRO_PARENTESIS = 6;
+        public const int ERRO_MAIS = 7;
+        public const int ERRO_PONTO = 8;
+        public const int ERRO_CARACTER = 9;
+        public const int ERRO_CORPO = 10;
+        public const int ERRO_VAR = 11;
+        public const int ERRO_DOIS_PONTOS = 12;
+        public const int ERRO_VAR_ONDE = 13;
+        public const int ERRO_FALTA_DPS = 14;
+
     }
 }
