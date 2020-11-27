@@ -146,56 +146,56 @@ namespace Compilador
                         switch (errorToken.errorType)
                         {
                             case ERRO_PV:                             
-                                richTextBox2.Text += "Erro-> falta ponto e virgula na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += "Falta ponto e virgula na linha " + errorToken.line + "\n";
                                 break;
 
                             case ERRO_NOME:                        
-                                richTextBox2.Text += "Erro-> não pode usar '" + errorToken.lexem + "' palavra pré determinada na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += "Não pode usar '" + errorToken.lexem + "' palavra pré determinada na linha " + errorToken.line + "\n";
                                 break;
 
                             case ERRO_FALTA:                      
-                                richTextBox2.Text += "Erro-> falta caracter ou comando errado na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += "Falta caracter ou comando errado na linha " + errorToken.line + "\n";
                                 break;
 
                             case ERRO_INICIO:                   
-                                richTextBox2.Text += "Erro-> falta INICIO na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += "Falta INICIO na linha " + errorToken.line + "\n";
                                 break;
 
                             case ERRO_PARENTESIS:                 
-                                richTextBox2.Text += "Erro-> falta parentesis na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += "Falta parentesis na linha " + errorToken.line + "\n";
                                 break;
 
                             case ERRO_TIPO:            
-                                richTextBox2.Text += "Erro-> são aceitos apenas INTEIRO ou BOOLEANO na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += "São aceitos apenas INTEIRO ou BOOLEANO na linha " + errorToken.line + "\n";
                                 break;
 
                             case ERRO_MAIS:        
-                                richTextBox2.Text += "Erro-> linha com caracter a mais na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += "Linha com caracter a mais na linha " + errorToken.line + "\n";
                                 break;
 
                             case ERRO_PONTO:        
-                                richTextBox2.Text += "Erro-> ponto final apenas na última linha e não na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += "Ponto final apenas na última linha e não na linha " + errorToken.line + "\n";
                                 break;
 
                             case ERRO_CARACTER:
-                                richTextBox2.Text += "Erro-> '" + errorToken.lexem + "' na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += "'" + errorToken.lexem + "' na linha " + errorToken.line + "\n";
                                 break;
 
                             case ERRO_CORPO:
-                                richTextBox2.Text += "Erro-> Corpo vazio na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += "Corpo vazio na linha " + errorToken.line + "\n";
                                 break;
                             case ERRO_VAR:
-                                richTextBox2.Text += "Erro-> Apenas variável após a virgula na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += "Apenas variável após a virgula na linha " + errorToken.line + "\n";
                                 break;
                             case ERRO_DOIS_PONTOS:
-                                richTextBox2.Text += "Erro-> Espera-se ' : ' após a última variável e não ' " + errorToken.lexem + 
+                                richTextBox2.Text += "Espera-se ' : ' após a última variável e não ' " + errorToken.lexem + 
                                     " ' na linha " + errorToken.line + "\n";
                                 break;
                             case ERRO_VAR_ONDE:
-                                richTextBox2.Text += "Erro-> Não há variáveis declaradas após a linha " + errorToken.line + "\n";
+                                richTextBox2.Text += "Não há variáveis declaradas após a linha " + errorToken.line + "\n";
                                 break;
                             case ERRO_FALTA_DPS:
-                                richTextBox2.Text += "Erro-> Falta comando após a linha " + errorToken.line + "\n";
+                                richTextBox2.Text += "Falta comando após a linha " + errorToken.line + "\n";
                                 break;
                         }
                         break;

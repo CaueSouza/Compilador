@@ -123,12 +123,6 @@ namespace Compilador
             }
         }
 
-        private void throwError(CompiladorException exception)
-        {
-            errorToken = actualToken;
-            throw exception;
-        }
-
         private void throwError(CompiladorException exception, int errorType)
         {
             errorLineCheck();
@@ -155,12 +149,7 @@ namespace Compilador
 
             if (actualToken.isError)
             {
-                throwError(new CompiladorException(ERRO_LEXICO));
-            }
-
-            if (!hasEndedTokens && isSimbol(PONTO) && (tokenCount != tokenList.Count()))
-            {
-                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_PONTO);
+                throwError(new CompiladorException(ERRO_LEXICO), ERRO_CARACTER);
             }
         }
 
@@ -186,21 +175,9 @@ namespace Compilador
         {
             updateToken();
 
-            if (!hasEndedTokens && (isSimbol(PROCEDIMENTO) || isSimbol(FIM) || isSimbol(VAR) || isSimbol(FUNCAO) || isSimbol(INICIO)))
-            {
-                analisaEtVariaveis();
-                analisaSubRotinas();
-                analisaComandos();
-                
-            }
-            else
-            {
-                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_CARACTER);
-            }
-
-            
-
-            
+            analisaEtVariaveis();
+            analisaSubRotinas();
+            analisaComandos();
         }
 
         private void analisaEtVariaveis()
@@ -323,11 +300,6 @@ namespace Compilador
                 returnAlreadyMade = false;
 
                 updateToken();
-
-                if (!hasEndedTokens && (!isSimbol(PONTO_VIRGULA) && !isSimbol(PONTO)))
-                {
-                    throwError(new CompiladorException(ERRO_SINTATICO), ERRO_PV);
-                }
             }
             else
             {
@@ -345,34 +317,26 @@ namespace Compilador
 
             returnMade = false;
 
-            if (!hasEndedTokens && (isSimbol(IDENTIFICADOR) || isSimbol(SE) || isSimbol(ENQUANTO) ||
-                isSimbol(LEIA) || isSimbol(ESCREVA) || isSimbol(INICIO)))
+            switch (actualToken.simbol)
             {
-                switch (actualToken.simbol)
-                {
-                    case IDENTIFICADOR:
-                        analisaAtribChamadaProc();
-                        break;
-                    case SE:
-                        analisaSe();
-                        break;
-                    case ENQUANTO:
-                        analisaEnquanto();
-                        break;
-                    case LEIA:
-                        analisaLeia();
-                        break;
-                    case ESCREVA:
-                        analisaEscreva();
-                        break;
-                    default:
-                        analisaComandos();
-                        break;
-                }
-            }
-            else
-            {
-                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_MAIS);
+                case IDENTIFICADOR:
+                    analisaAtribChamadaProc();
+                    break;
+                case SE:
+                    analisaSe();
+                    break;
+                case ENQUANTO:
+                    analisaEnquanto();
+                    break;
+                case LEIA:
+                    analisaLeia();
+                    break;
+                case ESCREVA:
+                    analisaEscreva();
+                    break;
+                default:
+                    analisaComandos();
+                    break;
             }
         }
 
