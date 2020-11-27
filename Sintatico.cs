@@ -81,7 +81,6 @@ namespace Compilador
 
                                 if (!hasEndedTokens)
                                 {
-                                    
                                     throwError(new CompiladorException(ERRO_SINTATICO), ERRO_FALTA);
                                 }
 
@@ -317,26 +316,29 @@ namespace Compilador
 
             returnMade = false;
 
-            switch (actualToken.simbol)
+            if (!hasEndedTokens)
             {
-                case IDENTIFICADOR:
-                    analisaAtribChamadaProc();
-                    break;
-                case SE:
-                    analisaSe();
-                    break;
-                case ENQUANTO:
-                    analisaEnquanto();
-                    break;
-                case LEIA:
-                    analisaLeia();
-                    break;
-                case ESCREVA:
-                    analisaEscreva();
-                    break;
-                default:
-                    analisaComandos();
-                    break;
+                switch (actualToken.simbol)
+                {
+                    case IDENTIFICADOR:
+                        analisaAtribChamadaProc();
+                        break;
+                    case SE:
+                        analisaSe();
+                        break;
+                    case ENQUANTO:
+                        analisaEnquanto();
+                        break;
+                    case LEIA:
+                        analisaLeia();
+                        break;
+                    case ESCREVA:
+                        analisaEscreva();
+                        break;
+                    default:
+                        analisaComandos();
+                        break;
+                }
             }
         }
 
