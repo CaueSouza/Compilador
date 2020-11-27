@@ -609,7 +609,7 @@ namespace Compilador
             {
                 if (!structReceivedForAssignment.nome.Equals(NOME_PROCEDIMENTO))
                 {
-                    throwError(new CompiladorException(ERRO_SEMANTICO), FUNC_MUST_BE_IN_ASSIGN);
+                    throwError(new CompiladorException(ERRO_SEMANTICO), MUST_BE_PROC);
                 }
 
                 analisaChamadaProcedimento();
