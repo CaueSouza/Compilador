@@ -124,14 +124,14 @@ namespace Compilador
 
         private void throwError(CompiladorException exception, int errorType)
         {
-            errorLineCheck();
+            //errorLineCheck();
             errorToken = new Token(actualToken.lexem, actualToken.line, errorType);
             throw exception;
         }
 
         private void throwError(CompiladorException exception, int errorType, int errorLine)
         {
-            errorLineCheck();
+            //errorLineCheck();
             errorToken = new Token(actualToken.lexem, errorLine, errorType);
             throw exception;
         }
