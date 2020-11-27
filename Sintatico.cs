@@ -607,7 +607,7 @@ namespace Compilador
             }
             else
             {
-                if (structReceivedForAssignment.nome.Equals(NOME_FUNCAO))
+                if (!structReceivedForAssignment.nome.Equals(NOME_PROCEDIMENTO))
                 {
                     throwError(new CompiladorException(ERRO_SEMANTICO), FUNC_MUST_BE_IN_ASSIGN);
                 }
