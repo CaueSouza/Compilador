@@ -607,9 +607,9 @@ namespace Compilador
             }
             else
             {
-                if (!structReceivedForAssignment.nome.Equals(NOME_PROCEDIMENTO))
+                if (structReceivedForAssignment.nome.Equals(NOME_FUNCAO))
                 {
-                    throwError(new CompiladorException(ERRO_SEMANTICO), MUST_BE_PROC);
+                    throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_FUNC_CALL);
                 }
 
                 analisaChamadaProcedimento();

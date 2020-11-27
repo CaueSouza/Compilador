@@ -256,8 +256,8 @@ namespace Compilador
                             case UNREACHABLE_CODE:
                                 richTextBox2.Text += "Funcao da linha " + errorToken.line + " possui codigo inalcançavel\n";
                                 break;
-                            case MUST_BE_PROC:
-                                richTextBox2.Text += "Comando da linha " + errorToken.line + " deve ser chamada de procedimento\n";
+                            case INVALID_FUNC_CALL:
+                                richTextBox2.Text += "Chamada de funcao incorreta na linha " + errorToken.line + "\n";
                                 break;
                         }
                         break;
