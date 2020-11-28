@@ -116,6 +116,8 @@
         public const string CALL = "CALL";
         public const string RETURN = "RETURN";
 
+        public const string FUNCTION_RETURN_LABEL = "0";
+
         public const int ERRO_PV = 1;
         public const int ERRO_FALTA = 2;
         public const int ERRO_NOME = 3;

@@ -11,37 +11,32 @@ namespace Compilador
 {
     class Semantico
     {
-        private Stack stack;
-        private int actualLevel = 0;
-        private List<string> expression = new List<string>();
-        private List<string> posFixExpression = new List<string>();
+        private static Stack stack = new Stack();
+        private static int actualLevel = 0;
+        private static List<string> expression = new List<string>();
+        private static List<string> posFixExpression = new List<string>();
 
-        public Semantico()
-        {
-            stack = new Stack();
-        }
-
-        public void increaseLevel()
+        public static void increaseLevel()
         {
             actualLevel++;
         }
 
-        public void decreaseLevel()
+        public static void decreaseLevel()
         {
             actualLevel--;
         }
 
-        public void resetStack()
+        public static void resetStack()
         {
             stack.cleanStack();
         }
 
-        public void insereTabela(string lexema, string nome, int rotulo)
+        public static void insereTabela(string lexema, string nome, int rotulo)
         {
             stack.push(new Struct(lexema, nome, actualLevel, rotulo));
         }
 
-        public bool pesquisaDuplicVarTabela(string lexema)
+        public static bool pesquisaDuplicVarTabela(string lexema)
         {
             int stackSize = stack.getLength();
 
@@ -65,7 +60,7 @@ namespace Compilador
             return false;
         }
 
-        public void colocaTipoTabela(string lexema)
+        public static void colocaTipoTabela(string lexema)
         {
             int stackSize = stack.getLength();
 
@@ -84,7 +79,7 @@ namespace Compilador
             }
         }
 
-        public bool pesquisaDeclVarTabela(string lexema)
+        public static bool pesquisaDeclVarTabela(string lexema)
         {
             int stackSize = stack.getLength();
 
@@ -101,7 +96,7 @@ namespace Compilador
             return false;
         }
 
-        public bool pesquisaDeclVarFuncTabela(string lexema)
+        public static bool pesquisaDeclVarFuncTabela(string lexema)
         {
             int stackSize = stack.getLength();
 
@@ -118,7 +113,7 @@ namespace Compilador
             return false;
         }
 
-        public bool pesquisaDeclProcTabela(string lexema)
+        public static bool pesquisaDeclProcTabela(string lexema)
         {
             int stackSize = stack.getLength();
 
@@ -135,7 +130,7 @@ namespace Compilador
             return false;
         }
 
-        public bool pesquisaDeclFuncTabela(string lexema)
+        public static bool pesquisaDeclFuncTabela(string lexema)
         {
             int stackSize = stack.getLength();
 
@@ -152,7 +147,7 @@ namespace Compilador
             return false;
         }
 
-        public Struct pesquisaTabela(string lexema, int indice)
+        public static Struct pesquisaTabela(string lexema, int indice)
         {
             int stackSize = stack.getLength();
 
@@ -169,7 +164,7 @@ namespace Compilador
             return null;
         }
 
-        public void voltaNivel()
+        public static void voltaNivel()
         {
             int stackSize = stack.getLength();
 
@@ -189,23 +184,23 @@ namespace Compilador
             }
         }
 
-        public void addCharToExpression(Token caractere)
+        public static void addCharToExpression(Token caractere)
         {
             expression.Add(caractere.lexem);
         }
 
-        public void cleanExpression()
+        public static void cleanExpression()
         {
             expression.Clear();
             posFixExpression.Clear();
         }
 
-        public List<string> getPosFixExpression()
+        public static List<string> getPosFixExpression()
         {
             return posFixExpression;
         }
 
-        public string analyzeExpression()
+        public static string analyzeExpression()
         {
             convertExpressionToPosFix();
             string expResult = validateExpressionReturnType();
@@ -213,7 +208,7 @@ namespace Compilador
             return expResult;
         }
 
-        private void convertExpressionToPosFix()
+        private static void convertExpressionToPosFix()
         {
             Stack<string> posFixStack = new Stack<string>();
 
@@ -236,17 +231,12 @@ namespace Compilador
                     case "-":
                         if (posFixStack.Count > 0)
                         {
-                            if (((expression[i].Equals("+") || expression[i].Equals("-")) && isUnary(i)) || expression[i].Equals("nao"))
-                            {
-                                expression[i] += "u";
-                            }
-
                             int myPriority = getPriority(expression[i]);
                             int topStackPriority = getPriority(posFixStack.Peek());
 
                             if (myPriority <= topStackPriority)
                             {
-                                if (!expression[i].Equals("naou") && !posFixStack.Peek().Equals("naou"))
+                                if (!expression[i].Equals("nao") && !posFixStack.Peek().Equals("nao"))
                                 {
                                     try
                                     {
@@ -271,13 +261,7 @@ namespace Compilador
                         }
                         else
                         {
-                            if (((expression[i].Equals("+") || expression[i].Equals("-")) && isUnary(i)) || expression[i].Equals("nao"))
-                            {
-                                expression[i] += "u";
-                            }
-                            
                             posFixStack.Push(expression[i]);
-
                         }
                         break;
 
@@ -312,7 +296,7 @@ namespace Compilador
             }
         }
 
-        private int getPriority(string caractere)
+        private static int getPriority(string caractere)
         {
             switch (caractere)
             {
@@ -342,7 +326,7 @@ namespace Compilador
 
                 case "-u":
                 case "+u":
-                case "naou":
+                case "nao":
                     return 7;
 
                 default:
@@ -350,36 +334,7 @@ namespace Compilador
             }
         }
 
-        private bool isUnary(int position)
-        {
-            if (position == 0) return true;
-
-            string pastChar = expression.ElementAt(position - 1);
-
-            switch (pastChar)
-            {
-                case "*":
-                case "div":
-                case "=":
-                case "!=":
-                case ">":
-                case ">=":
-                case "<":
-                case "<=":
-                case "e":
-                case "ou":
-                case "nao":
-                case "+":
-                case "-":
-                case "(":
-                case ")":
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        private string validateExpressionReturnType()
+        private static string validateExpressionReturnType()
         {
             Stack<string> typesValidationStack = new Stack<string>();
             string tipoPos1;
@@ -451,7 +406,7 @@ namespace Compilador
                         }
                         break;
 
-                    case "naou":
+                    case "nao":
                         tipoPos1 = typesValidationStack.Pop();
 
                         if (tipoPos1 == TIPO_BOOLEANO)
@@ -502,7 +457,7 @@ namespace Compilador
             return typesValidationStack.Pop();
         }
 
-        private string getIdentifierType(string identificador)
+        private static string getIdentifierType(string identificador)
         {
             int stackSize = stack.getLength();
 

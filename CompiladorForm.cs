@@ -113,7 +113,7 @@ namespace Compilador
         {
             try
             {
-                sintatico.executeSintatico(lexico.getTokens(), semantico);
+                sintatico.executeSintatico(lexico.getTokens());
                 return true;
             }
             catch (CompiladorException exception)
