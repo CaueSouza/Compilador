@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Security;
 using System.Windows.Forms;
 
@@ -54,6 +55,25 @@ namespace Compilador
             if (saveFileDialog.ShowDialog() == DialogResult.OK && saveFileDialog.FileName.Length > 0)
             {
                 richTextBox.SaveFile(saveFileDialog.FileName, RichTextBoxStreamType.PlainText);
+            }
+        }
+
+        public void saveCompilerResponse(List<string> VMCommands)
+        {
+            string finalText = "";
+
+            foreach (string command in VMCommands)
+            {
+                finalText += command + "\n";
+            }
+
+            if (saveFileDialog.ShowDialog() == DialogResult.OK && saveFileDialog.FileName.Length > 0)
+            {
+                using (StreamWriter writer = new StreamWriter(saveFileDialog.FileName))
+                {
+                    writer.Write(finalText);
+                    writer.Close();
+                }
             }
         }
     }

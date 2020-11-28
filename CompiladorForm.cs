@@ -114,6 +114,8 @@ namespace Compilador
             try
             {
                 sintatico.executeSintatico(lexico.getTokens());
+                fileReader.saveCompilerResponse(CodeGenerator.getVMCommands());
+
                 return true;
             }
             catch (CompiladorException exception)
