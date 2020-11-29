@@ -28,6 +28,8 @@ namespace Compilador
         private bool returnAlreadyMade = false;
         private int totalVariables = 0;
         private Stack<int> totalVarsCreatedLocally = new Stack<int>();
+        private Stack<bool> createdVarsLocally = new Stack<bool>();
+        private bool declaredVar = false;
 
         private void resetValidators()
         {
@@ -52,6 +54,7 @@ namespace Compilador
             totalVariables = 0;
             CodeGenerator.cleanCommands();
             totalVarsCreatedLocally.Clear();
+            declaredVar = false;
         }
 
         public void executeSintatico(List<Token> tokens)
@@ -72,8 +75,8 @@ namespace Compilador
                         Semantico.insereTabela(actualToken.lexem, NOME_PROGRAMA, 0);
 
                         CodeGenerator.gera(EMPTY_STRING, START, EMPTY_STRING, EMPTY_STRING);
-                        //CodeGenerator.gera(EMPTY_STRING, ALLOC, totalVariables.ToString(), "1");
-                        //totalVariables++;
+                        CodeGenerator.gera(EMPTY_STRING, ALLOC, totalVariables.ToString(), "1");
+                        totalVariables++;
 
                         updateToken();
 
@@ -184,13 +187,18 @@ namespace Compilador
             analisaSubRotinas();
             analisaComandos();
 
-            int totalVarsPopped = totalVarsCreatedLocally.Pop();
-            totalVariables -= totalVarsPopped;
-            CodeGenerator.gera(EMPTY_STRING, DALLOC, totalVariables.ToString(), totalVarsPopped.ToString());
+            if (createdVarsLocally.Pop())
+            {
+                int totalVarsPopped = totalVarsCreatedLocally.Pop();
+                totalVariables -= totalVarsPopped;
+                CodeGenerator.gera(EMPTY_STRING, DALLOC, totalVariables.ToString(), totalVarsPopped.ToString());
+            }
         }
 
         private void analisaEtVariaveis()
         {
+            declaredVar = false;
+
             if (!hasEndedTokens && isSimbol(VAR))
             {
                 updateToken();
@@ -216,6 +224,8 @@ namespace Compilador
                     throwError(new CompiladorException(ERRO_SINTATICO), ERRO_NOME);
                 }
             }
+
+            createdVarsLocally.Push(declaredVar);
         }
 
         private void analisaVariaveis()
@@ -262,6 +272,7 @@ namespace Compilador
 
             updateToken();
 
+            declaredVar = true;
             totalVarsCreatedLocally.Push(varsCreated);
             CodeGenerator.gera(EMPTY_STRING, ALLOC, totalVariables.ToString(), varsCreated.ToString());
             totalVariables += varsCreated;
