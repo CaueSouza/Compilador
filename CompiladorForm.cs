@@ -156,7 +156,7 @@ namespace Compilador
                                 break;
 
                             case ERRO_FALTA:                      
-                                richTextBox2.Text += "Falta caracter ou comando errado na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += "Falta caracter ou comando na linha " + errorToken.line + "\n";
                                 break;
 
                             case ERRO_INICIO:                   
@@ -175,7 +175,7 @@ namespace Compilador
                                 richTextBox2.Text += "Linha com caracter a mais na linha " + errorToken.line + "\n";
                                 break;
 
-                            case ERRO_PONTO:        
+                            case ERRO_PONTO_MEIO:        
                                 richTextBox2.Text += "Ponto final apenas na última linha e não na linha " + errorToken.line + "\n";
                                 break;
 
@@ -193,11 +193,14 @@ namespace Compilador
                                 richTextBox2.Text += "Espera-se ' : ' após a última variável e não ' " + errorToken.lexem + 
                                     " ' na linha " + errorToken.line + "\n";
                                 break;
-                            case ERRO_VAR_ONDE:
-                                richTextBox2.Text += "Não há variáveis declaradas após a linha " + errorToken.line + "\n";
+                            case ERRO_ATRIBUICAO:
+                                richTextBox2.Text += "Espera-se ' := ' e não ' " + errorToken.lexem + " ' após a variável na linha " + errorToken.line + "\n";
                                 break;
-                            case ERRO_FALTA_DPS:
-                                richTextBox2.Text += "Falta comando após a linha " + errorToken.line + "\n";
+                            case ERRO_BLOCO:
+                                richTextBox2.Text += "Caracter encontrado ' " + errorToken.lexem + " '. Não é possível continuar sem pelo menos 'var', 'procedimento', 'função' ou 'inicio' após o ponto e vírgula da linha " + errorToken.line + "\n";
+                                break;
+                            case ERRO_PONTO_FALTA:
+                                richTextBox2.Text += "Falta ponto final no fim da linha " + errorToken.line + "\n";
                                 break;
                         }
                         break;
