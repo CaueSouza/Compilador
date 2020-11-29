@@ -93,6 +93,7 @@ namespace Compilador
                                     throwError(new CompiladorException(ERRO_SINTATICO), ERRO_FALTA);
                                 }
 
+                                CodeGenerator.gera(EMPTY_STRING, DALLOC, totalVariables.ToString(), "0");
                                 CodeGenerator.gera(EMPTY_STRING, HLT, EMPTY_STRING, EMPTY_STRING);
                             }
                             else
@@ -381,7 +382,18 @@ namespace Compilador
                 {
                     if (Semantico.pesquisaDeclVarFuncTabela(actualToken.lexem))
                     {
-                        CodeGenerator.gera(EMPTY_STRING, LDV, Semantico.pesquisaTabela(actualToken.lexem, 0).rotulo.ToString(), EMPTY_STRING);
+                        Struct identifierStruct = Semantico.pesquisaTabela(actualToken.lexem, 0);
+
+                        if (identifierStruct.nome.Equals(NOME_FUNCAO))
+                        {
+                            CodeGenerator.gera(EMPTY_STRING, CALL, identifierStruct.rotulo.ToString(), EMPTY_STRING);
+                            CodeGenerator.gera(EMPTY_STRING, LDV, FUNCTION_RETURN_LABEL, EMPTY_STRING);
+                        }
+                        else
+                        {
+                            CodeGenerator.gera(EMPTY_STRING, LDV, identifierStruct.rotulo.ToString(), EMPTY_STRING);
+                        }
+                        
                         CodeGenerator.gera(EMPTY_STRING, PRN, EMPTY_STRING, EMPTY_STRING);
 
                         updateToken();
