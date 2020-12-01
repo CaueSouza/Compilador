@@ -229,6 +229,8 @@ namespace Compilador
                     case "nao":
                     case "+":
                     case "-":
+                    case "-u":
+                    case "+u":
                         if (posFixStack.Count > 0)
                         {
                             int myPriority = getPriority(expression[i]);

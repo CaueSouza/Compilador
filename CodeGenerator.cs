@@ -138,8 +138,19 @@ namespace Compilador
                     case "+":
                         gera(EMPTY_STRING, ADD, EMPTY_STRING, EMPTY_STRING);
                         break;
+                    case "+u":
+                        break;
+                    case "-u":
+                        gera(EMPTY_STRING, INV, EMPTY_STRING, EMPTY_STRING);
+                        break;
                     case "-":
                         gera(EMPTY_STRING, SUB, EMPTY_STRING, EMPTY_STRING);
+                        break;
+                    case "verdadeiro":
+                        gera(EMPTY_STRING, LDC, "1", EMPTY_STRING);
+                        break;
+                    case "falso":
+                        gera(EMPTY_STRING, LDC, "0", EMPTY_STRING);
                         break;
 
                     default:
@@ -150,7 +161,16 @@ namespace Compilador
                         else
                         {
                             Struct structField = Semantico.pesquisaTabela(field,0);
-                            gera(EMPTY_STRING, LDV, structField.rotulo.ToString(), EMPTY_STRING);
+
+                            if (structField.nome.Equals(NOME_FUNCAO))
+                            {
+                                CodeGenerator.gera(EMPTY_STRING, CALL, structField.rotulo.ToString(), EMPTY_STRING);
+                                CodeGenerator.gera(EMPTY_STRING, LDV, FUNCTION_RETURN_LABEL, EMPTY_STRING);
+                            }
+                            else
+                            {
+                                CodeGenerator.gera(EMPTY_STRING, LDV, structField.rotulo.ToString(), EMPTY_STRING);
+                            }
                         }
 
                         break;

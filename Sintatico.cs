@@ -75,7 +75,7 @@ namespace Compilador
                         Semantico.insereTabela(actualToken.lexem, NOME_PROGRAMA, 0);
 
                         CodeGenerator.gera(EMPTY_STRING, START, EMPTY_STRING, EMPTY_STRING);
-                        CodeGenerator.gera(EMPTY_STRING, ALLOC, totalVariables.ToString(), "1");
+                        CodeGenerator.gera(EMPTY_STRING, ALLOC, "0", "1");
                         totalVariables++;
 
                         updateToken();
@@ -93,7 +93,7 @@ namespace Compilador
                                     throwError(new CompiladorException(ERRO_SINTATICO), ERRO_FALTA);
                                 }
 
-                                CodeGenerator.gera(EMPTY_STRING, DALLOC, totalVariables.ToString(), "0");
+                                CodeGenerator.gera(EMPTY_STRING, DALLOC, "0", "1");
                                 CodeGenerator.gera(EMPTY_STRING, HLT, EMPTY_STRING, EMPTY_STRING);
                             }
                             else
@@ -118,30 +118,14 @@ namespace Compilador
             }
         }
 
-        private void errorLineCheck()
-        {
-            if (tokenCount != tokenList.Count() && tokenCount > 1)
-            {
-
-                if ((tokenList[tokenCount - 1].line > tokenList[tokenCount - 2].line) &&
-                    ((tokenList[tokenCount - 1].line == tokenList[tokenCount].line) ||
-                        (tokenList[tokenCount - 1].line < tokenList[tokenCount].line)))
-                {
-                    actualToken = tokenList[tokenCount - 2];
-                }
-            }
-        }
-
         private void throwError(CompiladorException exception, int errorType)
         {
-            //errorLineCheck();
             errorToken = new Token(actualToken.lexem, actualToken.line, errorType);
             throw exception;
         }
 
         private void throwError(CompiladorException exception, int errorType, int errorLine)
         {
-            //errorLineCheck();
             errorToken = new Token(actualToken.lexem, errorLine, errorType);
             throw exception;
         }
@@ -672,13 +656,14 @@ namespace Compilador
             }
             else
             {
-                if (structReceivedForAssignment.nome.Equals(NOME_FUNCAO))
+                if (structReceivedForAssignment.nome.Equals(NOME_PROCEDIMENTO))
                 {
-                    throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_FUNC_CALL);
+                    analisaChamadaProcedimento(structReceivedForAssignment);
                 }
-
-                //analisaChamadaProcedimento();
-                CodeGenerator.gera(EMPTY_STRING, CALL, structReceivedForAssignment.rotulo.ToString(), EMPTY_STRING);
+                else
+                {
+                    throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_PROC_CALL);
+                }
             }
         }
 
@@ -707,7 +692,7 @@ namespace Compilador
 
                 if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
                 {
-
+                    CodeGenerator.gera(EMPTY_STRING, RETURN, EMPTY_STRING, EMPTY_STRING);
                     updateToken();
                 }
                 else
@@ -718,7 +703,6 @@ namespace Compilador
 
             if (flag == 1)
             {
-                CodeGenerator.gera(EMPTY_STRING, RETURN, EMPTY_STRING, EMPTY_STRING);
                 CodeGenerator.gera(auxrot.ToString(), NULL, EMPTY_STRING, EMPTY_STRING);
             }
         }
@@ -943,9 +927,9 @@ namespace Compilador
             }
         }
 
-        private void analisaChamadaProcedimento()
+        private void analisaChamadaProcedimento(Struct structReceivedForAssignment)
         {
-            //nao faz nada
+            CodeGenerator.gera(EMPTY_STRING, CALL, structReceivedForAssignment.rotulo.ToString(), EMPTY_STRING);
         }
 
         private void analisaChamadaFuncao()
