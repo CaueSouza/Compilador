@@ -128,11 +128,6 @@ namespace Compilador
             }
         }
 
-        private int lineAbove()
-        {
-            return tokenList[actualToken.line - 1].line;
-        }
-
         private void throwError(CompiladorException exception, int errorType)
         {
             //errorLineCheck();
@@ -160,12 +155,6 @@ namespace Compilador
             if (actualToken.isError)
             {
                 throwError(new CompiladorException(ERRO_LEXICO), ERRO_CARACTER);
-            }
-
-            //manda erro se achar qualquer ponto que nao esteja no final
-            if (!hasEndedTokens && isSimbol(PONTO) && (tokenCount != tokenList.Count()))
-            {
-                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_PONTO_MEIO);
             }
         }
 
@@ -665,12 +654,6 @@ namespace Compilador
                 {
                     throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_FUNC_CALL);
                 }
-
-                if (structReceivedForAssignment.nome.Equals(NOME_VARIAVEL))
-                {
-                    throwError(new CompiladorException(ERRO_SINTATICO), ERRO_ATRIBUICAO);
-                }
-                
 
                 //analisaChamadaProcedimento();
                 CodeGenerator.gera(EMPTY_STRING, CALL, structReceivedForAssignment.rotulo.ToString(), EMPTY_STRING);
