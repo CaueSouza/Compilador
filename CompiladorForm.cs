@@ -24,25 +24,19 @@ namespace Compilador
 
         private void addLineNumbers()
         {
-            // create & set Point pt to (0,0)    
             Point pt = new Point(0, 0);
-            // get First Index & First Line from richTextBox1    
+
             int First_Index = richTextBox1.GetCharIndexFromPosition(pt);
             int First_Line = richTextBox1.GetLineFromCharIndex(First_Index);
-            // set X & Y coordinates of Point pt to ClientRectangle Width & Height respectively    
+
             pt.X = ClientRectangle.Width;
             pt.Y = ClientRectangle.Height;
 
-            // get Last Index & Last Line from richTextBox1    
             int Last_Index = richTextBox1.GetCharIndexFromPosition(pt);
             int Last_Line = richTextBox1.GetLineFromCharIndex(Last_Index);
-            // set Center alignment to LineNumberTextBox    
             LineNumberTextBox.SelectionAlignment = HorizontalAlignment.Right;
-            // set LineNumberTextBox text to null & width to getWidth() function value    
             LineNumberTextBox.Text = "";
 
-            //LineNumberTextBox.Width = getWidth();
-            // now add each line number to LineNumberTextBox upto last line   
             for (int i = First_Line; i < Last_Line + 1; i++)
             {
                 LineNumberTextBox.Text += i + 1 + "\n";

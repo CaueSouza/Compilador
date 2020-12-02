@@ -154,7 +154,7 @@ namespace Compilador
                         break;
 
                     default:
-                        if (field.All(char.IsDigit)) //é digito
+                        if (field.All(char.IsDigit))
                         {
                             gera(EMPTY_STRING, LDC, field, EMPTY_STRING);
                         }
