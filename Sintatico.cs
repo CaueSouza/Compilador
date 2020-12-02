@@ -98,7 +98,7 @@ namespace Compilador
                             }
                             else
                             {
-                                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_PONTO);
+                                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_PONTO_FALTA);
                             }
                         }
                         else
@@ -304,8 +304,9 @@ namespace Compilador
                     }
                     else
                     {
-                        throwError(new CompiladorException(ERRO_SINTATICO), ERRO_CARACTER);
+                        throwError(new CompiladorException(ERRO_SINTATICO), ERRO_PV);
                     }
+                    
                 }
 
                 returnAlreadyMade = false;
@@ -314,7 +315,7 @@ namespace Compilador
             }
             else
             {
-                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_FALTA_DPS);
+                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_BLOCO);
             }
 
         }
@@ -911,7 +912,7 @@ namespace Compilador
                     Semantico.addCharToExpression(actualToken);
                     updateToken();
                 }
-                else
+                else 
                 {
                     throwError(new CompiladorException(ERRO_SINTATICO), ERRO_PARENTESIS);
                 }

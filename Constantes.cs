@@ -125,13 +125,14 @@
         public const int ERRO_INICIO = 5;
         public const int ERRO_PARENTESIS = 6;
         public const int ERRO_MAIS = 7;
-        public const int ERRO_PONTO = 8;
+        public const int ERRO_PONTO_MEIO = 8;
         public const int ERRO_CARACTER = 9;
         public const int ERRO_CORPO = 10;
         public const int ERRO_VAR = 11;
         public const int ERRO_DOIS_PONTOS = 12;
-        public const int ERRO_VAR_ONDE = 13;
-        public const int ERRO_FALTA_DPS = 14;
+        public const int ERRO_ATRIBUICAO = 13;
+        public const int ERRO_BLOCO = 14;
+        public const int ERRO_PONTO_FALTA = 15;
 
     }
 }
