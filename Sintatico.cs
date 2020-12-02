@@ -14,7 +14,6 @@ namespace Compilador
         private int tokenCount;
         public Token errorToken { get; set; }
         private bool hasEndedTokens = false;
-        private Semantico semantico;
         private int parentesisCount = 0;
         private int analyzeExpressionStarterLine = 0;
         private string returnType = "";
@@ -27,6 +26,10 @@ namespace Compilador
         private int returnsMade = 0;
         private Stack<string> actualFunctionName = new Stack<string>();
         private bool returnAlreadyMade = false;
+        private int totalVariables = 0;
+        private Stack<int> totalVarsCreatedLocally = new Stack<int>();
+        private Stack<bool> createdVarsLocally = new Stack<bool>();
+        private bool declaredVar = false;
 
         private void resetValidators()
         {
@@ -35,7 +38,7 @@ namespace Compilador
             errorToken = null;
             actualToken = null;
             tokenList = null;
-            semantico.resetStack();
+            Semantico.resetStack();
             parentesisCount = 0;
             analyzeExpressionStarterLine = 0;
             returnType = "";
@@ -48,11 +51,14 @@ namespace Compilador
             returnsMade = 0;
             actualFunctionName.Clear();
             returnAlreadyMade = false;
+            totalVariables = 0;
+            CodeGenerator.cleanCommands();
+            totalVarsCreatedLocally.Clear();
+            declaredVar = false;
         }
 
-        public void executeSintatico(List<Token> tokens, Semantico semantico)
+        public void executeSintatico(List<Token> tokens)
         {
-            this.semantico = semantico;
             resetValidators();
             tokenList = tokens;
 
@@ -66,8 +72,11 @@ namespace Compilador
 
                     if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                     {
-                        semantico.insereTabela(actualToken.lexem, NOME_PROGRAMA, 0);
+                        Semantico.insereTabela(actualToken.lexem, NOME_PROGRAMA, 0);
+
                         CodeGenerator.gera(EMPTY_STRING, START, EMPTY_STRING, EMPTY_STRING);
+                        CodeGenerator.gera(EMPTY_STRING, ALLOC, "0", "1");
+                        totalVariables++;
 
                         updateToken();
 
@@ -84,11 +93,12 @@ namespace Compilador
                                     throwError(new CompiladorException(ERRO_SINTATICO), ERRO_FALTA);
                                 }
 
+                                CodeGenerator.gera(EMPTY_STRING, DALLOC, "0", "1");
                                 CodeGenerator.gera(EMPTY_STRING, HLT, EMPTY_STRING, EMPTY_STRING);
                             }
                             else
                             {
-                                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_PONTO);
+                                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_PONTO_FALTA);
                             }
                         }
                         else
@@ -108,30 +118,14 @@ namespace Compilador
             }
         }
 
-        private void errorLineCheck()
-        {
-            if (tokenCount != tokenList.Count() && tokenCount > 1)
-            {
-
-                if ((tokenList[tokenCount - 1].line > tokenList[tokenCount - 2].line) &&
-                    ((tokenList[tokenCount - 1].line == tokenList[tokenCount].line) ||
-                        (tokenList[tokenCount - 1].line < tokenList[tokenCount].line)))
-                {
-                    actualToken = tokenList[tokenCount - 2];
-                }
-            }
-        }
-
         private void throwError(CompiladorException exception, int errorType)
         {
-            //errorLineCheck();
             errorToken = new Token(actualToken.lexem, actualToken.line, errorType);
             throw exception;
         }
 
         private void throwError(CompiladorException exception, int errorType, int errorLine)
         {
-            //errorLineCheck();
             errorToken = new Token(actualToken.lexem, errorLine, errorType);
             throw exception;
         }
@@ -177,10 +171,19 @@ namespace Compilador
             analisaEtVariaveis();
             analisaSubRotinas();
             analisaComandos();
+
+            if (createdVarsLocally.Pop())
+            {
+                int totalVarsPopped = totalVarsCreatedLocally.Pop();
+                totalVariables -= totalVarsPopped;
+                CodeGenerator.gera(EMPTY_STRING, DALLOC, totalVariables.ToString(), totalVarsPopped.ToString());
+            }
         }
 
         private void analisaEtVariaveis()
         {
+            declaredVar = false;
+
             if (!hasEndedTokens && isSimbol(VAR))
             {
                 updateToken();
@@ -206,17 +209,21 @@ namespace Compilador
                     throwError(new CompiladorException(ERRO_SINTATICO), ERRO_NOME);
                 }
             }
+
+            createdVarsLocally.Push(declaredVar);
         }
 
         private void analisaVariaveis()
         {
+            int varsCreated = 0;
             do
             {
                 if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                 {
-                    if (!semantico.pesquisaDuplicVarTabela(actualToken.lexem))
+                    if (!Semantico.pesquisaDuplicVarTabela(actualToken.lexem))
                     {
-                        semantico.insereTabela(actualToken.lexem, NOME_VARIAVEL, 0);
+                        Semantico.insereTabela(actualToken.lexem, NOME_VARIAVEL, totalVariables + varsCreated);
+                        varsCreated++;
 
                         updateToken();
 
@@ -250,6 +257,11 @@ namespace Compilador
 
             updateToken();
 
+            declaredVar = true;
+            totalVarsCreatedLocally.Push(varsCreated);
+            CodeGenerator.gera(EMPTY_STRING, ALLOC, totalVariables.ToString(), varsCreated.ToString());
+            totalVariables += varsCreated;
+
             analisaTipo();
         }
 
@@ -261,7 +273,7 @@ namespace Compilador
             }
             else
             {
-                semantico.colocaTipoTabela(isSimbol(INTEIRO) ? TIPO_INTEIRO : TIPO_BOOLEANO);
+                Semantico.colocaTipoTabela(isSimbol(INTEIRO) ? TIPO_INTEIRO : TIPO_BOOLEANO);
                 updateToken();
             }
         }
@@ -292,8 +304,9 @@ namespace Compilador
                     }
                     else
                     {
-                        throwError(new CompiladorException(ERRO_SINTATICO), ERRO_CARACTER);
+                        throwError(new CompiladorException(ERRO_SINTATICO), ERRO_PV);
                     }
+                    
                 }
 
                 returnAlreadyMade = false;
@@ -302,7 +315,7 @@ namespace Compilador
             }
             else
             {
-                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_FALTA_DPS);
+                throwError(new CompiladorException(ERRO_SINTATICO), ERRO_BLOCO);
             }
 
         }
@@ -352,8 +365,22 @@ namespace Compilador
 
                 if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                 {
-                    if (semantico.pesquisaDeclVarFuncTabela(actualToken.lexem))
+                    if (Semantico.pesquisaDeclVarFuncTabela(actualToken.lexem))
                     {
+                        Struct identifierStruct = Semantico.pesquisaTabela(actualToken.lexem, 0);
+
+                        if (identifierStruct.nome.Equals(NOME_FUNCAO))
+                        {
+                            CodeGenerator.gera(EMPTY_STRING, CALL, identifierStruct.rotulo.ToString(), EMPTY_STRING);
+                            CodeGenerator.gera(EMPTY_STRING, LDV, FUNCTION_RETURN_LABEL, EMPTY_STRING);
+                        }
+                        else
+                        {
+                            CodeGenerator.gera(EMPTY_STRING, LDV, identifierStruct.rotulo.ToString(), EMPTY_STRING);
+                        }
+                        
+                        CodeGenerator.gera(EMPTY_STRING, PRN, EMPTY_STRING, EMPTY_STRING);
+
                         updateToken();
 
                         if (!hasEndedTokens && isSimbol(FECHA_PARENTESES))
@@ -391,8 +418,10 @@ namespace Compilador
 
                 if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
                 {
-                    if (semantico.pesquisaDeclVarTabela(actualToken.lexem))
+                    if (Semantico.pesquisaDeclVarTabela(actualToken.lexem))
                     {
+                        CodeGenerator.gera(EMPTY_STRING, RD, EMPTY_STRING, EMPTY_STRING);
+                        CodeGenerator.gera(EMPTY_STRING, STR, Semantico.pesquisaTabela(actualToken.lexem, 0).rotulo.ToString(), EMPTY_STRING);
                         updateToken();
 
                         if (!hasEndedTokens && isSimbol(FECHA_PARENTESES))
@@ -425,17 +454,17 @@ namespace Compilador
             int auxrot1, auxrot2;
 
             auxrot1 = rotulo;
-            CodeGenerator.gera(rotulo.ToString(), NULL, EMPTY_STRING, EMPTY_STRING);
+            CodeGenerator.gera(auxrot1.ToString(), NULL, EMPTY_STRING, EMPTY_STRING);
             rotulo++;
 
             updateToken();
 
-            semantico.cleanExpression();
+            Semantico.cleanExpression();
             analisaExpressao();
 
             try
             {
-                returnType = semantico.analyzeExpression();
+                returnType = Semantico.analyzeExpression();
             }
             catch (CompiladorException e)
             {
@@ -448,16 +477,13 @@ namespace Compilador
             }
             else
             {
-                //para usar a lista use posfixExpression, para ter a string completa use finalPosFixExpression
-                List<string> posFixExpression = semantico.getPosFixExpression();
-
-                //TODO GERAR CODIGO PARA A POSFIXA
+                CodeGenerator.geraCodeExpression(Semantico.getPosFixExpression());
             }
 
             if (!hasEndedTokens && isSimbol(FACA))
             {
                 auxrot2 = rotulo;
-                CodeGenerator.gera(EMPTY_STRING, JMPF, rotulo.ToString(), EMPTY_STRING);
+                CodeGenerator.gera(EMPTY_STRING, JMPF, auxrot2.ToString(), EMPTY_STRING);
                 rotulo++;
 
                 updateToken();
@@ -477,34 +503,37 @@ namespace Compilador
 
         private void analisaSe()
         {
+            int auxrot1=0, auxrot2=0;
+
             updateToken();
 
-            semantico.cleanExpression();
+            Semantico.cleanExpression();
             analisaExpressao();
+
+            try
+            {
+                returnType = Semantico.analyzeExpression();
+            }
+            catch (CompiladorException e)
+            {
+                throwError(e, ANALYZING_EXPRESSION_ERROR, analyzeExpressionStarterLine);
+            }
+
+            if (!returnType.Equals(TIPO_BOOLEANO))
+            {
+                throwError(new CompiladorException(ERRO_SEMANTICO), EXPRESSION_MUST_BE_BOOL, analyzeExpressionStarterLine);
+            }
+            else
+            {
+                CodeGenerator.geraCodeExpression(Semantico.getPosFixExpression());
+
+                auxrot1 = rotulo;
+                CodeGenerator.gera(EMPTY_STRING, JMPF, auxrot1.ToString(), EMPTY_STRING);
+                rotulo++;
+            }
 
             if (!hasEndedTokens && isSimbol(ENTAO))
             {
-                try
-                {
-                    returnType = semantico.analyzeExpression();
-                }
-                catch (CompiladorException e)
-                {
-                    throwError(e, ANALYZING_EXPRESSION_ERROR, analyzeExpressionStarterLine);
-                }
-
-                if (!returnType.Equals(TIPO_BOOLEANO))
-                {
-                    throwError(new CompiladorException(ERRO_SEMANTICO), EXPRESSION_MUST_BE_BOOL, analyzeExpressionStarterLine);
-                }
-                else
-                {
-                    //para usar a lista use posfixExpression, para ter a string completa use finalPosFixExpression
-                    List<string> posFixExpression = semantico.getPosFixExpression();
-
-                    //TODO GERAR CODIGO PARA A POSFIXA
-                }
-
                 bool entaoReturnMade = false;
                 bool senaoReturnMade = false;
                 
@@ -518,12 +547,22 @@ namespace Compilador
 
                     if (!hasEndedTokens && isSimbol(SENAO))
                     {
+                        auxrot2 = rotulo;
+                        CodeGenerator.gera(EMPTY_STRING, JMP, auxrot2.ToString(), EMPTY_STRING);
+                        CodeGenerator.gera(auxrot1.ToString(), NULL, EMPTY_STRING, EMPTY_STRING);
+                        rotulo++;
+
                         returnAlreadyMade = false;
                         updateToken();
 
                         analisaComandoSimples();
 
+                        CodeGenerator.gera(auxrot2.ToString(), NULL, EMPTY_STRING, EMPTY_STRING);
                         senaoReturnMade = returnMade;
+                    }
+                    else
+                    {
+                        CodeGenerator.gera(auxrot1.ToString(), NULL, EMPTY_STRING, EMPTY_STRING);
                     }
 
                     returnMade = entaoReturnMade && senaoReturnMade;
@@ -533,8 +572,19 @@ namespace Compilador
                 {
                     if (!hasEndedTokens && isSimbol(SENAO))
                     {
+                        auxrot2 = rotulo;
+                        CodeGenerator.gera(EMPTY_STRING, JMP, auxrot2.ToString(), EMPTY_STRING);
+                        CodeGenerator.gera(auxrot1.ToString(), NULL, EMPTY_STRING, EMPTY_STRING);
+                        rotulo++;
+
                         updateToken();
                         analisaComandoSimples();
+
+                        CodeGenerator.gera(auxrot2.ToString(), NULL, EMPTY_STRING, EMPTY_STRING);
+                    }
+                    else
+                    {
+                        CodeGenerator.gera(auxrot1.ToString(), NULL, EMPTY_STRING, EMPTY_STRING);
                     }
                 }
             }
@@ -547,7 +597,7 @@ namespace Compilador
         private void analisaAtribChamadaProc()
         {
             tokenAtribuicao = actualToken;
-            structReceivedForAssignment = semantico.pesquisaTabela(tokenAtribuicao.lexem, 0);
+            structReceivedForAssignment = Semantico.pesquisaTabela(tokenAtribuicao.lexem, 0);
 
             if (structReceivedForAssignment == null)
             {
@@ -607,7 +657,14 @@ namespace Compilador
             }
             else
             {
-                analisaChamadaProcedimento();
+                if (structReceivedForAssignment.nome.Equals(NOME_PROCEDIMENTO))
+                {
+                    analisaChamadaProcedimento(structReceivedForAssignment);
+                }
+                else
+                {
+                    throwError(new CompiladorException(ERRO_SEMANTICO), INVALID_PROC_CALL);
+                }
             }
         }
 
@@ -618,7 +675,7 @@ namespace Compilador
 
             if (!hasEndedTokens && (isSimbol(PROCEDIMENTO) || isSimbol(FUNCAO)))
             {
-                CodeGenerator.gera(EMPTY_STRING, JMP, rotulo.ToString(), EMPTY_STRING);
+                CodeGenerator.gera(EMPTY_STRING, JMP, auxrot.ToString(), EMPTY_STRING);
                 rotulo++;
                 flag = 1;
             }
@@ -636,6 +693,7 @@ namespace Compilador
 
                 if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
                 {
+                    CodeGenerator.gera(EMPTY_STRING, RETURN, EMPTY_STRING, EMPTY_STRING);
                     updateToken();
                 }
                 else
@@ -656,13 +714,13 @@ namespace Compilador
 
             if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
             {
-                if (!semantico.pesquisaDeclProcTabela(actualToken.lexem))
+                if (!Semantico.pesquisaDeclProcTabela(actualToken.lexem))
                 {
-                    semantico.insereTabela(actualToken.lexem, NOME_PROCEDIMENTO, rotulo);
+                    Semantico.insereTabela(actualToken.lexem, NOME_PROCEDIMENTO, rotulo);
                     CodeGenerator.gera(rotulo.ToString(), NULL, EMPTY_STRING, EMPTY_STRING);
                     rotulo++;
 
-                    semantico.increaseLevel();
+                    Semantico.increaseLevel();
                     updateToken();
 
                     if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
@@ -684,7 +742,7 @@ namespace Compilador
                 throwError(new CompiladorException(ERRO_SINTATICO), ERRO_FALTA);
             }
 
-            semantico.voltaNivel();
+            Semantico.voltaNivel();
         }
 
         private void analisaDeclaracaoFuncao()
@@ -695,13 +753,13 @@ namespace Compilador
             {
                 actualFunctionName.Push(actualToken.lexem);
 
-                if (!semantico.pesquisaDeclFuncTabela(actualToken.lexem))
+                if (!Semantico.pesquisaDeclFuncTabela(actualToken.lexem))
                 {
-                    semantico.insereTabela(actualToken.lexem, NOME_FUNCAO, rotulo);
-                    CodeGenerator.gera(rotulo.ToString(), NULL, EMPTY_STRING, EMPTY_STRING);//TODO: CHECK IF THIS IS RIGHT
+                    Semantico.insereTabela(actualToken.lexem, NOME_FUNCAO, rotulo);
+                    CodeGenerator.gera(rotulo.ToString(), NULL, EMPTY_STRING, EMPTY_STRING);
                     rotulo++;
 
-                    semantico.increaseLevel();
+                    Semantico.increaseLevel();
                     functionLine.Push(actualToken.line);
                     updateToken();
 
@@ -712,7 +770,7 @@ namespace Compilador
                         if (!hasEndedTokens && (isSimbol(INTEIRO) || isSimbol(BOOLEANO)))
                         {
                             string type = isSimbol(INTEIRO) ? TIPO_INTEIRO : TIPO_BOOLEANO;
-                            semantico.colocaTipoTabela(type);
+                            Semantico.colocaTipoTabela(type);
                             updateToken();
 
                             if (!hasEndedTokens && isSimbol(PONTO_VIRGULA))
@@ -750,7 +808,7 @@ namespace Compilador
                 throwError(new CompiladorException(ERRO_SINTATICO), ERRO_NOME);
             }
 
-            semantico.voltaNivel();
+            Semantico.voltaNivel();
         }
 
         private void analisaExpressao()
@@ -765,7 +823,7 @@ namespace Compilador
             while (!hasEndedTokens &&
                 (isSimbol(MAIOR) || isSimbol(MAIORIG) || isSimbol(IGUAL) || isSimbol(MENOR) || isSimbol(MENORIG) || isSimbol(DIF)))
             {
-                semantico.addCharToExpression(actualToken);
+                Semantico.addCharToExpression(actualToken);
                 updateToken();
 
                 analisaExpressaoSimples();
@@ -776,7 +834,7 @@ namespace Compilador
         {
             if (!hasEndedTokens && (isSimbol(MAIS) || isSimbol(MENOS)))
             {
-                semantico.addCharToExpression(actualToken);
+                Semantico.addCharToExpression(new Token(actualToken.simbol, actualToken.lexem+"u", actualToken.line));
                 updateToken();
             }
 
@@ -784,7 +842,7 @@ namespace Compilador
 
             while (!hasEndedTokens && (isSimbol(MAIS) || isSimbol(MENOS) || isSimbol(OU)))
             {
-                semantico.addCharToExpression(actualToken);
+                Semantico.addCharToExpression(actualToken);
                 updateToken();
 
                 analisaTermo();
@@ -797,7 +855,7 @@ namespace Compilador
 
             while (!hasEndedTokens && (isSimbol(MULTI) || isSimbol(DIV) || isSimbol(E)))
             {
-                semantico.addCharToExpression(actualToken);
+                Semantico.addCharToExpression(actualToken);
                 updateToken();
 
                 analisaFator();
@@ -808,11 +866,11 @@ namespace Compilador
         {
             if (!hasEndedTokens && isSimbol(IDENTIFICADOR))
             {
-                Struct actualItem = semantico.pesquisaTabela(actualToken.lexem, 0);
+                Struct actualItem = Semantico.pesquisaTabela(actualToken.lexem, 0);
 
                 if (actualItem != null)
                 {
-                    semantico.addCharToExpression(actualToken);
+                    Semantico.addCharToExpression(actualToken);
 
                     if (actualItem.tipo == TIPO_INTEIRO || actualItem.tipo == TIPO_BOOLEANO)
                     {
@@ -830,12 +888,12 @@ namespace Compilador
             }
             else if (!hasEndedTokens && isSimbol(NUMERO))
             {
-                semantico.addCharToExpression(actualToken);
+                Semantico.addCharToExpression(actualToken);
                 updateToken();
             }
             else if (!hasEndedTokens && isSimbol(NAO))
             {
-                semantico.addCharToExpression(actualToken);
+                Semantico.addCharToExpression(actualToken);
                 updateToken();
 
                 analisaFator();
@@ -843,7 +901,7 @@ namespace Compilador
             else if (!hasEndedTokens && isSimbol(ABRE_PARENTESES))
             {
                 parentesisCount++;
-                semantico.addCharToExpression(actualToken);
+                Semantico.addCharToExpression(actualToken);
                 updateToken();
 
                 analisaExpressao();
@@ -851,17 +909,17 @@ namespace Compilador
                 if (!hasEndedTokens && isSimbol(FECHA_PARENTESES))
                 {
                     parentesisCount--;
-                    semantico.addCharToExpression(actualToken);
+                    Semantico.addCharToExpression(actualToken);
                     updateToken();
                 }
-                else
+                else 
                 {
                     throwError(new CompiladorException(ERRO_SINTATICO), ERRO_PARENTESIS);
                 }
             }
             else if (!hasEndedTokens && (isSimbol(VERDADEIRO) || isSimbol(FALSO)))
             {
-                semantico.addCharToExpression(actualToken);
+                Semantico.addCharToExpression(actualToken);
                 updateToken();
             }
             else
@@ -870,9 +928,9 @@ namespace Compilador
             }
         }
 
-        private void analisaChamadaProcedimento()
+        private void analisaChamadaProcedimento(Struct structReceivedForAssignment)
         {
-            //nao faz nada
+            CodeGenerator.gera(EMPTY_STRING, CALL, structReceivedForAssignment.rotulo.ToString(), EMPTY_STRING);
         }
 
         private void analisaChamadaFuncao()
@@ -884,12 +942,12 @@ namespace Compilador
         {
             updateToken();
 
-            semantico.cleanExpression();
+            Semantico.cleanExpression();
             analisaExpressao();
 
             try
             {
-                returnType = semantico.analyzeExpression();
+                returnType = Semantico.analyzeExpression();
             }
             catch (CompiladorException e)
             {
@@ -909,10 +967,16 @@ namespace Compilador
             }
             else
             {
-                //para usar a lista use posfixExpression, para ter a string completa use finalPosFixExpression
-                List<string> posFixExpression = semantico.getPosFixExpression();
+                CodeGenerator.geraCodeExpression(Semantico.getPosFixExpression());
+            }
 
-                //TODO GERAR CODIGO PARA A POSFIXA
+            if (structReceivedForAssignment.nome.Equals(NOME_FUNCAO))
+            {
+                CodeGenerator.gera(EMPTY_STRING, STR, FUNCTION_RETURN_LABEL, EMPTY_STRING);
+            }
+            else
+            {
+                CodeGenerator.gera(EMPTY_STRING, STR, structReceivedForAssignment.rotulo.ToString(), EMPTY_STRING);
             }
         }
     }

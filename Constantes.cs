@@ -75,6 +75,7 @@
         public const int EXPRESSION_MUST_BE_INT = 15;
         public const int ANALYZING_EXPRESSION_ERROR = 16;
         public const int UNREACHABLE_CODE = 17;
+        public const int INVALID_PROC_CALL = 18;
 
         
         public const string ERROR_MESSAGE_INT_UNARY = "Operacao unaria +/- deve ser feita com tipo inteiro";
@@ -115,6 +116,8 @@
         public const string CALL = "CALL";
         public const string RETURN = "RETURN";
 
+        public const string FUNCTION_RETURN_LABEL = "0";
+
         public const int ERRO_PV = 1;
         public const int ERRO_FALTA = 2;
         public const int ERRO_NOME = 3;
@@ -122,13 +125,14 @@
         public const int ERRO_INICIO = 5;
         public const int ERRO_PARENTESIS = 6;
         public const int ERRO_MAIS = 7;
-        public const int ERRO_PONTO = 8;
+        public const int ERRO_PONTO_MEIO = 8;
         public const int ERRO_CARACTER = 9;
         public const int ERRO_CORPO = 10;
         public const int ERRO_VAR = 11;
         public const int ERRO_DOIS_PONTOS = 12;
-        public const int ERRO_VAR_ONDE = 13;
-        public const int ERRO_FALTA_DPS = 14;
+        public const int ERRO_ATRIBUICAO = 13;
+        public const int ERRO_BLOCO = 14;
+        public const int ERRO_PONTO_FALTA = 15;
 
     }
 }

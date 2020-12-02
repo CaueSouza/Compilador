@@ -24,25 +24,19 @@ namespace Compilador
 
         private void addLineNumbers()
         {
-            // create & set Point pt to (0,0)    
             Point pt = new Point(0, 0);
-            // get First Index & First Line from richTextBox1    
+
             int First_Index = richTextBox1.GetCharIndexFromPosition(pt);
             int First_Line = richTextBox1.GetLineFromCharIndex(First_Index);
-            // set X & Y coordinates of Point pt to ClientRectangle Width & Height respectively    
+
             pt.X = ClientRectangle.Width;
             pt.Y = ClientRectangle.Height;
 
-            // get Last Index & Last Line from richTextBox1    
             int Last_Index = richTextBox1.GetCharIndexFromPosition(pt);
             int Last_Line = richTextBox1.GetLineFromCharIndex(Last_Index);
-            // set Center alignment to LineNumberTextBox    
             LineNumberTextBox.SelectionAlignment = HorizontalAlignment.Right;
-            // set LineNumberTextBox text to null & width to getWidth() function value    
             LineNumberTextBox.Text = "";
 
-            //LineNumberTextBox.Width = getWidth();
-            // now add each line number to LineNumberTextBox upto last line   
             for (int i = First_Line; i < Last_Line + 1; i++)
             {
                 LineNumberTextBox.Text += i + 1 + "\n";
@@ -113,7 +107,9 @@ namespace Compilador
         {
             try
             {
-                sintatico.executeSintatico(lexico.getTokens(), semantico);
+                sintatico.executeSintatico(lexico.getTokens());
+                fileReader.saveCompilerResponse(CodeGenerator.getVMCommands());
+
                 return true;
             }
             catch (CompiladorException exception)
@@ -154,7 +150,7 @@ namespace Compilador
                                 break;
 
                             case ERRO_FALTA:                      
-                                richTextBox2.Text += "Falta caracter ou comando errado na linha " + errorToken.line + "\n";
+                                richTextBox2.Text += "Falta caracter ou comando na linha " + errorToken.line + "\n";
                                 break;
 
                             case ERRO_INICIO:                   
@@ -173,7 +169,7 @@ namespace Compilador
                                 richTextBox2.Text += "Linha com caracter a mais na linha " + errorToken.line + "\n";
                                 break;
 
-                            case ERRO_PONTO:        
+                            case ERRO_PONTO_MEIO:        
                                 richTextBox2.Text += "Ponto final apenas na última linha e não na linha " + errorToken.line + "\n";
                                 break;
 
@@ -191,11 +187,14 @@ namespace Compilador
                                 richTextBox2.Text += "Espera-se ' : ' após a última variável e não ' " + errorToken.lexem + 
                                     " ' na linha " + errorToken.line + "\n";
                                 break;
-                            case ERRO_VAR_ONDE:
-                                richTextBox2.Text += "Não há variáveis declaradas após a linha " + errorToken.line + "\n";
+                            case ERRO_ATRIBUICAO:
+                                richTextBox2.Text += "Espera-se ' := ' e não ' " + errorToken.lexem + " ' após a variável na linha " + errorToken.line + "\n";
                                 break;
-                            case ERRO_FALTA_DPS:
-                                richTextBox2.Text += "Falta comando após a linha " + errorToken.line + "\n";
+                            case ERRO_BLOCO:
+                                richTextBox2.Text += "Caracter encontrado ' " + errorToken.lexem + " '. Não é possível continuar sem pelo menos 'var', 'procedimento', 'função' ou 'inicio' após o ponto e vírgula da linha " + errorToken.line + "\n";
+                                break;
+                            case ERRO_PONTO_FALTA:
+                                richTextBox2.Text += "Falta ponto final no fim da linha " + errorToken.line + "\n";
                                 break;
                         }
                         break;
@@ -255,6 +254,9 @@ namespace Compilador
                                 break;
                             case UNREACHABLE_CODE:
                                 richTextBox2.Text += "Funcao da linha " + errorToken.line + " possui codigo inalcançavel\n";
+                                break;
+                            case INVALID_PROC_CALL:
+                                richTextBox2.Text += "Somente pode ser chamado procedimentos na linha " + errorToken.line + "\n";
                                 break;
                         }
                         break;
