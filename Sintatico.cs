@@ -28,8 +28,8 @@ namespace Compilador
         private bool returnAlreadyMade = false;
         private int totalVariables = 0;
         private Stack<int> totalVarsCreatedLocally = new Stack<int>();
-        private Stack<bool> createdVarsLocally = new Stack<bool>();
-        private bool declaredVar = false;
+        private Stack<int> createdVarsLocally = new Stack<int>();
+        private int declaredVar = 0;
 
         private void resetValidators()
         {
@@ -54,7 +54,7 @@ namespace Compilador
             totalVariables = 0;
             CodeGenerator.cleanCommands();
             totalVarsCreatedLocally.Clear();
-            declaredVar = false;
+            declaredVar = 0;
         }
 
         public void executeSintatico(List<Token> tokens)
@@ -172,17 +172,20 @@ namespace Compilador
             analisaSubRotinas();
             analisaComandos();
 
-            if (createdVarsLocally.Pop())
+            int totalCreatedLocally = createdVarsLocally.Pop();
+
+            while (totalCreatedLocally > 0)
             {
                 int totalVarsPopped = totalVarsCreatedLocally.Pop();
                 totalVariables -= totalVarsPopped;
                 CodeGenerator.gera(EMPTY_STRING, DALLOC, totalVariables.ToString(), totalVarsPopped.ToString());
+                totalCreatedLocally--;
             }
         }
 
         private void analisaEtVariaveis()
         {
-            declaredVar = false;
+            declaredVar = 0;
 
             if (!hasEndedTokens && isSimbol(VAR))
             {
@@ -257,7 +260,7 @@ namespace Compilador
 
             updateToken();
 
-            declaredVar = true;
+            declaredVar++;
             totalVarsCreatedLocally.Push(varsCreated);
             CodeGenerator.gera(EMPTY_STRING, ALLOC, totalVariables.ToString(), varsCreated.ToString());
             totalVariables += varsCreated;

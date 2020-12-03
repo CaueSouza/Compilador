@@ -203,9 +203,7 @@ namespace Compilador
         public static string analyzeExpression()
         {
             convertExpressionToPosFix();
-            string expResult = validateExpressionReturnType();
-
-            return expResult;
+            return validateExpressionReturnType();
         }
 
         private static void convertExpressionToPosFix()
@@ -238,7 +236,7 @@ namespace Compilador
 
                             if (myPriority <= topStackPriority)
                             {
-                                if (!expression[i].Equals("nao") && !posFixStack.Peek().Equals("nao"))
+                                if (!expression[i].Equals("nao") || !posFixStack.Peek().Equals("nao"))
                                 {
                                     try
                                     {
@@ -253,7 +251,7 @@ namespace Compilador
 
                                     }
                                 }
-                                
+
                                 posFixStack.Push(expression[i]);
                             }
                             else
