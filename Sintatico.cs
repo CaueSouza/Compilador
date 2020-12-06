@@ -142,7 +142,7 @@ namespace Compilador
 
             if (actualToken.isError)
             {
-                throwError(new CompiladorException(ERRO_LEXICO), ERRO_CARACTER);
+                throwError(new CompiladorException(ERRO_LEXICO), actualToken.errorType);
             }
         }
 

@@ -135,12 +135,6 @@ namespace Compilador
             }
         }
 
-        private Token createUnderlineErrorToken(int errorLine, int errorType)
-        {
-            notEOF = false;
-            return new Token(actualChar.ToString(), errorLine, errorType);
-        }
-
         private void createErrorToken(int errorLine, int errorType)
         {
             notEOF = false;
@@ -213,11 +207,12 @@ namespace Compilador
             {
                 if (actualChar.Equals('_'))
                 {
-                    return createUnderlineErrorToken(lineCount, IDENTIFICADOR_COM_UNDERLINE);
+                    notEOF = false;
+                    return new Token(actualChar.ToString(), lineCount, IDENTIFICADOR_COM_UNDERLINE);
                 }
                 else
                 {
-                    return new Token(actualChar.ToString(), lineCount, 2);
+                    return new Token(actualChar.ToString(), lineCount, CARACTER_ERROR);
                 }
                 
             }
@@ -389,13 +384,13 @@ namespace Compilador
                         readCaracter();
                         return new Token(DIF, relacional + caracter, lineCount);
                     }
-                    else return new Token(relacional.ToString(), lineCount, 2);
+                    else return new Token(relacional.ToString(), lineCount, CARACTER_ERROR);
 
                 case "=":
                     return new Token(IGUAL, relacional, lineCount);
 
                 default:
-                    return new Token(relacional.ToString(), lineCount, 3);
+                    return new Token(relacional.ToString(), lineCount, CARACTER_ERROR);
             }
         }
 

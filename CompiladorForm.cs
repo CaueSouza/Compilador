@@ -12,7 +12,6 @@ namespace Compilador
         private bool pintado = false;
         private Lexico lexico = new Lexico();
         private Sintatico sintatico = new Sintatico();
-        private Semantico semantico = new Semantico();
         private int lastIndex = 0;
         private int lastLength = 0;
 
