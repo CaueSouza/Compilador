@@ -106,16 +106,6 @@ namespace Compilador
 			}
 		}
 
-		public void display()
-		{
-			for (int i = 0; i <= top; i++)
-			{
-				Console.WriteLine(array[i] + "=>");
-			}
-			Console.WriteLine();
-			Console.WriteLine("ARRAY SIZE:" + array.Length);
-		}
-
 		public void cleanStack()
 		{
 			top = -1;
